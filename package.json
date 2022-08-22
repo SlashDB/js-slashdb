@@ -1,0 +1,21 @@
+{
+  "name": "@slashdb/js-sdk",
+  "version": "1.0.0",
+  "description": "Vanilla Javascript SDK for SlashDB development",
+  "main": "slashdb_sdk.js",
+  "scripts": {
+    "test": "jest",
+    "start": "http-server -c-1 -p 8080"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/plugin-transform-modules-commonjs": "^7.18.6",
+    "jest": "^28.1.3",
+    "http-server": "^14.1.1"
+  },
+  "dependencies": {
+    "dom-parser": "^0.1.6",
+    "node-fetch": "^2.6.7"
+  }
+}
