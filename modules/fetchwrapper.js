@@ -18,14 +18,11 @@
     onlyRes
   ) {
 
-    let apiKeyValue;    // set this for now..fix later
     const requestOptions = {
       method: `${httpMethod}`,
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
-        Accept: 'application/json',
-        apikey: apiKeyValue !== undefined ? apiKeyValue : null,
         ...headers,
       },
       body: body !== undefined ? JSON.stringify(body) : null,
@@ -63,7 +60,7 @@ async function handleResponse(response) {
       try {
           data = text && JSON.parse(text);
       }
-      // for urls that aren't JSON data - eg /version.txt, /license - return the raw data
+      // for urls that aren't JSON data return the raw data
       catch(e) {
           if (e instanceof SyntaxError) {
               data = text;

@@ -2,42 +2,125 @@
 <head>
 <script type="module">
     import  { SlashDBClient } from './modules/slashdbclient.js';
-    import { fetchWrapper } from './modules/fetchwrapper.js';
-    import { QueryBuilder, eq, any, between, gte, lte, not, and, desc } from './modules/querybuilder.js';
+    import { DataDiscoveryResource, DataDiscoveryDatabase } from './modules/datadiscovery.js';
+    import { DataDiscoveryFilter, eq, any, between, gte, lte, not, and, desc, asc } from './modules/datadiscoveryfilter.js';
 
 
-    // create an SDB client and login
-    const sdb1 = new SlashDBClient('http://192.168.1.16:8000', 'admin', 'gez0bk949rhwpcjdxqqsn8w9g4iec709');
+    // make methods, modules, available to console for debugging
+    window.DataDiscoveryFilter = DataDiscoveryFilter
+    window.eq = eq
+    window.any = any
+    window.gte = gte
+    window.lte = lte
+    window.not = not
+    window.and = and
+    window.desc = desc
+    window.asc = asc
+
+
+    window.SlashDBClient = SlashDBClient
+    window.DataDiscoveryResource = DataDiscoveryResource
+    
+
+    let q2 = new DataDiscoveryFilter(eq("Country","Canada")).addFilter(and(eq("ZIP","78501"),any("Name","A","B","C"))).join("Invoice").addFilter(eq("Country","USA")).addFilter(eq("State","Texas"))
+    console.log(q2)
+
+    //create an SDB client and login
+    const sdb1 = new SlashDBClient('http://192.168.1.19:8000', 'admin', 'gez0bk949rhwpcjdxqqsn8w9g4iec709');
+    const sdb2 = new SlashDBClient('http://192.168.1.20:9999', 'admin', 'gez0bk949rhwpcjdxqqsn8w9g4iec709');
     sdb1.login();
-    console.log('Logged in status: ', await sdb1.isAuthenticated())
+    console.log('Logged in status:', await sdb1.isAuthenticated())
     
     // get some config info etc from the connected host
+    console.log('---------------------------------------------------------------------------------\n')
+    console.log('** Config')
     console.log('Settings --');
-    console.log(await sdb1.getSettings().then(r => r[0]));
+    console.log(await sdb1.getSettings());
     console.log('Version --');
-    console.log(await sdb1.getVersion().then(r => r['version'][0]));
-    console.log('Load model taskdatadb --');
-    console.log(await sdb1.loadModel('taskdatadb').then(r => r[0]));
+    console.log(await sdb1.getVersion());
     console.log('Unload model taskdatadb --');
-    console.log(await sdb1.unloadModel('taskdatadb').then(r => r[0]));
+    console.log(await sdb1.unloadModel('taskdatadb'));
+    console.log('Load model taskdatadb --');
+    console.log(await sdb1.loadModel('taskdatadb'));
     console.log('User details for user taskapp -- ')
-    console.log(await sdb1.getUser('taskapp').then(r => r[0]));
+    console.log(await sdb1.getUser('taskapp'));
     console.log('Reflect Status for Chinook --');
-    console.log(await sdb1.getReflectStatus('Chinook').then(r => r[0]));
+    console.log(await sdb1.getReflectStatus('Chinook'));
     console.log('DB definition for Chinook --');
-    console.log(await sdb1.getDbDef('Chinook').then(r => r[0]));
+    console.log(await sdb1.getDbDef('Chinook'));
     console.log('Query definition for add-new-customer --');
-    console.log(await sdb1.getQueryDef('add-new-customer').then(r => r[0]));
-    
+    console.log(await sdb1.getQueryDef('add-new-customer'));
+    console.log('---------------------------------------------------------------------------------\n')
+
+    let q1 = new DataDiscoveryFilter().addFilter(any('FirstName','J*,H*')).addFilter(eq('Country','USA')).sort('FirstName',desc('LastName'))
+    console.log(q1)
+
+
+
     // create a data discovery object and run a query
-    console.log('\n Data discovery query');
-    let dd1 = sdb1.dataDiscoveryFactory('Chinook')
+    console.log('** Data discovery');
 
-    let q1 = new QueryBuilder("Customer").addFilter(any('FirstName','J*,H*')).addFilter(eq('Country','USA')).sort('FirstName',desc('LastName'))
-    console.log(q1.str())
+    console.log('option1 -- ')
+    let dbs = await sdb1.getDatabases()
+    console.log(dbs);
+    let chinookdb = dbs['Chinook']
+    let chinook_res = await chinookdb.getDataDiscoveryResources();
+    console.log(chinook_res);
+    let cust_res = chinook_res['Customer']
+    console.log(cust_res)
+    let r = await cust_res.accept('csv').get(eq("FirstName","J*"))
+    console.log(await r[0])
+    r = await cust_res.get(q1)
+    console.log(await r[0])
+    
+    console.log('\noption2 -- ')
+    chinookdb = new DataDiscoveryDatabase(sdb1, 'Chinook')
+    cust_res = new DataDiscoveryResource(chinookdb,'Customer');
+    r = await cust_res.get(eq("FirstName","F*"))
+    console.log(await r[0])    
+    r = await cust_res.get(q1)
+    console.log(await r[0])
 
-    let r = await dd1.get(q1.str() )
-    r[0].then(d => console.log(d))
+
+
+
+
+    /***** here be dragons, this stuff may/may not work at this point ***/
+    //let r = await cust_res.get(q1.str())
+    //console.log(await r[0])
+    // let dbs = sdb1.dataDiscoveryFactory('Chinook','taskappdata');
+    // let dbs2 = sdb2.dataDiscoveryFactory('Chinook','taskappdata');
+
+    // // console.log(dbs);
+    // // console.log(dbs2);
+
+    
+    // //dd1 = DataDiscovery('Chinook)
+    // let q1 = new DataDiscoveryFilter("Customer").addFilter(any('FirstName','J*,H*')).addFilter(eq('Country','USA')).sort('FirstName',desc('LastName'))
+    // //dd1.get(q1)) // get Chinook/Customer/,....
+    // //console.log(q1.str())
+
+    // let r = await dbs.Chinook.get(q1.str() )
+    // r[0].then(d => console.log(d));
+
+
+    // dbs.Chinook.accept('csv');
+    // r = await dbs.Chinook.get(q1.str() )
+    // r[0].then(d => console.log('---------\n',d));
+  
+    // window.dbs = await sdb1.getDataDiscoveryResources()
+    // console.log(window.dbs); 
+    // //r = await(await window.dbs.Chinook.accept('csv').get(q1.str() ))[0]//).then(r => r[0]).then(r => r)
+    // //console.log('---------\n',r)
+    
+    
+    
+    // let r = await sdb1.Chinook.get(q1.str() )
+    // r[0].then(d => console.log(d));
+    
+
+    //setTimeout( x => { sdb1.chinook.accept('text/csv'); console.log(sdb1.chinook.get(q1.str())); console.log(sdb1.chinook) }, 3000)
+
 
 </script>
 
