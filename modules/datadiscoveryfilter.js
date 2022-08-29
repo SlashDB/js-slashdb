@@ -4,7 +4,7 @@
 	customerFirstName = eq("FirstName","A*")
 	customerCountry = eq("Country","Brazil")
 	
-	q1 = new QueryBuilder("GET","Customer",customerFirstName)									// create the query object for the Customer resource, with an initial filter expression if desired
+	q1 = new DataDiscoveryFilter(customerFirstName)												// create the filter object for the first resource, with an initial filter expression if desired
 	q1 = q1.addFilter(customerCountry)															// add the second filter expression, previously stored in a variable
 		.addFilter(any("City","Brasília","São Paulo"))											// add another filter expression in-line
 		.join("Invoice")																		// join a related resource
@@ -25,7 +25,19 @@
 
 // the default delimiter for any()
 let SDB_SEPARATOR = '|SDBSEP|';
-let SDB_WILDCARD = '*';
+
+// in the highly unlikely event a different separator token is needed
+function chgSeparator(value) {
+	if (value === undefined) {
+		SDB_SEPARATOR = '|SDBSEP|';
+	}
+
+	if (typeof(value) !== 'string') 															{ throw TypeError('Separator must be a string') }
+	if (!isNaN(parseInt(value[0])) || value.indexOf(' ') !== -1 || value.indexOf('/') !== -1)	{ throw TypeError('Separator cannot contain spaces/slash') }
+	
+	SDB_SEPARATOR = value;
+}
+
 
 const SDB_FILTER_ERR_INVALID_COL_NAME = 'Invalid column name argument: must be non-empty string/cannot contain spaces/cannot begin with a number';
 const SDB_FILTER_ERR_INVALID_NUM_ARGS = 'Invalid number of filter arguments';
@@ -48,9 +60,9 @@ function eq(col, value) {
 	if (arguments.length !== 2) 									{ throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS) }
 	if (typeof(col) !== 'string')									{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }
 	if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1)		{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }
-	
+
 	if (typeof(value) !== 'number' && typeof(value) !== 'string') {
-		throw(SDB_FILTER_ERR_INVALID_TYPE); 
+		throw TypeError(SDB_FILTER_ERR_INVALID_TYPE); 
 	}
 	
 	return any(col, value);
@@ -246,92 +258,111 @@ function and(...colFilters) {
 	return s.slice(0,-1)
 }
 
+const SDB_DDF_INVALID_RESOURCE = 'Resource must be a non-empty string/cannot contain spaces/cannot begin with a number/cannot contain "/" character';
+const SDB_DDF_INVALID_FILTER = 'Filter must be a non-empty string, must contain at least one "/" character';
+const SDB_DDF_INVALID_SORT_COL = 'Column must be a non-empty string/cannot contain spaces/cannot begin with a number';
+const SDB_DDF_INVALID_WILDCARD = 'Wildcard must be a string, cannot contain slash (/)';
+const SDB_DDF_INVALID_SEPARATOR = 'Separator must be a string, cannot contain slash (/)';
+const SDB_DDF_LIMIT_TYPE = 'Limit row number must be a positive integer value';
+const SDB_DDF_OFFSET_TYPE = 'Offset row number must be a positive integer value';
+const SDB_DDF_DEPTH_TYPE = 'Depth must be a positive integer value';
 
 // construct a SlashDB path, for a given HTTP method, with starting resource required, and optional filter for resource
-class QueryBuilder {
-	constructor(resource, filter = null, wildcard = '*', separator = ',') {
+class DataDiscoveryFilter {
+	constructor(filter = null, wildcard = '*', separator = ',') {
 
-		const SDB_QB_INVALID_RESOURCE = 'Resource must be a non-empty string, cannot contain "/" character';
-		const SDB_QB_INVALID_FILTER = 'Filter must be a non-empty string, must contain at least one "/" character';
-
-		if (!resource) {
-			throw new ReferenceError(SDB_QB_INVALID_RESOURCE);
+		if (wildcard !== undefined) {
+			if (typeof(wildcard) !== 'string' || wildcard.indexOf('/') !== -1  || wildcard.trim().length < 1) {
+				throw TypeError(SDB_DDF_INVALID_WILDCARD);
+			}
 		}
+
+		if (separator !== undefined || separator !== null) {
+			if (typeof(separator) !== 'string' || separator.indexOf('/') !== -1  || separator.trim().length < 1) {
+				throw TypeError(SDB_DDF_INVALID_SEPARATOR);
+			}
+
+		}		
 		
-		if (typeof(resource) !== 'string' || resource.trim().length < 1) {
-			throw TypeError(SDB_QB_INVALID_RESOURCE);
-		}
-		if (resource.indexOf('/') !== -1) {
-			throw SyntaxError(SDB_QB_INVALID_RESOURCE);
-		}
-
 		this.wildcard = wildcard;
 		this.separator = separator;
 		
-		if (filter != null) {
+		if (filter !== null) {
 			if (typeof(filter) !== 'string' || filter.trim().length < 1) {
-				throw TypeError(SDB_QB_INVALID_FILTER);
+				throw TypeError(SDB_DDF_INVALID_FILTER);
 			}
 			if (filter.indexOf('/') === -1) {
-				throw SyntaxError(SDB_QB_INVALID_FILTER);
+				throw SyntaxError(SDB_DDF_INVALID_FILTER);
 			}
 			filter = filter.replaceAll(SDB_SEPARATOR,this.separator);
-			filter = filter.replaceAll(SDB_WILDCARD,this.wildcard);
 		}
 		
-		this.resources = new Set([resource]);	// track all resources added to the query
-		this.filters = { [resource] : filter};	// track the filter strings for each resource
-		this.lastContext = resource;
+		this.resources = new Set(['rootResource']);	// track all resources added to the filter
+		this.filters = (filter === undefined || filter === null) ? {rootResource : [] } : {rootResource : [filter] };	// track the filter strings for each resource
+		this.lastContext = 'rootResource';
 		
 
 		
 		// will contain any query parameters that are set
 		this.queryParams = {
-			'sort' : undefined,
-			'distinct' : false,
-			'depth' : undefined,
-			'stream' : false,
-			'transpose' : false,
-			'wantarray': false,
-			// etc 
+			sort : undefined,
+			distinct : false,
+			limit: undefined,
+			offset: undefined,
+			stream : false,
+			depth : undefined,
+			transpose : false,
+			wantarray: false,
+			csvHeader: false,
+			csvNullStr: false,
+			jsonHref: false,
+			xmlNilVisible: false,
+			xsdCardinality: undefined
 		};
 	
 		// the path as it is built up
-		this.pathString = `/${resource}`;
-		this.pathString += filter == null ? '' : `/${filter}`;
+		this.pathString = '';
+		this.pathString += filter == null ? '' : filter;
 		
 		// combines path and query parameters
-		this.fullQueryString = null;
+		this.filterString = null;
 		
 		this.build();
 	}
 	
-	// add a filter to the query for the current context, accepts strings created using filter expression functions
+	// add a filter to current context, accepts strings created using filter expression functions
 	addFilter(filterString) {
 
 		if (typeof(filterString) !== 'string' || filterString.trim().length < 1) {
-			throw TypeError(SDB_QB_INVALID_FILTER);
+			throw TypeError(SDB_DDF_INVALID_FILTER);
 		}
 		if (filterString.indexOf('/') === -1) {
-			throw SyntaxError(SDB_QB_INVALID_FILTER);
+			throw SyntaxError(SDB_DDF_INVALID_FILTER);
 		}
 
 		filterString = filterString.replaceAll(SDB_SEPARATOR,this.separator);
-		filterString = filterString.replaceAll(SDB_WILDCARD,this.wildcard);
 		
 		this.pathString += `/${filterString}`; 
-		this.filters[this.lastContext] = `${filterString}`;
+		if (this.filters[this.lastContext] === undefined) {
+			this.filters[this.lastContext] = [];
+		}
+		this.filters[this.lastContext].push(`${filterString}`);
 			
 		return this.build()
 	}
 
 	join(resource) { 
 		if (typeof(resource) !== 'string' || resource.trim().length < 1) {
-			throw TypeError(SDB_QB_INVALID_RESOURCE);
+			throw TypeError(SDB_DDF_INVALID_RESOURCE);
 		}
 		if (resource.indexOf('/') !== -1) {
-			throw SyntaxError(SDB_QB_INVALID_RESOURCE);
+			throw SyntaxError(SDB_DDF_INVALID_RESOURCE);
 		}
+
+		if (!isNaN(parseInt(resource)) || resource.indexOf(' ') !== -1) {
+			throw SyntaxError(SDB_DDF_INVALID_RESOURCE);
+		}
+
 		this.pathString = `${this.pathString}/${resource}`; 
 		this.resources.add(resource);
 		this.lastContext = resource;
@@ -341,7 +372,7 @@ class QueryBuilder {
 	sort(...columns) {
 		let s = '';
 		if (columns.length < 1) {
-			return this.build();
+			throw TypeError(SDB_DDF_INVALID_SORT_COL);
 		}
 		
 		if (columns.length === 1 && columns[0] === false) {
@@ -350,6 +381,14 @@ class QueryBuilder {
 		
 		else {
 			for (const col of columns) {
+
+				if (typeof(col) !== 'string' || col.trim().length < 1) {
+					throw TypeError(SDB_DDF_INVALID_SORT_COL)
+				}
+				if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1) {
+					throw SyntaxError(SDB_DDF_INVALID_SORT_COL)
+				}
+
 				s += `${col},`;
 			}
 			s = s.slice(0,s.length-1);
@@ -358,39 +397,72 @@ class QueryBuilder {
 		return this.build()
 	}
 	
-	// helper for sort to mark column sort as descending, exposed as external function desc,not used internally
+	// helper for sort to mark column sort as descending, exposed as external function desc, not used internally
 	_sort_desc(col) {
 		
 		if (typeof(col) !== 'string') {
-			throw TypeError('Column must be a non-empty string starting with alphabetical character')
+			throw TypeError(SDB_DDF_INVALID_SORT_COL)
 		}
 		if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1) {
-			throw TypeError('Column must be a non-empty string starting with alphabetical character')
+			throw SyntaxError(SDB_DDF_INVALID_SORT_COL)
 		}
 
 		return `-${col}`;
 	}
 
-	depth(level) {
-		if (level) {
-			if ( !Number.isInteger(level) || level < 1) {
-				throw TypeError('Depth must be a positive integer value');
-			}
+	// just to have an explicit ascending sort - doesn't do any modifications, exposed as external function asc, not used internally
+	_sort_asc(col) {
+		
+		if (typeof(col) !== 'string') {
+			throw TypeError(SDB_DDF_INVALID_SORT_COL)
 		}
-		this.queryParams['depth'] = level !== false ? level : undefined;
-		return this.build();
-	}
+		if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1) {
+			throw SyntaxError(SDB_DDF_INVALID_SORT_COL)
+		}
+
+		return `${col}`;
+	}	
 
 	distinct(toggle = true) {
 		this.queryParams['distinct'] = toggle === true
 		return this.build();
 	}
-	
-	stream(toggle = true) {
-		this.queryParams['stream'] = toggle === true
+
+	limit(numRows = false) {
+		if (numRows) {
+			if ( !Number.isInteger(numRows) || numRows < 1) {
+				throw TypeError(SDB_DDF_LIMIT_TYPE);
+			}
+		}
+		this.queryParams['limit'] = numRows !== false ? numRows : undefined;
 		return this.build();
 	}
 	
+	offset(numRows = false) {
+		if (numRows) {
+			if ( !Number.isInteger(numRows) || numRows < 1) {
+				throw TypeError(SDB_DDF_OFFSET_TYPE);
+			}
+		}
+		this.queryParams['offset'] = numRows !== false ? numRows : undefined;
+		return this.build();
+	}
+
+	stream(toggle = true) {
+		this.queryParams['stream'] = toggle === true 
+		return this.build();
+	}
+
+	depth(level = false) {
+		if (level) {
+			if ( !Number.isInteger(level) || level < 1) {
+				throw TypeError(SDB_DDF_DEPTH_TYPE);
+			}
+		}
+		this.queryParams['depth'] = level !== false ? level : undefined;
+		return this.build();
+	}
+		
 	transpose(toggle = true) {
 		this.queryParams['transpose'] = toggle === true
 		return this.build();
@@ -401,19 +473,43 @@ class QueryBuilder {
 		return this.build();
 	}
 		
-
-	// add separator to query string - only used internally
-	#separator() {
-		return this.separator !== ',' ? `&separator=${this.separator}` : '' ;
+	// for CSV data only - will be ignored otherwise 
+	csvHeader(toggle = true) {
+		this.queryParams['csvHeader'] = toggle === true
+		return this.build();
 	}
+
+	csvNullStr(toggle = true) {
+		this.queryParams['csvNullStr'] = toggle === true
+		return this.build();
+	}
+
+	jsonHref(toggle = true) {
+		this.queryParams['jsonHref'] = toggle === true
+		return this.build();
+	}	
+
+	xmlNilVisible(toggle = true) {
+		this.queryParams['xmlNilVisible'] = toggle === true
+		return this.build();
+	}	
+
+	xsdCardinality(value = 'unbounded') {
+		this.queryParams['xsdCardinality'] = value
+		return this.build();
+	}	
 
 	// add wildcard to query string - only used internally
 	#wildcard() {
 		return this.wildcard !== '*' ? `&wildcard=${this.wildcard}` : '';
 	}	
+
+	// add separator to query string - only used internally
+	#separator() {
+		return this.separator !== ',' ? `&separator=${this.separator}` : '' ;
+	}
 	
-	// generate the full query string - if no argument provided, will return the object, 
-	// a truthy argument will return fullQueryString
+	// generate the full filter string
 	build() {
 		let paramString = '';
 		for (const p in this.queryParams) {
@@ -424,22 +520,27 @@ class QueryBuilder {
 		paramString = paramString.slice(0,paramString.length-1);	// chop trailing &
 		paramString += this.#separator() + this.#wildcard();
 		
-		this.fullQueryString = paramString.length > 0 ? `${this.pathString}?${paramString}` : this.pathString;
+		this.filterString = paramString.length > 0 ? `${this.pathString}?${paramString}` : this.pathString;
 		
 		return this;
 	}
 
 	str() {
-		return this.fullQueryString;
+		return this.filterString;
 	}
 
 }
 
-// break out the _sort_desc function in the query builder so it can be used standalone
-const desc = QueryBuilder.prototype._sort_desc;
+// break out the _sort_desc function in the datadiscoveryfilter so it can be used standalone
+const desc = DataDiscoveryFilter.prototype._sort_desc;
+const asc = DataDiscoveryFilter.prototype._sort_asc;
 
-export { QueryBuilder, eq, any, between, gte, lte, not, and, desc }
+export { chgSeparator }
+export { DataDiscoveryFilter, eq, any, between, gte, lte, not, and, desc, asc }
 
 // for testing only
-export { SDB_FILTER_ERR_INVALID_COL_NAME, SDB_FILTER_ERR_INVALID_NUM_ARGS, SDB_FILTER_ERR_INVALID_TYPE, SDB_FILTER_ERR_EMPTY_STRING, SDB_FILTER_ERR_INVALID_COMPARE_TYPE, SDB_FILTER_ERR_INVALID_RANGE, SDB_FILTER_ERR_NO_COL_FOUND }
+export { SDB_FILTER_ERR_INVALID_COL_NAME, SDB_FILTER_ERR_INVALID_NUM_ARGS, SDB_FILTER_ERR_INVALID_TYPE, SDB_FILTER_ERR_EMPTY_STRING, 
+		SDB_FILTER_ERR_INVALID_COMPARE_TYPE, SDB_FILTER_ERR_INVALID_RANGE, SDB_FILTER_ERR_NO_COL_FOUND,
+		SDB_DDF_INVALID_RESOURCE, SDB_DDF_INVALID_FILTER, SDB_DDF_INVALID_SORT_COL, SDB_DDF_INVALID_WILDCARD, SDB_DDF_INVALID_SEPARATOR,
+		SDB_DDF_LIMIT_TYPE, SDB_DDF_OFFSET_TYPE, SDB_DDF_DEPTH_TYPE }
 export { SDB_SEPARATOR }
