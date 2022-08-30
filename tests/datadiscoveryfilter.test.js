@@ -1,8 +1,8 @@
-import { DataDiscoveryFilter, eq, any, between, gte, lte, not, and, desc, asc } from '../modules/datadiscoveryfilter.js';
+import { DataDiscoveryFilter, eq, any, between, gte, lte, not, and, desc, asc, chgSeparator } from '../modules/datadiscoveryfilter.js';
 import { SDB_FILTER_ERR_INVALID_COL_NAME, SDB_FILTER_ERR_INVALID_NUM_ARGS, SDB_FILTER_ERR_INVALID_TYPE, SDB_FILTER_ERR_EMPTY_STRING, 
     SDB_FILTER_ERR_INVALID_COMPARE_TYPE, SDB_FILTER_ERR_INVALID_RANGE, SDB_FILTER_ERR_NO_COL_FOUND,
     SDB_DDF_INVALID_RESOURCE, SDB_DDF_INVALID_FILTER, SDB_DDF_INVALID_SORT_COL,  SDB_DDF_INVALID_WILDCARD, SDB_DDF_INVALID_SEPARATOR,
-    SDB_DDF_LIMIT_TYPE, SDB_DDF_OFFSET_TYPE, SDB_DDF_DEPTH_TYPE } from '../modules/datadiscoveryfilter.js';
+    SDB_DDF_LIMIT_TYPE, SDB_DDF_OFFSET_TYPE, SDB_DDF_DEPTH_TYPE, SDB_DDF_XSDCARD_TYPE } from '../modules/datadiscoveryfilter.js';
 import { SDB_SEPARATOR } from '../modules/datadiscoveryfilter.js';
 
 beforeAll( () => {
@@ -421,7 +421,7 @@ describe('Composable functions unit tests', () => {
     });
 });
 
-describe('DataDiscoveryFilter object tests', () => {
+describe('DataDiscoveryFilter class tests', () => {
 
     // column parameter values to test
     const validCol = 'FirstName';
@@ -477,11 +477,11 @@ describe('DataDiscoveryFilter object tests', () => {
         expect(result.queryParams).toHaveProperty('depth');
         expect(result.queryParams).toHaveProperty('transpose');
         expect(result.queryParams).toHaveProperty('wantarray');        
-        expect(result.queryParams).toHaveProperty('csvHeader');        
+        expect(result.queryParams).toHaveProperty('headers');        
         expect(result.queryParams).toHaveProperty('csvNullStr');        
-        expect(result.queryParams).toHaveProperty('jsonHref');        
-        expect(result.queryParams).toHaveProperty('xmlNilVisible');        
-        expect(result.queryParams).toHaveProperty('xsdCardinality');        
+        expect(result.queryParams).toHaveProperty('href');        
+        expect(result.queryParams).toHaveProperty('nil_visible');        
+        expect(result.queryParams).toHaveProperty('cardinality');        
         
     });
 
@@ -567,7 +567,7 @@ describe('DataDiscoveryFilter object tests', () => {
 
     });
 
-    test('testing: constructor() - separator string replacement works', () => {
+    test('testing: constructor() - separator string replacement', () => {
 
         let result;
     
@@ -869,7 +869,6 @@ describe('DataDiscoveryFilter object tests', () => {
             result.depth(invalidValue_neg);
         }).toThrowError(SDB_DDF_DEPTH_TYPE);
 
-               
     });  
 
     test('testing: distinct() method', () => {
@@ -962,7 +961,7 @@ describe('DataDiscoveryFilter object tests', () => {
         
         // set distinct
         result.csvHeader();
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}?csvHeader=true`);
+        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}?headers=true`);
         
         // remove distinct
         result.csvHeader(false);
@@ -1002,7 +1001,7 @@ describe('DataDiscoveryFilter object tests', () => {
         
         // set distinct
         result.jsonHref();
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}?jsonHref=true`);
+        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}?href=true`);
         
         // remove distinct
         result.jsonHref(false);
@@ -1022,7 +1021,7 @@ describe('DataDiscoveryFilter object tests', () => {
         
         // set distinct
         result.xmlNilVisible();
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}?xmlNilVisible=true`);
+        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}?nil_visible=true`);
         
         // remove distinct
         result.xmlNilVisible(false);
@@ -1031,6 +1030,77 @@ describe('DataDiscoveryFilter object tests', () => {
         // should be ignored - only true/false allowed
         result.xmlNilVisible(1);
         expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}`);
-    });     
+    });   
+
+    test('testing: xsdCardinality() method', () => {
+
+        let result;
+        result = new DataDiscoveryFilter(validFilter);
+        result.join(validResource);
+        result.addFilter(validFilter2);
+        
+        // set xsdCardinality
+        result.xsdCardinality();
+        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}?cardinality=unbounded`);
+
+        result.xsdCardinality(1);
+        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}?cardinality=1`);
+
+        // remove xsdCardinality
+        result.xsdCardinality(false);
+        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}`);
+        
+        // ERROR CASES
+
+        expect(() => {
+            result = new DataDiscoveryFilter(validFilter);
+            result.join(validResource);
+            result.addFilter(validFilter2);
+            result.xsdCardinality(-1);
+        }).toThrowError(SDB_DDF_XSDCARD_TYPE);
+
+        expect(() => {
+            result = new DataDiscoveryFilter(validFilter);
+            result.join(validResource);
+            result.addFilter(validFilter2);
+            result.xsdCardinality(1.1);
+        }).toThrowError(SDB_DDF_XSDCARD_TYPE);        
+
+        expect(() => {
+            result = new DataDiscoveryFilter(validFilter);
+            result.join(validResource);
+            result.addFilter(validFilter2);
+            result.xsdCardinality('');
+        }).toThrowError(SDB_DDF_XSDCARD_TYPE);
+        
+        expect(() => {
+            result = new DataDiscoveryFilter(validFilter);
+            result.join(validResource);
+            result.addFilter(validFilter2);
+            result.xsdCardinality([1]);
+        }).toThrowError(SDB_DDF_XSDCARD_TYPE);
+
+        // result.xmlNilVisible(-1);
+        // expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}`);
+    });       
+    
+    test('testing: DataDiscoveryFilter with composable functions', () => {
+
+        chgSeparator(',');
+        let f1 = any("columnA",1,2,3);
+        let f2 = eq("columnB","Country");
+        let f3 = gte("columnC",10);
+        let f4 = and( any("columnD","a","b","c"),eq("columnE",100));
+
+        let result;
+        let expected = and(f1,"resource2/",f2,f3,"resource3/",f4);
+        expected = expected.replaceAll('//','/');
+
+        result = new DataDiscoveryFilter(f1);
+        result.join("resource2").addFilter(f2).addFilter(f3).join("resource3").addFilter(f4);
+        expect(result.filterString).toBe(expected);
+        chgSeparator();
+        
+    });
 });
 

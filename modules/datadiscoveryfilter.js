@@ -17,7 +17,7 @@
 */
 
  	// output:
-	// /Customer/FirstName/A*/Country/Brazil/City/Brasília|São Paulo/Invoice/InvoiceDate/2011-01-01../BillingCountry/Brazil/InvoiceLine/Track?sort=Name,UnitPrice&separator=|
+	// FirstName/A*/Country/Brazil/City/Brasília|São Paulo/Invoice/InvoiceDate/2011-01-01../BillingCountry/Brazil/InvoiceLine/Track?sort=Name,UnitPrice&separator=|
 
 
 
@@ -30,6 +30,7 @@ let SDB_SEPARATOR = '|SDBSEP|';
 function chgSeparator(value) {
 	if (value === undefined) {
 		SDB_SEPARATOR = '|SDBSEP|';
+		return;
 	}
 
 	if (typeof(value) !== 'string') 															{ throw TypeError('Separator must be a string') }
@@ -266,6 +267,7 @@ const SDB_DDF_INVALID_SEPARATOR = 'Separator must be a string, cannot contain sl
 const SDB_DDF_LIMIT_TYPE = 'Limit row number must be a positive integer value';
 const SDB_DDF_OFFSET_TYPE = 'Offset row number must be a positive integer value';
 const SDB_DDF_DEPTH_TYPE = 'Depth must be a positive integer value';
+const SDB_DDF_XSDCARD_TYPE = 'xsdCardinality must be a string or positive integer'
 
 // construct a SlashDB path, for a given HTTP method, with starting resource required, and optional filter for resource
 class DataDiscoveryFilter {
@@ -313,11 +315,11 @@ class DataDiscoveryFilter {
 			depth : undefined,
 			transpose : false,
 			wantarray: false,
-			csvHeader: false,
+			headers: false,
 			csvNullStr: false,
-			jsonHref: false,
-			xmlNilVisible: false,
-			xsdCardinality: undefined
+			href: false,
+			nil_visible: false,
+			cardinality: undefined
 		};
 	
 		// the path as it is built up
@@ -348,7 +350,7 @@ class DataDiscoveryFilter {
 		}
 		this.filters[this.lastContext].push(`${filterString}`);
 			
-		return this.build()
+		return this.build();
 	}
 
 	join(resource) { 
@@ -366,7 +368,7 @@ class DataDiscoveryFilter {
 		this.pathString = `${this.pathString}/${resource}`; 
 		this.resources.add(resource);
 		this.lastContext = resource;
-		return this.build()
+		return this.build();
 	}
 
 	sort(...columns) {
@@ -383,10 +385,10 @@ class DataDiscoveryFilter {
 			for (const col of columns) {
 
 				if (typeof(col) !== 'string' || col.trim().length < 1) {
-					throw TypeError(SDB_DDF_INVALID_SORT_COL)
+					throw TypeError(SDB_DDF_INVALID_SORT_COL);
 				}
 				if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1) {
-					throw SyntaxError(SDB_DDF_INVALID_SORT_COL)
+					throw SyntaxError(SDB_DDF_INVALID_SORT_COL);
 				}
 
 				s += `${col},`;
@@ -394,17 +396,17 @@ class DataDiscoveryFilter {
 			s = s.slice(0,s.length-1);
 			this.queryParams['sort'] = s;
 		}
-		return this.build()
+		return this.build();
 	}
 	
 	// helper for sort to mark column sort as descending, exposed as external function desc, not used internally
 	_sort_desc(col) {
 		
 		if (typeof(col) !== 'string') {
-			throw TypeError(SDB_DDF_INVALID_SORT_COL)
+			throw TypeError(SDB_DDF_INVALID_SORT_COL);
 		}
 		if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1) {
-			throw SyntaxError(SDB_DDF_INVALID_SORT_COL)
+			throw SyntaxError(SDB_DDF_INVALID_SORT_COL);
 		}
 
 		return `-${col}`;
@@ -414,17 +416,17 @@ class DataDiscoveryFilter {
 	_sort_asc(col) {
 		
 		if (typeof(col) !== 'string') {
-			throw TypeError(SDB_DDF_INVALID_SORT_COL)
+			throw TypeError(SDB_DDF_INVALID_SORT_COL);
 		}
 		if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1) {
-			throw SyntaxError(SDB_DDF_INVALID_SORT_COL)
+			throw SyntaxError(SDB_DDF_INVALID_SORT_COL);
 		}
 
 		return `${col}`;
 	}	
 
 	distinct(toggle = true) {
-		this.queryParams['distinct'] = toggle === true
+		this.queryParams['distinct'] = toggle === true;
 		return this.build();
 	}
 
@@ -449,7 +451,7 @@ class DataDiscoveryFilter {
 	}
 
 	stream(toggle = true) {
-		this.queryParams['stream'] = toggle === true 
+		this.queryParams['stream'] = toggle === true;
 		return this.build();
 	}
 
@@ -464,38 +466,55 @@ class DataDiscoveryFilter {
 	}
 		
 	transpose(toggle = true) {
-		this.queryParams['transpose'] = toggle === true
+		this.queryParams['transpose'] = toggle === true;
 		return this.build();
 	}
 	
 	wantarray(toggle = true) {
-		this.queryParams['wantarray'] = toggle === true
+		this.queryParams['wantarray'] = toggle === true;
 		return this.build();
 	}
 		
 	// for CSV data only - will be ignored otherwise 
 	csvHeader(toggle = true) {
-		this.queryParams['csvHeader'] = toggle === true
+		this.queryParams['headers'] = toggle === true;
 		return this.build();
 	}
 
 	csvNullStr(toggle = true) {
-		this.queryParams['csvNullStr'] = toggle === true
+		this.queryParams['csvNullStr'] = toggle === true;
 		return this.build();
 	}
 
 	jsonHref(toggle = true) {
-		this.queryParams['jsonHref'] = toggle === true
+		this.queryParams['href'] = toggle === true;
 		return this.build();
 	}	
 
 	xmlNilVisible(toggle = true) {
-		this.queryParams['xmlNilVisible'] = toggle === true
+		this.queryParams['nil_visible'] = toggle === true;
 		return this.build();
 	}	
 
 	xsdCardinality(value = 'unbounded') {
-		this.queryParams['xsdCardinality'] = value
+
+		if (value === false) {
+			this.queryParams['cardinality'] = undefined;
+		}
+		
+		else if (value !== 'unbounded') {
+			if (typeof(value) === 'string' && value.trim().length < 1) {
+				throw TypeError(SDB_DDF_XSDCARD_TYPE);
+			}
+
+			else if ( !Number.isInteger(value) || value < 0) {
+				throw TypeError(SDB_DDF_XSDCARD_TYPE);
+			}
+
+
+		}
+		
+		this.queryParams['cardinality'] = value;
 		return this.build();
 	}	
 
@@ -514,7 +533,7 @@ class DataDiscoveryFilter {
 		let paramString = '';
 		for (const p in this.queryParams) {
 			if (this.queryParams[p] !== undefined && this.queryParams[p] !== false) {
-				paramString += `${p}=${this.queryParams[p]}&`
+				paramString += `${p}=${this.queryParams[p]}&` ;
 			}
 		}
 		paramString = paramString.slice(0,paramString.length-1);	// chop trailing &
@@ -542,5 +561,5 @@ export { DataDiscoveryFilter, eq, any, between, gte, lte, not, and, desc, asc }
 export { SDB_FILTER_ERR_INVALID_COL_NAME, SDB_FILTER_ERR_INVALID_NUM_ARGS, SDB_FILTER_ERR_INVALID_TYPE, SDB_FILTER_ERR_EMPTY_STRING, 
 		SDB_FILTER_ERR_INVALID_COMPARE_TYPE, SDB_FILTER_ERR_INVALID_RANGE, SDB_FILTER_ERR_NO_COL_FOUND,
 		SDB_DDF_INVALID_RESOURCE, SDB_DDF_INVALID_FILTER, SDB_DDF_INVALID_SORT_COL, SDB_DDF_INVALID_WILDCARD, SDB_DDF_INVALID_SEPARATOR,
-		SDB_DDF_LIMIT_TYPE, SDB_DDF_OFFSET_TYPE, SDB_DDF_DEPTH_TYPE }
+		SDB_DDF_LIMIT_TYPE, SDB_DDF_OFFSET_TYPE, SDB_DDF_DEPTH_TYPE, SDB_DDF_XSDCARD_TYPE }
 export { SDB_SEPARATOR }

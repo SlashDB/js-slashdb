@@ -16,7 +16,7 @@ class DataDiscoveryDatabase {
             return;
         }
         for (const resource of db.tables) {
-            resources[resource.table_name] = new DataDiscoveryResource(this.dbName, resource.table_name, this.sdbClient); //new DataDiscovery(dbName, this);
+            resources[resource.table_name] = new DataDiscoveryResource(this.dbName, resource.table_name, this.sdbClient); 
         }
         
         return resources;

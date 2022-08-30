@@ -52,7 +52,6 @@ class SlashDBClient {
         .then((value) => {
           this.isAuthenticatedFlag = value;
         });
-      //return getIsAuthenticated(); // comment out for now
       return this.isAuthenticatedFlag;
     }
 
@@ -63,8 +62,7 @@ class SlashDBClient {
     }
 
     async getVersion() {
-   		const versionTxt = (await this.sdbConfig.get(this.versionEP))[0];
- 	  	return versionTxt
+   		return (await this.sdbConfig.get(this.versionEP))[0];
    	}
 
     async loadModel(dbName) {
@@ -101,9 +99,9 @@ class SlashDBClient {
     async getDatabases() {
       const databases = {};
       let dbList = await this.getReflectStatus();
-        for (const db in dbList) {
-          databases[db] = new DataDiscoveryDatabase(this, db);
-        }
+      for (const db in dbList) {
+        databases[db] = new DataDiscoveryDatabase(this, db);
+      }
       return databases;
     }
 
