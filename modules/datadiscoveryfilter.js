@@ -324,7 +324,7 @@ class DataDiscoveryFilter {
 	
 		// the path as it is built up
 		this.pathString = '';
-		this.pathString += filter == null ? '' : filter;
+		this.pathString += filter == null ? '' : `/${filter}`;
 		
 		// combines path and query parameters
 		this.filterString = null;
