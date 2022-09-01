@@ -10,7 +10,7 @@ class SlashDBClient {
       this.isAuthenticatedFlag = false;
 
       // create the special case DataDiscovery object for interacting with config endpoints
-      this.sdbConfig = new SDBConfig(undefined, undefined, this, true);
+      this.sdbConfig = new SDBConfig(null, null, this, true);
 
       // SlashDB config endpoints
       this.settingsEP = '/settings.json';
