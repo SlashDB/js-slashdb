@@ -493,7 +493,7 @@ describe('DataDiscoveryFilter class tests', () => {
         result = new DataDiscoveryFilter(validFilter);
         expect(result).toBeInstanceOf(DataDiscoveryFilter);
         expect(result).toHaveProperty('filterString');
-        expect(result.filterString).toBe(validFilter);
+        expect(result.filterString).toBe(`/${validFilter}`);
 
         // ERROR TESTS
         
@@ -576,7 +576,7 @@ describe('DataDiscoveryFilter class tests', () => {
         
         result = new DataDiscoveryFilter(validFilterSeparated, undefined, '@');
         expect(result).toHaveProperty('filterString');
-        expect(result.filterString).toBe('column/value1@value2@value3?&separator=@');
+        expect(result.filterString).toBe('/column/value1@value2@value3?&separator=@');
 
     });        
 
@@ -598,7 +598,7 @@ describe('DataDiscoveryFilter class tests', () => {
         expect(result.filters).toHaveProperty('rootResource')
         expect(result.filters.rootResource).toContain(validFilter)
         expect(result.filters.rootResource).toContain(validFilter2)
-        expect(result.filterString).toBe(`${validFilter}/${validFilter2}`);
+        expect(result.filterString).toBe(`/${validFilter}/${validFilter2}`);
 
         // check separator replacement works 
         result = new DataDiscoveryFilter(validFilter);
@@ -677,9 +677,9 @@ describe('DataDiscoveryFilter class tests', () => {
         result.addFilter(validFilter2);
         
         result.sort(desc(validCol1), asc(validCol2)); // sort by columns
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}?sort=-${validCol1},${validCol2}`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}?sort=-${validCol1},${validCol2}`);
         result.sort(false); // reset sort
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}`);        
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}`);        
 
         // ERROR CASES
 
@@ -779,9 +779,9 @@ describe('DataDiscoveryFilter class tests', () => {
         result.addFilter(validFilter2);
         
         result.limit(validValue); 
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}?limit=${validValue}`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}?limit=${validValue}`);
         result.limit();
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}`);        
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}`);        
 
         // ERROR CASES
 
@@ -814,9 +814,9 @@ describe('DataDiscoveryFilter class tests', () => {
         result.addFilter(validFilter2);
         
         result.offset(validValue); 
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}?offset=${validValue}`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}?offset=${validValue}`);
         result.offset();
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}`);        
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}`);        
 
         // ERROR CASES
 
@@ -849,9 +849,9 @@ describe('DataDiscoveryFilter class tests', () => {
         result.addFilter(validFilter2);
         
         result.depth(validValue); 
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}?depth=${validValue}`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}?depth=${validValue}`);
         result.depth();
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}`);        
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}`);        
 
         // ERROR CASES
 
@@ -880,15 +880,15 @@ describe('DataDiscoveryFilter class tests', () => {
         
         // set distinct
         result.distinct();
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}?distinct=true`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}?distinct=true`);
         
         // remove distinct
         result.distinct(false);
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
         
         // should be ignored - only true/false allowed
         result.distinct(1);
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
     });
 
 
@@ -901,15 +901,15 @@ describe('DataDiscoveryFilter class tests', () => {
         
         // set distinct
         result.stream();
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}?stream=true`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}?stream=true`);
         
         // remove distinct
         result.stream(false);
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
         
         // should be ignored - only true/false allowed
         result.stream(1);
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
     });
 
     test('testing: transpose() method', () => {
@@ -921,15 +921,15 @@ describe('DataDiscoveryFilter class tests', () => {
         
         // set distinct
         result.transpose();
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}?transpose=true`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}?transpose=true`);
         
         // remove distinct
         result.transpose(false);
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
         
         // should be ignored - only true/false allowed
         result.transpose(1);
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
     });    
 
     test('testing: wantarray() method', () => {
@@ -941,15 +941,15 @@ describe('DataDiscoveryFilter class tests', () => {
         
         // set distinct
         result.wantarray();
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}?wantarray=true`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}?wantarray=true`);
         
         // remove distinct
         result.wantarray(false);
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
         
         // should be ignored - only true/false allowed
         result.wantarray(1);
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
     });    
 
     test('testing: csvHeader() method', () => {
@@ -961,15 +961,15 @@ describe('DataDiscoveryFilter class tests', () => {
         
         // set distinct
         result.csvHeader();
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}?headers=true`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}?headers=true`);
         
         // remove distinct
         result.csvHeader(false);
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
         
         // should be ignored - only true/false allowed
         result.csvHeader(1);
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
     });    
 
     test('testing: csvNullStr() method', () => {
@@ -981,15 +981,15 @@ describe('DataDiscoveryFilter class tests', () => {
         
         // set distinct
         result.csvNullStr();
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}?csvNullStr=true`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}?csvNullStr=true`);
         
         // remove distinct
         result.csvNullStr(false);
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
         
         // should be ignored - only true/false allowed
         result.csvNullStr(1);
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
     });        
 
     test('testing: jsonHref() method', () => {
@@ -1001,15 +1001,15 @@ describe('DataDiscoveryFilter class tests', () => {
         
         // set distinct
         result.jsonHref();
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}?href=true`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}?href=true`);
         
         // remove distinct
         result.jsonHref(false);
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
         
         // should be ignored - only true/false allowed
         result.jsonHref(1);
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
     });       
 
     test('testing: xmlNilVisible() method', () => {
@@ -1021,15 +1021,15 @@ describe('DataDiscoveryFilter class tests', () => {
         
         // set distinct
         result.xmlNilVisible();
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}?nil_visible=true`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}?nil_visible=true`);
         
         // remove distinct
         result.xmlNilVisible(false);
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
         
         // should be ignored - only true/false allowed
         result.xmlNilVisible(1);
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
     });   
 
     test('testing: xsdCardinality() method', () => {
@@ -1041,14 +1041,14 @@ describe('DataDiscoveryFilter class tests', () => {
         
         // set xsdCardinality
         result.xsdCardinality();
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}?cardinality=unbounded`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}?cardinality=unbounded`);
 
         result.xsdCardinality(1);
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}?cardinality=1`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}?cardinality=1`);
 
         // remove xsdCardinality
         result.xsdCardinality(false);
-        expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}`);
+        expect(result.filterString).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
         
         // ERROR CASES
 
@@ -1080,8 +1080,6 @@ describe('DataDiscoveryFilter class tests', () => {
             result.xsdCardinality([1]);
         }).toThrowError(SDB_DDF_XSDCARD_TYPE);
 
-        // result.xmlNilVisible(-1);
-        // expect(result.filterString).toBe(`${validFilter}/${validResource}/${validFilter2}`);
     });       
     
     test('testing: DataDiscoveryFilter with composable functions', () => {
@@ -1093,12 +1091,11 @@ describe('DataDiscoveryFilter class tests', () => {
         let f4 = and( any("columnD","a","b","c"),eq("columnE",100));
 
         let result;
-        let expected = and(f1,"resource2/",f2,f3,"resource3/",f4);
-        expected = expected.replaceAll('//','/');
+        let expected = and(f1,"resource2/",f2,f3,"resource3/",f4).replaceAll('//','/');
 
         result = new DataDiscoveryFilter(f1);
         result.join("resource2").addFilter(f2).addFilter(f3).join("resource3").addFilter(f4);
-        expect(result.filterString).toBe(expected);
+        expect(result.filterString).toBe(`/${expected}`);
         chgSeparator();
         
     });
