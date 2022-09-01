@@ -25,11 +25,12 @@
     let q2 = new DataDiscoveryFilter(eq("Country","Canada")).addFilter(and(eq("ZIP","78501"),any("Name","A","B","C"))).join("Invoice").addFilter(eq("Country","USA")).addFilter(eq("State","Texas"))
     console.log(q2)
 
+
     //create an SDB client and login
     const sdb1 = new SlashDBClient('http://192.168.1.19:8000', 'admin', 'gez0bk949rhwpcjdxqqsn8w9g4iec709');
     const sdb2 = new SlashDBClient('http://192.168.1.20:9999', 'admin', 'gez0bk949rhwpcjdxqqsn8w9g4iec709');
     sdb1.login();
-    console.log('Logged in status:', await sdb1.isAuthenticated())
+    //console.log('Logged in status:', await sdb1.isAuthenticated())
     
     // get some config info etc from the connected host
     console.log('---------------------------------------------------------------------------------\n')
@@ -73,6 +74,7 @@
     r = await cust_res.get(q1)
     console.log(await r[0])
     
+
     console.log('\noption2 -- ')
     chinookdb = new DataDiscoveryDatabase(sdb1, 'Chinook')
     cust_res = new DataDiscoveryResource(chinookdb,'Customer');
@@ -82,44 +84,43 @@
     console.log(await r[0])
 
 
+    let mt = chinook_res['MediaType']
 
+    // delete tests
+    try {
+        r = await mt.delete(gte("MediaTypeId",6))
+        console.log(await r[0])
+    }
+    catch(e) {
+        console.log(e)
+    }
 
-
-    /***** here be dragons, this stuff may/may not work at this point ***/
-    //let r = await cust_res.get(q1.str())
-    //console.log(await r[0])
-    // let dbs = sdb1.dataDiscoveryFactory('Chinook','taskappdata');
-    // let dbs2 = sdb2.dataDiscoveryFactory('Chinook','taskappdata');
-
-    // // console.log(dbs);
-    // // console.log(dbs2);
+    // post tests
+    for (let i = 6; i <= 10; i++) {
+        r = await mt.post({"Name":`media type ${i} again`})
+        console.log(await r[0])
+    }
 
     
-    // //dd1 = DataDiscovery('Chinook)
-    // let q1 = new DataDiscoveryFilter("Customer").addFilter(any('FirstName','J*,H*')).addFilter(eq('Country','USA')).sort('FirstName',desc('LastName'))
-    // //dd1.get(q1)) // get Chinook/Customer/,....
-    // //console.log(q1.str())
+    // put tests
+    mt.contentType('json');
+    let q = new DataDiscoveryFilter(eq("MediaTypeId",8))
+    r = await mt.put(q, {"Name":"changing id 8 TESTNEW"})
+    q = new DataDiscoveryFilter().addFilter(eq("MediaTypeId",9))
+    r = await mt.put(q, {"Name":"change id 9 TESTNEW"})
+    // put follows to last context test
+    // q = new DataDiscoveryFilter(eq("MediaTypeId",1)).join("Track").addFilter(eq("TrackId",1))
+    // console.log(q)
+    // r = await mt.put(q, {"Name":"For Those About To Rock (We Salute You) - TEST"})
 
-    // let r = await dbs.Chinook.get(q1.str() )
-    // r[0].then(d => console.log(d));
 
+    // changing content-types
+    r = await mt.contentType('csv').put(eq("Name","MPEG audio file"), 'Name\ncsvnamechange' )
+    r = await mt.contentType('json').put(eq("Name","csvnamechange"), {Name:"jObjnamechange"})
+    r = await mt.put(eq("Name","jObjnamechange"), {"Name":"jsonnamechange",})
+    r = await mt.contentType('xml').put(eq("Name","jsonnamechange"), '<SlashDB xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.vtenterprise.com/slashdb"><MediaType><Name>xmlNamechange</Name></MediaType></SlashDB>')
+    r = await mt.contentType('json').put(eq("Name","xmlNamechange"), {"Name":"MPEG audio file"})
 
-    // dbs.Chinook.accept('csv');
-    // r = await dbs.Chinook.get(q1.str() )
-    // r[0].then(d => console.log('---------\n',d));
-  
-    // window.dbs = await sdb1.getDataDiscoveryResources()
-    // console.log(window.dbs); 
-    // //r = await(await window.dbs.Chinook.accept('csv').get(q1.str() ))[0]//).then(r => r[0]).then(r => r)
-    // //console.log('---------\n',r)
-    
-    
-    
-    // let r = await sdb1.Chinook.get(q1.str() )
-    // r[0].then(d => console.log(d));
-    
-
-    //setTimeout( x => { sdb1.chinook.accept('text/csv'); console.log(sdb1.chinook.get(q1.str())); console.log(sdb1.chinook) }, 3000)
 
 
 </script>
