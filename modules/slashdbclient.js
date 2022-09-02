@@ -1,8 +1,27 @@
-import { fetchWrapper } from './fetchwrapper.js';
 import { DataDiscoveryResource as SDBConfig, DataDiscoveryDatabase } from './datadiscovery.js'
+
+const SDB_SDBC_INVALID_HOSTNAME = 'Invalid hostname parameter, must be string';
+const SDB_SDBC_INVALID_USERNAME = 'Invalid username parameter, must be string';
+const SDB_SDBC_INVALID_APIKEY = 'Invalid apiKey parameter, must be string';
 
 class SlashDBClient {
     constructor(host, username, apiKey) {
+
+      if (!host || typeof(host) !== 'string') {
+        throw TypeError(SDB_SDBC_INVALID_HOSTNAME);
+
+      }
+
+      if (!username || typeof(username) !== 'string') {
+        throw TypeError(SDB_SDBC_INVALID_USERNAME);
+
+      }
+
+      if (!apiKey || typeof(apiKey) !== 'string') {
+        throw TypeError(SDB_SDBC_INVALID_APIKEY);
+
+      }
+
       this.host = host;
       this.username = username
       this.apiKey = apiKey;
@@ -13,6 +32,7 @@ class SlashDBClient {
       this.sdbConfig = new SDBConfig(null, null, this, true);
 
       // SlashDB config endpoints
+      this.loginEP = '/login';
       this.settingsEP = '/settings.json';
       this.versionEP = '/version.txt';
       this.licenseEP = '/license';
@@ -27,32 +47,33 @@ class SlashDBClient {
     }
 
     async login() {
-      //const temp = dataFormat; // comment out for now...work on this later
-      const url = this.host + '/login';
+      
       const body = { login: this.username, password: this.password };
-
-      await fetchWrapper('POST', url, body, this.headers, true).then((res) => {
-        if (res) {
-          if (res.status === 200 || res.status === 304) {
-              this.isAuthenticatedFlag = true;
-          } else {
-              this.isAuthenticatedFlag = false;
-          }
+      try {
+        let response = (await this.sdbConfig.post(body, this.loginEP))[1]
+        if (response.ok === true) {
+          this.isAuthenticatedFlag = true;
         }
-      });
+      }
+      catch(e) {
+        this.isAuthenticatedFlag = false;
+      }
     }
 
     async isAuthenticated() {
-      const url = this.host + `/userdef/${this.username}.json`;
+      const url = `${this.userEP}/${this.username}.json`;
       
-      await fetchWrapper('GET', url, undefined, this.headers, true)
-        .then((response) => {
-          return response.status === 200;
-        })
-        .then((value) => {
-          this.isAuthenticatedFlag = value;
-        });
-      return this.isAuthenticatedFlag;
+      try {
+        let response = (await this.sdbConfig.get(url))[1]
+        if (response.ok === true) {
+          this.isAuthenticatedFlag = true;
+          return true;
+        }
+      }
+      catch(e) {
+        this.isAuthenticatedFlag = false;
+        return false;
+      }
     }
 
       /* *** configuration endpoint getters/setters */
