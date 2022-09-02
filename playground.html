@@ -27,10 +27,10 @@
 
 
     //create an SDB client and login
-    const sdb1 = new SlashDBClient('http://192.168.1.19:8000', 'admin', 'gez0bk949rhwpcjdxqqsn8w9g4iec709');
+    const sdb1 = new SlashDBClient('http://192.168.1.16:8000', 'admin', 'gez0bk949rhwpcjdxqqsn8w9g4iec709');
     const sdb2 = new SlashDBClient('http://192.168.1.20:9999', 'admin', 'gez0bk949rhwpcjdxqqsn8w9g4iec709');
     sdb1.login();
-    //console.log('Logged in status:', await sdb1.isAuthenticated())
+    console.log('Logged in status:', await sdb1.isAuthenticated())
     
     // get some config info etc from the connected host
     console.log('---------------------------------------------------------------------------------\n')
@@ -61,7 +61,7 @@
     // create a data discovery object and run a query
     console.log('** Data discovery');
 
-    console.log('option1 -- ')
+    console.log('option1 -- sending CSV')
     let dbs = await sdb1.getDatabases()
     console.log(dbs);
     let chinookdb = dbs['Chinook']
@@ -75,7 +75,7 @@
     console.log(await r[0])
     
 
-    console.log('\noption2 -- ')
+    console.log('\noption2 -- sending JSON')
     chinookdb = new DataDiscoveryDatabase(sdb1, 'Chinook')
     cust_res = new DataDiscoveryResource(chinookdb,'Customer');
     r = await cust_res.get(eq("FirstName","F*"))
@@ -89,7 +89,7 @@
     // delete tests
     try {
         r = await mt.delete(gte("MediaTypeId",6))
-        console.log(await r[0])
+        console.log(r)
     }
     catch(e) {
         console.log(e)
@@ -98,14 +98,22 @@
     // post tests
     for (let i = 6; i <= 10; i++) {
         r = await mt.post({"Name":`media type ${i} again`})
-        console.log(await r[0])
+        console.log( 'created: ', r.status, r.url)
     }
 
     
     // put tests
     mt.contentType('json');
     let q = new DataDiscoveryFilter(eq("MediaTypeId",8))
-    r = await mt.put(q, {"Name":"changing id 8 TESTNEW"})
+    try {
+        //mt.sdbClient.host = "http://noname";
+        //mt.dbPrefix = "/missingPfx";
+        r = await mt.put(q, {"Name":"changing id 8 TESTNEW"})
+        console.log( 'updated: ', r.status, r.url);
+    }
+    catch(e) {
+        console.log('in catch:', e.name, e.message)
+    }
     q = new DataDiscoveryFilter().addFilter(eq("MediaTypeId",9))
     r = await mt.put(q, {"Name":"change id 9 TESTNEW"})
     // put follows to last context test
