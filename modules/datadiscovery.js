@@ -52,13 +52,20 @@ const SDB_DDR_INVALID_HEADER_VALUE = 'Invalid header value - must be string or n
 
 
 class DataDiscoveryResource {
+    #sdbClient;
+    #dbPrefix;
+    #validMimeTypes;
+    #acceptHeader;
+    #contentTypeHeader;
+    #extraHeaders;
+
     constructor(db, resourceName, clientObj, sdbConfigObj = false) {
 
         // if creating the internal config object used by slashdbclient,
         // just set these properties to blank strings so that the 
         // special URLs used in config operations are handled properly
         if (sdbConfigObj) {
-            this.dbPrefix = '';
+            this.#dbPrefix = '';
             this.dbName = '';
             this.resourceName = '';            
         }
@@ -83,14 +90,14 @@ class DataDiscoveryResource {
                 throw TypeError(SDB_DDR_NO_RESOURCE);
             }
 
-            this.dbPrefix = '/db/'
-            this.resourceName = `${resourceName}`;
+            this.#dbPrefix = '/db/'
+            this.resourceName = resourceName;
         }
 
 
         // if client object is explicitly given, must be a SlashDBClient object
         if (clientObj instanceof SlashDBClient) {
-            this.sdbClient = clientObj;
+            this.#sdbClient = clientObj;
         }
 
         // otherwise, the client object must be in the db parameter,
@@ -102,7 +109,7 @@ class DataDiscoveryResource {
             if (!db.sdbClient || !(db.sdbClient instanceof SlashDBClient)) {
                 throw ReferenceError(SDB_DDR_NO_CLIENTOBJ);    
             }
-            this.sdbClient = db.sdbClient;
+            this.#sdbClient = db.sdbClient;
         }
 
         else {
@@ -110,7 +117,7 @@ class DataDiscoveryResource {
         }
 
 
-        this.validMimeTypes = {
+        this.#validMimeTypes = {
             json: 'application/json',
             csv: 'text/csv',
             xml: 'application/xml',
@@ -118,9 +125,9 @@ class DataDiscoveryResource {
             html: 'text/html'
         }
 
-        this._acceptHeader = this.validMimeTypes.json;
-        this._contentTypeHeader = this.validMimeTypes.json;
-        this._extraHeaders = {};
+        this.#acceptHeader = this.#validMimeTypes.json;
+        this.#contentTypeHeader = this.#validMimeTypes.json;
+        this.#extraHeaders = {};
 
     }
 
@@ -129,14 +136,20 @@ class DataDiscoveryResource {
             throw TypeError(SDB_DDR_INVALID_ACCEPT_TYPE);
         }
 
-        if (this.validMimeTypes.hasOwnProperty(format)) {
-            this._acceptHeader = this.validMimeTypes[format];
+        if (typeof(format) !== 'string') {
+            throw TypeError(SDB_DDR_INVALID_ACCEPT_TYPE);
+        }
+        
+        format = format.toLowerCase()
+        
+        if (this.#validMimeTypes.hasOwnProperty(format)) {
+            this.#acceptHeader = this.#validMimeTypes[format];
   
         }
         else {
-            for (const type in this.validMimeTypes) {
-                if (this.validMimeTypes[type] === format.toLowerCase()) {
-                    this._acceptHeader= this.validMimeTypes[type];
+            for (const type in this.#validMimeTypes) {
+                if (this.#validMimeTypes[type] === format) {
+                    this.#acceptHeader= this.#validMimeTypes[type];
                     break;
                 }
             }
@@ -151,14 +164,20 @@ class DataDiscoveryResource {
             throw TypeError(SDB_DDR_INVALID_ACCEPT_TYPE);
         }
 
-        if (this.validMimeTypes.hasOwnProperty(format)) {
-            this._contentTypeHeader = this.validMimeTypes[format];
+        if (typeof(format) !== 'string') {
+            throw TypeError(SDB_DDR_INVALID_ACCEPT_TYPE);
+        }
+        
+        format = format.toLowerCase()
+
+        if (this.#validMimeTypes.hasOwnProperty(format)) {
+            this.#contentTypeHeader = this.#validMimeTypes[format];
   
         }
         else {
-            for (const type in this.validMimeTypes) {
-                if (this.validMimeTypes[type] === format.toLowerCase()) {
-                    this._contentTypeHeader= this.validMimeTypes[type];
+            for (const type in this.#validMimeTypes) {
+                if (this.#validMimeTypes[type] === format) {
+                    this.#contentTypeHeader= this.#validMimeTypes[type];
                     break;
                 }
             }
@@ -177,34 +196,36 @@ class DataDiscoveryResource {
             throw TypeError(SDB_DDR_INVALID_HEADER_VALUE);
         }
 
-        this._extraHeaders[key] = value;
+        this.#extraHeaders[key] = value;
     }
 
     async get(path) {
         const url = this.#buildEndpointString(path);
         const headers = { 
-            apiKey: this.sdbClient.apiKey, 
-            Accept: this._acceptHeader,
-            ...this._extraHeaders
+            apiKey: this.#sdbClient.apiKey, 
+            Accept: this.#acceptHeader,
+            ...this.#extraHeaders
         };
 
         return fetchWrapper('GET', url, undefined, headers);
     }
 
-    async post(data) {
+    // path here is handled slightly differently since it would not be common to specify;
+    // used in SlashDBClient's config methods
+    async post(data, path = undefined) {
         if (!data) {
             throw ReferenceError(SDB_DDR_INVALID_DATA)
         }        
 
-        const url = this.#buildEndpointString();
+        const url = this.#buildEndpointString(path);
         const headers = { 
-            apiKey: this.sdbClient.apiKey, 
-            Accept: this._acceptHeader,
-            'Content-Type': this._contentTypeHeader,
-            ...this._extraHeaders            
+            apiKey: this.#sdbClient.apiKey, 
+            Accept: this.#acceptHeader,
+            'Content-Type': this.#contentTypeHeader,
+            ...this.#extraHeaders            
         };        
 
-        return fetchWrapper('POST', url, data, headers);
+        return fetchWrapper('POST', url, data, headers, true);
     }
 
     async put(path, data) {
@@ -214,32 +235,32 @@ class DataDiscoveryResource {
 
         const url = this.#buildEndpointString(path);
         const headers = { 
-            apiKey: this.sdbClient.apiKey, 
-            Accept: this._acceptHeader,
-            'Content-Type': this._contentTypeHeader,
-            ...this._extraHeaders       
+            apiKey: this.#sdbClient.apiKey, 
+            Accept: this.#acceptHeader,
+            'Content-Type': this.#contentTypeHeader,
+            ...this.#extraHeaders       
         };        
 
-        return fetchWrapper('PUT', url, data, headers);
+        return fetchWrapper('PUT', url, data, headers, true);
     }    
 
     async delete(path) {
         const url = this.#buildEndpointString(path);
         const headers = { 
-            apiKey: this.sdbClient.apiKey, 
-            Accept: this._acceptHeader,
-            ...this._extraHeaders            
+            apiKey: this.#sdbClient.apiKey, 
+            Accept: this.#acceptHeader,
+            ...this.#extraHeaders            
         };
 
-        return fetchWrapper('DELETE', url, undefined, headers);
+        return fetchWrapper('DELETE', url, undefined, headers, true);
     }
 
 
     #buildEndpointString(path) {
 
-        let endpoint = this.sdbClient.host + this.dbPrefix + this.dbName + this.resourceName;
+        let endpoint = this.#sdbClient.host + this.#dbPrefix + this.dbName + this.resourceName;
         
-        // if no path is provided, the HTTP operation will act on all entries of the resource
+        // if no path is provided, the HTTP operation will act on all resource records
         if (!path) {
             return endpoint;
         }
