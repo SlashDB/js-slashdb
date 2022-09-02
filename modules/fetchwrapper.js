@@ -39,22 +39,24 @@
 
     try {
       let response = await fetch(url, requestOptions);
-      //console.log(await response.text())
+
       if (response.ok === true) {
         returnObj.res = response;
         returnObj.data = onlyRes ? null : handleResponse(response);
       }
       else {
-        let errMsg = response.status;
-        let headers = response.headers;
+        const statusCode = response.status;
+        const headers = response.headers;
+        let errMsg = `HTTP ${statusCode}`;
         if (headers.has('Warning')) {
-          errMsg = `HTTP ${errMsg}: ${headers.get('Warning')}`;
+          errMsg = `HTTP ${statusCode}: ${headers.get('Warning')}`;
         }
-        throw Error(errMsg)
+        console.error(errMsg);
+        throw Error(statusCode)
       }
-    } catch (e) {
-      console.error(e);
-      throw Error(e);      
+    } 
+    catch (e) {
+      throw Error(e.message);
     }
     if (onlyRes) {
       return returnObj.res;
