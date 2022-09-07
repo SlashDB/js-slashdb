@@ -4,6 +4,7 @@
     import  { SlashDBClient } from './modules/slashdbclient.js';
     import { DataDiscoveryResource, DataDiscoveryDatabase } from './modules/datadiscovery.js';
     import { DataDiscoveryFilter, eq, any, between, gte, lte, not, and, desc, asc } from './modules/datadiscoveryfilter.js';
+    import {fetchWrapper } from './modules/fetchwrapper.js'
 
 
     // make methods, modules, available to console for debugging
@@ -20,14 +21,15 @@
 
     window.SlashDBClient = SlashDBClient
     window.DataDiscoveryResource = DataDiscoveryResource
-    
+    window.DataDiscoveryDatabase = DataDiscoveryDatabase
+    window.fetchWrapper = fetchWrapper;
 
     let q2 = new DataDiscoveryFilter(eq("Country","Canada")).addFilter(and(eq("ZIP","78501"),any("Name","A","B","C"))).join("Invoice").addFilter(eq("Country","USA")).addFilter(eq("State","Texas"))
     console.log(q2)
 
 
     //create an SDB client and login
-    const sdb1 = new SlashDBClient('http://192.168.1.16:8000', 'admin', 'gez0bk949rhwpcjdxqqsn8w9g4iec709');
+    const sdb1 = new SlashDBClient('http://192.168.1.19:8000', 'admin', 'gez0bk949rhwpcjdxqqsn8w9g4iec709');
     const sdb2 = new SlashDBClient('http://192.168.1.20:9999', 'admin', 'gez0bk949rhwpcjdxqqsn8w9g4iec709');
     sdb1.login();
     console.log('Logged in status:', await sdb1.isAuthenticated())
@@ -70,18 +72,18 @@
     let cust_res = chinook_res['Customer']
     console.log(cust_res)
     let r = await cust_res.accept('csv').get(eq("FirstName","J*"))
-    console.log(await r[0])
+    console.log(r.data)
     r = await cust_res.get(q1)
-    console.log(await r[0])
+    console.log(r.data)
     
 
     console.log('\noption2 -- sending JSON')
     chinookdb = new DataDiscoveryDatabase(sdb1, 'Chinook')
     cust_res = new DataDiscoveryResource(chinookdb,'Customer');
     r = await cust_res.get(eq("FirstName","F*"))
-    console.log(await r[0])    
+    console.log(r.data)    
     r = await cust_res.get(q1)
-    console.log(await r[0])
+    console.log(r.data)
 
 
     let mt = chinook_res['MediaType']
@@ -89,7 +91,7 @@
     // delete tests
     try {
         r = await mt.delete(gte("MediaTypeId",6))
-        console.log(r)
+        console.log('deleted: ', r.status)
     }
     catch(e) {
         console.log(e)
