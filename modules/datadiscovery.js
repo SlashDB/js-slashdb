@@ -76,10 +76,10 @@ class DataDiscoveryResource {
                 if (!db.dbName || typeof(db.dbName) !== 'string') {
                     throw ReferenceError(SDR_DDR_NO_DB_NAME);
                 }
-                this.dbName = `${db.dbName}/`;  
+                this.dbName = db.dbName;  
             }
             else if (typeof(db) === 'string') {
-                this.dbName = `${db}/`;
+                this.dbName = db;
             }
             else {
                 throw TypeError(SDB_DDR_NO_DB);
@@ -146,14 +146,10 @@ class DataDiscoveryResource {
             this.#acceptHeader = this.#validMimeTypes[format];
   
         }
+
         else {
-            for (const type in this.#validMimeTypes) {
-                if (this.#validMimeTypes[type] === format) {
-                    this.#acceptHeader= this.#validMimeTypes[type];
-                    break;
-                }
-            }
-            throw TypeError(SDB_DDR_INVALID_ACCEPT_TYPE);
+            this.#acceptHeader = format;
+            console.warn('Accept type ${format} unknown');
         }
 
         return this;
@@ -161,11 +157,11 @@ class DataDiscoveryResource {
 
     contentType(format) {
         if (!format) {
-            throw TypeError(SDB_DDR_INVALID_ACCEPT_TYPE);
+            throw TypeError(SDB_DDR_INVALID_CONTENT_TYPE);
         }
 
         if (typeof(format) !== 'string') {
-            throw TypeError(SDB_DDR_INVALID_ACCEPT_TYPE);
+            throw TypeError(SDB_DDR_INVALID_CONTENT_TYPE);
         }
         
         format = format.toLowerCase()
@@ -174,14 +170,10 @@ class DataDiscoveryResource {
             this.#contentTypeHeader = this.#validMimeTypes[format];
   
         }
+
         else {
-            for (const type in this.#validMimeTypes) {
-                if (this.#validMimeTypes[type] === format) {
-                    this.#contentTypeHeader= this.#validMimeTypes[type];
-                    break;
-                }
-            }
-            throw TypeError(SDB_DDR_INVALID_CONTENT_TYPE);
+            this.#contentTypeHeader = format;
+            console.warn('Content-Type ${format} unknown');
         }
 
         return this;
@@ -258,7 +250,7 @@ class DataDiscoveryResource {
 
     #buildEndpointString(path) {
 
-        let endpoint = this.#sdbClient.host + this.#dbPrefix + this.dbName + this.resourceName;
+        let endpoint = this.#sdbClient.host + this.#dbPrefix + `${this.dbName}/` + this.resourceName;
         
         // if no path is provided, the HTTP operation will act on all resource records
         if (!path) {
