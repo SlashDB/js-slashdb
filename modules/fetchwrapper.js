@@ -42,7 +42,9 @@
 
       if (response.ok === true) {
         returnObj.res = response;
-        returnObj.data = onlyRes ? null : handleResponse(response);
+        if (!onlyRes) {
+          await handleResponse(response, returnObj);
+        }
       }
       else {
         const statusCode = response.status;
@@ -61,7 +63,7 @@
     if (onlyRes) {
       return returnObj.res;
     } else {
-      return [returnObj.data, returnObj.res];
+      return returnObj;
     }
   }
 
@@ -71,10 +73,10 @@
  * @param {*} response
  * @returns {Object} data
  */
-async function handleResponse(response) {
+async function handleResponse(response, returnObj) {
   let data, text;
   try {
-    data = await response.text()
+    data = await response.text();
     text = data;
     data = data && JSON.parse(data);
   }
@@ -85,7 +87,7 @@ async function handleResponse(response) {
       }
       else {
           console.error("Error encountered in handleResponse");
-          return Promise.reject("Error encountered in handleResponse")
+          return Promise.reject("Error encountered in handleResponse");
       }
   }
 
@@ -93,58 +95,7 @@ async function handleResponse(response) {
     const error = (data && data.message) || response.statusText;
     return Promise.reject(error);
   }
-
-  return data;
+  returnObj.data = data;
 }
 
-
-  // fetchWrapper old
-  //   try {
-  //     let resposne await fetch(url, requestOptions)
-  //       .then((response) => {
-  //         returnObj.res = response;
-  //         returnObj.data = onlyRes ? null : handleResponse(response);
-  //       })
-  //       .catch((error) => {
-  //         throw Error(error.response);
-  //         console.log(error.response);
-  //       });
-  //   } catch (error) {
-  //     throw Error(error.response);      
-  //     console.log(error);
-  //   }
-  //   if (onlyRes) {
-  //     return returnObj.res;
-  //   } else {
-  //     return [returnObj.data, returnObj.res];
-  //   }
-  // }
-
-
-// async function handleResponse(response) {
-//     return await response.text().then((text) => {
-//       let data;
-//       try {
-//           data = text && JSON.parse(text);
-//       }
-//       // for urls that aren't JSON data return the raw data
-//       catch(e) {
-//           if (e instanceof SyntaxError) {
-//               data = text;
-//           }
-//           else {
-//               console.error("Error encountered in handleResponse");
-//               return Promise.reject("Error encountered in handleResponse")
-//           }
-//       }
-  
-//       if (!response.ok) {
-//         const error = (data && data.message) || response.statusText;
-//         return Promise.reject(error);
-//       }
-  
-//       return data;
-//     });
-//   }
-
-  export { fetchWrapper }
+export { fetchWrapper }
