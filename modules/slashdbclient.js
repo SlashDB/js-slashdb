@@ -50,7 +50,7 @@ class SlashDBClient {
       
       const body = { login: this.username, password: this.password };
       try {
-        let response = (await this.sdbConfig.post(body, this.loginEP))[1]
+        let response = (await this.sdbConfig.post(body, this.loginEP)).res
         if (response.ok === true) {
           this.isAuthenticatedFlag = true;
         }
@@ -64,7 +64,7 @@ class SlashDBClient {
       const url = `${this.userEP}/${this.username}.json`;
       
       try {
-        let response = (await this.sdbConfig.get(url))[1]
+        let response = (await this.sdbConfig.get(url)).res
         if (response.ok === true) {
           this.isAuthenticatedFlag = true;
           return true;
@@ -79,41 +79,41 @@ class SlashDBClient {
       /* *** configuration endpoint getters/setters */
 
     async getSettings() {
-      return (await this.sdbConfig.get(this.settingsEP))[0]
+      return (await this.sdbConfig.get(this.settingsEP)).data
     }
 
     async getVersion() {
-   		return (await this.sdbConfig.get(this.versionEP))[0];
+   		return (await this.sdbConfig.get(this.versionEP)).data;
    	}
 
     async loadModel(dbName) {
- 	  	return (await this.sdbConfig.get(`${this.loadEP}/${dbName}`))[0];
+ 	  	return (await this.sdbConfig.get(`${this.loadEP}/${dbName}`)).data;
    	}
 
     async unloadModel(dbName) {
-      return (await this.sdbConfig.get(`${this.unloadEP}/${dbName}`))[0];
+      return (await this.sdbConfig.get(`${this.unloadEP}/${dbName}`)).data;
     }
 
     async getReflectStatus(dbName = undefined) {
  		  const ep = (!dbName) ? this.reflectStatusEP : `${this.reflectStatusEP.split('.json')[0]}/${dbName}.json`;
- 		  return (await this.sdbConfig.get(ep))[0];
+ 		  return (await this.sdbConfig.get(ep)).data;
  	  }
 
     async getUser(username = undefined) {
    		const ep = (!username) ? this.userEP : `${this.userEP}/${username}`;
-    	return (await this.sdbConfig.get(ep))[0];
+    	return (await this.sdbConfig.get(ep)).data;
  	  }
 
     async getDbDef(dbName = undefined, guiData = false) {
       const guiParam = guiData ? '?guidata' : '';
       const ep = (!dbName) ? `${this.dbDefEP}${guiParam}` : `${this.dbDefEP}/${dbName}${guiParam}`;
-      return (await this.sdbConfig.get(ep))[0];
+      return (await this.sdbConfig.get(ep)).data;
     }  
 
  	  async getQueryDef(queryName = undefined, guiData = false) {
    		const guiParam = guiData ? '?guidata' : '';
    		const ep = (!queryName) ? `${this.queryDefEP}${guiParam}` : `${this.queryDefEP}/${queryName}${guiParam}`;
-   		return (await this.sdbConfig.get(ep))[0];
+   		return (await this.sdbConfig.get(ep)).data;
    	}	    
 
     // explore databases on system
