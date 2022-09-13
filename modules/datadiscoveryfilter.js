@@ -327,7 +327,7 @@ class DataDiscoveryFilter {
 		this.pathString += filter == null ? '' : `/${filter}`;
 		
 		// combines path and query parameters
-		this.filterString = null;
+		this.endpoint = null;
 		
 		this.build();
 	}
@@ -539,13 +539,13 @@ class DataDiscoveryFilter {
 		paramString = paramString.slice(0,paramString.length-1);	// chop trailing &
 		paramString += this.#separator() + this.#wildcard();
 		
-		this.filterString = paramString.length > 0 ? `${this.pathString}?${paramString}` : this.pathString;
+		this.endpoint = paramString.length > 0 ? `${this.pathString}?${paramString}` : this.pathString;
 		
 		return this;
 	}
 
 	str() {
-		return this.filterString;
+		return this.endpoint;
 	}
 
 }

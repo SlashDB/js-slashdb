@@ -1,3 +1,17 @@
+// for pre v17/18 Node environment, node-fetch module required
+// //let fetch = null;
+// if (typeof(window) !== 'undefined') {
+//   fetch = window.fetch;
+// }
+// else {
+//   (async () => {
+//       let f = await import("node-fetch");
+//       fetch = f.default
+//     }
+//   )();
+// }
+
+
 /**
  * fetch API wrapper for handling HTTP requests.
  *
@@ -49,12 +63,12 @@
       else {
         const statusCode = response.status;
         const headers = response.headers;
-        let errMsg = `HTTP ${statusCode}`;
+        let errMsg = statusCode
         if (headers.has('Warning')) {
           errMsg = `HTTP ${statusCode}: ${headers.get('Warning')}`;
         }
         console.error(errMsg);
-        throw Error(statusCode)
+        throw Error(statusCode);
       }
     } 
     catch (e) {
