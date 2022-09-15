@@ -9,24 +9,23 @@ The ```Jest``` and ```fetch-mock``` packages are included as dev dependencies.  
 
 ### Testing Configuration
 
-The test scripts responsible for testing modules that include fetch API calls have a few lines of code near the top of each script that must be configured for your environment.  There are mock tests that isolate functions from making real fetch calls over the network; there are also tests that permit the functions to execute fetch calls over the network.
+The file ```jest.config.js``` in the repo root contains some parameters that need to be configured for your environment.  There are mock tests that isolate functions from making real fetch calls over the network; there are also tests that permit the functions to execute fetch calls over the network.
 
 These lines enable/disable real fetch API tests and mock fetch API tests, respectively: 
 ```
-    const liveTestsEnabled = true;
-    const mockTestsEnabled = true;
+    LIVE_TESTS_ENABLED: true,
+    MOCK_TESTS_ENABLED: true
 ```
 
 These lines set configuration for live host URLs and mock host URLs.  Configure ```liveSdbHost``` to point to your test SlashDB host.  ```mockHost``` can remain as is unless you have a service running on port 9999 of your local system:
 ```
-    const liveSdbHost = 'http://<SLASHDBHOST:PORT>'; 
-    const mockHost = 'http://localhost:9999';
+    LIVE_SDB_HOST = 'http://<SLASHDBHOST:PORT>'
+    MOCK_HOST = 'http://localhost:9999'
 ```
 
-These lines create client connection objects for testing; only ```liveClient``` will need to be changed here, to reflect your SlashDB environment's admin user API key:
+This line is for setting the SlashDB admin user's API key:
 ```
-    const mockClient = new SlashDBClient(mockHost,'admin','1234');
-    const liveClient = new SlashDBClient(liveSdbHost,'admin','APIKEYHERE');
+    LIVE_SDB_API_KEY: '<APIKEYHERE>'
 ```
 
 ### Running Tests
