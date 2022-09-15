@@ -17,7 +17,7 @@ These lines enable/disable real fetch API tests and mock fetch API tests, respec
     MOCK_TESTS_ENABLED: true
 ```
 
-These lines set configuration for live host URLs and mock host URLs.  Configure ```liveSdbHost``` to point to your test SlashDB host.  ```mockHost``` can remain as is unless you have a service running on port 9999 of your local system:
+These lines set configuration for live host URLs and mock host URLs.  Configure ```LIVE_SDB_HOST``` to point to your test SlashDB host.  ```MOCK_HOST``` can remain as is unless you have a service running on port 9999 of your local system:
 ```
     LIVE_SDB_HOST = 'http://<SLASHDBHOST:PORT>'
     MOCK_HOST = 'http://localhost:9999'
