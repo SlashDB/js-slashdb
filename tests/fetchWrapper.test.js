@@ -10,13 +10,17 @@ beforeAll( () => {
     jest.spyOn(console, 'warn').mockImplementation(() => {});
 });
 
+afterEach( () => {
+    fetchMock.mockReset();
+});
+
 describe('fetchWrapper() tests', () => {
 
     const liveTestsEnabled = true;
     const mockTestsEnabled = true;
 
-    const liveSdbHost = 'http://192.168.1.19:8000'; 
-    const mockHost = 'http:/localhost:9999';
+    const liveSdbHost = 'http://192.168.1.9:8000'; 
+    const mockHost = 'http://localhost:9999';
 
     const customers = 
     [
@@ -127,8 +131,7 @@ describe('fetchWrapper() tests', () => {
             expect(fetchMock).toHaveLastGot(`${mockHost}/userdef/admin`);
             expect(e.message).toBe('406');
         }
-       
-       fetchMock.mockReset();
+
     });
 
 
@@ -245,8 +248,6 @@ describe('fetchWrapper() tests', () => {
             expect(e.message).toBe('409');
             newCustomer['CustomerId'] = undefined;
         }
-        
-        fetchMock.mockReset();        
         
     });    
 
@@ -371,9 +372,6 @@ describe('fetchWrapper() tests', () => {
             updateCustomer['nonExistentField'] = undefined;
         }
 
-      
-        fetchMock.mockReset();        
-        
     });    
 
     testIf(liveTestsEnabled, 'PUT live tests', async () => {
@@ -452,9 +450,6 @@ describe('fetchWrapper() tests', () => {
             expect(fetchMock).toHaveLastDeleted(`${mockHost}/db/Chinook/Customer/FirstName/PUT`);
             expect(e.message).toBe('403');
         }
-
-     
-        fetchMock.mockReset();        
         
     });    
 

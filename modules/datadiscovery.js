@@ -47,6 +47,7 @@ const SDB_DDR_INVALID_ACCEPT_TYPE = 'Invalid Accept header; acceptable values ar
 const SDB_DDR_INVALID_PATH_EMPTY = 'Empty path given';
 const SDB_DDR_INVALID_PATH_TYPE = 'Path is not a string or a DataDiscoveryFilter object';
 const SDB_DDR_INVALID_DATA = 'Data for POST/PUT body missing';
+const SDB_DDR_INVALID_HEADER_OBJ = 'Invalid header parameter - must be an object containing key/value pairs';
 const SDB_DDR_INVALID_HEADER_KEY = 'Invalid header key - must be string or number';
 const SDB_DDR_INVALID_HEADER_VALUE = 'Invalid header value - must be string or number';
 
@@ -70,9 +71,16 @@ class DataDiscoveryResource {
                 if (!db.dbName || typeof(db.dbName) !== 'string') {
                     throw ReferenceError(SDR_DDR_NO_DB_NAME);
                 }
+                if (!isNaN(db.dbName)) {
+                    throw TypeError(SDR_DDR_NO_DB_NAME);
+                }        
+
                 this.dbName = db.dbName;  
             }
             else if (typeof(db) === 'string') {
+                if (!isNaN(db)) {
+                    throw TypeError(SDB_DDR_NO_DB);
+                }                       
                 this.dbName = db;
             }
             else {
@@ -83,6 +91,10 @@ class DataDiscoveryResource {
             if (typeof(resourceName) !== 'string' || resourceName.trim().length < 1) {
                 throw TypeError(SDB_DDR_NO_RESOURCE);
             }
+
+            if (!isNaN(resourceName)) {
+                throw TypeError(SDB_DDR_NO_RESOURCE);
+            }            
 
             this.dbPrefix = '/db/'
             this.resourceName = resourceName;
@@ -174,15 +186,19 @@ class DataDiscoveryResource {
     }
 
     // for setting custom headers in HTTP request
-    extraHeaders(key,value) {
-        if (typeof(key) !== 'string' && typeof(key) !== 'number') {
-            throw TypeError(SDB_DDR_INVALID_HEADER_KEY);
-        }
-        if (typeof(value) !== 'string' && typeof(value) !== 'number') {
-            throw TypeError(SDB_DDR_INVALID_HEADER_VALUE);
-        }
+    setExtraHeaders(headerObj) {
+        if (typeof(headerObj) === 'object' && !Array.isArray(headerObj) && headerObj !== null) {
+            for (const key in headerObj) {
+                if (typeof(headerObj[key]) !== 'string' && typeof(headerObj[key]) !== 'number') {
+                    throw TypeError(SDB_DDR_INVALID_HEADER_VALUE);
+                }
 
-        this.extraHeaders[key] = value;
+                this.extraHeaders[key] = headerObj[key];
+            }
+        }
+        else {
+            throw TypeError(SDB_DDR_INVALID_HEADER_OBJ);
+        }
     }
 
     async get(path) {
