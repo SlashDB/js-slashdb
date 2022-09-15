@@ -16,12 +16,6 @@ afterEach( () => {
 
 describe('fetchWrapper() tests', () => {
 
-    const liveTestsEnabled = true;
-    const mockTestsEnabled = true;
-
-    const liveSdbHost = 'http://192.168.1.9:8000'; 
-    const mockHost = 'http://localhost:9999';
-
     const customers = 
     [
         {
@@ -92,53 +86,53 @@ describe('fetchWrapper() tests', () => {
         }
     ];
 
-    testIf(mockTestsEnabled, 'GET mock tests', async () => {
+    testIf(MOCK_TESTS_ENABLED, 'GET mock tests', async () => {
 
         fetchMock
-            .get(`${mockHost}/db/Chinook/Customer`, customers)
-            .get(`${mockHost}/db/Chinook/InvalidResource`, 404 )
-            .get(`${mockHost}/userdef/admin.json`, 403 )
-            .get(`${mockHost}/userdef/admin`, 406 )
+            .get(`${MOCK_HOST}/db/Chinook/Customer`, customers)
+            .get(`${MOCK_HOST}/db/Chinook/InvalidResource`, 404 )
+            .get(`${MOCK_HOST}/userdef/admin.json`, 403 )
+            .get(`${MOCK_HOST}/userdef/admin`, 406 )
 
         // get a valid resource
-        let r = await fetchWrapper('GET', `${mockHost}/db/Chinook/Customer`);
+        let r = await fetchWrapper('GET', `${MOCK_HOST}/db/Chinook/Customer`);
         expect(r.data).toStrictEqual(customers)
-        expect(fetchMock).toHaveLastGot(`${mockHost}/db/Chinook/Customer`);
+        expect(fetchMock).toHaveLastGot(`${MOCK_HOST}/db/Chinook/Customer`);
 
         // get a non-existent resource - 404
         try {
-            await fetchWrapper('GET', `${mockHost}/db/Chinook/InvalidResource`);
+            await fetchWrapper('GET', `${MOCK_HOST}/db/Chinook/InvalidResource`);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastGot(`${mockHost}/db/Chinook/InvalidResource`);
+            expect(fetchMock).toHaveLastGot(`${MOCK_HOST}/db/Chinook/InvalidResource`);
             expect(e.message).toBe('404');
         }
 
         // get a forbidden resource - 403
         try {
-            await fetchWrapper('GET', `${mockHost}/userdef/admin.json`);
+            await fetchWrapper('GET', `${MOCK_HOST}/userdef/admin.json`);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastGot(`${mockHost}/userdef/admin.json`);
+            expect(fetchMock).toHaveLastGot(`${MOCK_HOST}/userdef/admin.json`);
             expect(e.message).toBe('403');
         }
 
         // get a resource in a non-existent format - 406
         try {
-            await fetchWrapper('GET', `${mockHost}/userdef/admin`);
+            await fetchWrapper('GET', `${MOCK_HOST}/userdef/admin`);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastGot(`${mockHost}/userdef/admin`);
+            expect(fetchMock).toHaveLastGot(`${MOCK_HOST}/userdef/admin`);
             expect(e.message).toBe('406');
         }
 
     });
 
 
-    testIf(liveTestsEnabled, 'GET live tests', async () => {
+    testIf(LIVE_TESTS_ENABLED, 'GET live tests', async () => {
 
         try {
-            let r = await fetchWrapper('GET', `${liveSdbHost}/db/Chinook/Customer.json?limit=3`);
+            let r = await fetchWrapper('GET', `${LIVE_SDB_HOST}/db/Chinook/Customer.json?limit=3`);
             expect(r.data).toStrictEqual(customers)
         }
         catch(e) {
@@ -146,14 +140,14 @@ describe('fetchWrapper() tests', () => {
         }
 
         try {
-            await fetchWrapper('GET', `${liveSdbHost}/db/Chinook/InvalidResource`);
+            await fetchWrapper('GET', `${LIVE_SDB_HOST}/db/Chinook/InvalidResource`);
         }
         catch(e) {
             expect(e.message).toBe('404');
         }
 
         try {
-            await fetchWrapper('GET', `${liveSdbHost}/userdef/admin.json`);
+            await fetchWrapper('GET', `${LIVE_SDB_HOST}/userdef/admin.json`);
         }
         catch(e) {
             expect(e.message).toBe('403');
@@ -161,7 +155,7 @@ describe('fetchWrapper() tests', () => {
 
         // get a resource in a non-existent format - 406
         try {
-            await fetchWrapper('GET', `${liveSdbHost}/userdef/admin`);
+            await fetchWrapper('GET', `${LIVE_SDB_HOST}/userdef/admin`);
         }
         catch(e) {
             expect(e.message).toBe('406');
@@ -170,7 +164,7 @@ describe('fetchWrapper() tests', () => {
     });
 
 
-    testIf(mockTestsEnabled, 'POST mock tests', async () => {
+    testIf(MOCK_TESTS_ENABLED, 'POST mock tests', async () => {
 
         let newCustomer = {
             "FirstName": "POST",
@@ -186,7 +180,7 @@ describe('fetchWrapper() tests', () => {
         }
 
         fetchMock
-            .post(`${mockHost}/db/Chinook/Customer`, (url, options) => {
+            .post(`${MOCK_HOST}/db/Chinook/Customer`, (url, options) => {
                 let b = JSON.parse(options.body)
                 if (!options.headers.apiKey) {
                         return 403;
@@ -202,38 +196,38 @@ describe('fetchWrapper() tests', () => {
 
             return 201;
             })
-            .post(`${mockHost}/db/Chinook/InvalidResource`, 404)
+            .post(`${MOCK_HOST}/db/Chinook/InvalidResource`, 404)
 
         // create a new record
-        let r = await fetchWrapper('POST', `${mockHost}/db/Chinook/Customer`, newCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
+        let r = await fetchWrapper('POST', `${MOCK_HOST}/db/Chinook/Customer`, newCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
         expect(r.status).toBe(201)
-        expect(fetchMock).toHaveLastPosted(`${mockHost}/db/Chinook/Customer`);
+        expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/Chinook/Customer`);
 
         // create a record for a non-existent resource - 404
         try {
-            await fetchWrapper('POST', `${mockHost}/db/Chinook/InvalidResource`, newCustomer, {'Content-Type': 'application/json', apiKey:null}, true);
+            await fetchWrapper('POST', `${MOCK_HOST}/db/Chinook/InvalidResource`, newCustomer, {'Content-Type': 'application/json', apiKey:null}, true);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPosted(`${mockHost}/db/Chinook/InvalidResource`);
+            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/Chinook/InvalidResource`);
             expect(e.message).toBe('404');
         }
 
         // create a new record w/o auth - 403
         try {
-            await fetchWrapper('POST', `${mockHost}/db/Chinook/Customer`, newCustomer, {'Content-Type': 'application/json', apiKey:null}, true);
+            await fetchWrapper('POST', `${MOCK_HOST}/db/Chinook/Customer`, newCustomer, {'Content-Type': 'application/json', apiKey:null}, true);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPosted(`${mockHost}/db/Chinook/Customer`);
+            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/Chinook/Customer`);
             expect(e.message).toBe('403');
         }
 
         // create a new record with non-existent fields for given resource - 400
         try {
             newCustomer['nonExistentField'] = 'invalidValue';
-            await fetchWrapper('POST', `${mockHost}/db/Chinook/Customer`, newCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
+            await fetchWrapper('POST', `${MOCK_HOST}/db/Chinook/Customer`, newCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPosted(`${mockHost}/db/Chinook/Customer`);
+            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/Chinook/Customer`);
             expect(e.message).toBe('400');
             newCustomer['nonExistentField'] = undefined;
         }
@@ -241,17 +235,17 @@ describe('fetchWrapper() tests', () => {
         // create a record that already exists - 409
         try {
             newCustomer['CustomerId'] = 1
-            await fetchWrapper('POST', `${mockHost}/db/Chinook/Customer`, newCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
+            await fetchWrapper('POST', `${MOCK_HOST}/db/Chinook/Customer`, newCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPosted(`${mockHost}/db/Chinook/Customer`);
+            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/Chinook/Customer`);
             expect(e.message).toBe('409');
             newCustomer['CustomerId'] = undefined;
         }
         
     });    
 
-    testIf(liveTestsEnabled, 'POST live tests', async () => {
+    testIf(LIVE_TESTS_ENABLED, 'POST live tests', async () => {
 
         let newCustomer = {
             "FirstName": "POST",
@@ -268,7 +262,7 @@ describe('fetchWrapper() tests', () => {
 
         // valid resource to create
         try {
-            let r = await fetchWrapper('POST', `${liveSdbHost}/db/Chinook/Customer`, newCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
+            let r = await fetchWrapper('POST', `${LIVE_SDB_HOST}/db/Chinook/Customer`, newCustomer, {'Content-Type': 'application/json', apiKey:LIVE_SDB_API_KEY}, true);
             expect(r.status).toBe(201)
         }
         catch(e) {
@@ -277,7 +271,7 @@ describe('fetchWrapper() tests', () => {
 
         // non-existent resource - 404
         try {
-            await fetchWrapper('POST', `${liveSdbHost}/db/Chinook/InvalidResource`, newCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
+            await fetchWrapper('POST', `${LIVE_SDB_HOST}/db/Chinook/InvalidResource`, newCustomer, {'Content-Type': 'application/json', apiKey:LIVE_SDB_API_KEY}, true);
         }
         catch(e) {
             expect(e.message).toBe('404');
@@ -285,7 +279,7 @@ describe('fetchWrapper() tests', () => {
 
         // no auth to create record - 403
         try {
-             await fetchWrapper('POST', `${liveSdbHost}/userdef`, newCustomer, {'Content-Type': 'application/json'}, true);
+             await fetchWrapper('POST', `${LIVE_SDB_HOST}/userdef`, newCustomer, {'Content-Type': 'application/json'}, true);
         }
         catch(e) {
             expect(e.message).toBe('403');
@@ -294,7 +288,7 @@ describe('fetchWrapper() tests', () => {
         // create a record that already exists - 409
         try {
             newCustomer['CustomerId'] = 1
-            await fetchWrapper('POST', `${liveSdbHost}/db/Chinook/Customer`, newCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
+            await fetchWrapper('POST', `${LIVE_SDB_HOST}/db/Chinook/Customer`, newCustomer, {'Content-Type': 'application/json', apiKey:LIVE_SDB_API_KEY}, true);
         }
         catch(e) {
             expect(e.message).toBe('409');
@@ -304,7 +298,7 @@ describe('fetchWrapper() tests', () => {
     });    
 
     
-    testIf(mockTestsEnabled, 'PUT mock tests', async () => {
+    testIf(MOCK_TESTS_ENABLED, 'PUT mock tests', async () => {
 
         let updateCustomer = {
             "FirstName": "PUT",
@@ -320,7 +314,7 @@ describe('fetchWrapper() tests', () => {
         }
 
         fetchMock
-            .put(`${mockHost}/db/Chinook/Customer/FirstName/POST`, (url, options) => {
+            .put(`${MOCK_HOST}/db/Chinook/Customer/FirstName/POST`, (url, options) => {
                 let b = JSON.parse(options.body)
                 if (!options.headers.apiKey) {
                         return 403;
@@ -336,45 +330,45 @@ describe('fetchWrapper() tests', () => {
 
             return 201;
             })
-            .put(`${mockHost}/db/Chinook/InvalidResource/FirstName/POST`, 404)
+            .put(`${MOCK_HOST}/db/Chinook/InvalidResource/FirstName/POST`, 404)
 
         // update a record
-        let r = await fetchWrapper('PUT', `${mockHost}/db/Chinook/Customer/FirstName/POST`, updateCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
+        let r = await fetchWrapper('PUT', `${MOCK_HOST}/db/Chinook/Customer/FirstName/POST`, updateCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
         expect(r.status).toBe(201)
-        expect(fetchMock).toHaveLastPut(`${mockHost}/db/Chinook/Customer/FirstName/POST`);
+        expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/Chinook/Customer/FirstName/POST`);
 
         // update a non-existent record - 404
         try {
-            await fetchWrapper('PUT', `${mockHost}/db/Chinook/InvalidResource/FirstName/POST`, updateCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
+            await fetchWrapper('PUT', `${MOCK_HOST}/db/Chinook/InvalidResource/FirstName/POST`, updateCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPut(`${mockHost}/db/Chinook/InvalidResource/FirstName/POST`);
+            expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/Chinook/InvalidResource/FirstName/POST`);
             expect(e.message).toBe('404');
         }
 
         // // create a new record w/o auth - 403
         try {
-            await fetchWrapper('PUT', `${mockHost}/db/Chinook/Customer/FirstName/POST`, updateCustomer, {'Content-Type': 'application/json', apiKey:null}, true);
+            await fetchWrapper('PUT', `${MOCK_HOST}/db/Chinook/Customer/FirstName/POST`, updateCustomer, {'Content-Type': 'application/json', apiKey:null}, true);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPut(`${mockHost}/db/Chinook/Customer/FirstName/POST`);
+            expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/Chinook/Customer/FirstName/POST`);
             expect(e.message).toBe('403');
         }
 
         // update a record with non-existent fields for given resource - 400
         try {
             updateCustomer['nonExistentField'] = 'invalidValue';
-            await fetchWrapper('PUT', `${mockHost}/db/Chinook/Customer/FirstName/POST`, updateCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
+            await fetchWrapper('PUT', `${MOCK_HOST}/db/Chinook/Customer/FirstName/POST`, updateCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPut(`${mockHost}/db/Chinook/Customer/FirstName/POST`);
+            expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/Chinook/Customer/FirstName/POST`);
             expect(e.message).toBe('400');
             updateCustomer['nonExistentField'] = undefined;
         }
 
     });    
 
-    testIf(liveTestsEnabled, 'PUT live tests', async () => {
+    testIf(LIVE_TESTS_ENABLED, 'PUT live tests', async () => {
 
         let updateCustomer = {
             "FirstName": "PUT",
@@ -391,7 +385,7 @@ describe('fetchWrapper() tests', () => {
 
         // valid resource to update
         try {
-            let r = await fetchWrapper('PUT', `${liveSdbHost}/db/Chinook/Customer/FirstName/POST`, updateCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
+            let r = await fetchWrapper('PUT', `${LIVE_SDB_HOST}/db/Chinook/Customer/FirstName/POST`, updateCustomer, {'Content-Type': 'application/json', apiKey:LIVE_SDB_API_KEY}, true);
             expect(r.status).toBe(204)
         }
         catch(e) {
@@ -400,7 +394,7 @@ describe('fetchWrapper() tests', () => {
 
         // non-existent record - 404
         try {
-            await fetchWrapper('PUT', `${liveSdbHost}/db/Chinook/InvalidResource`, updateCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
+            await fetchWrapper('PUT', `${LIVE_SDB_HOST}/db/Chinook/InvalidResource`, updateCustomer, {'Content-Type': 'application/json', apiKey:LIVE_SDB_API_KEY}, true);
         }
         catch(e) {
             expect(e.message).toBe('404');
@@ -408,7 +402,7 @@ describe('fetchWrapper() tests', () => {
 
         // no auth to update record - 403
         try {
-             await fetchWrapper('PUT', `${liveSdbHost}/userdef/admin`, updateCustomer, {'Content-Type': 'application/json'}, true);
+             await fetchWrapper('PUT', `${LIVE_SDB_HOST}/userdef/admin`, updateCustomer, {'Content-Type': 'application/json'}, true);
         }
         catch(e) {
             expect(e.message).toBe('403');
@@ -416,48 +410,48 @@ describe('fetchWrapper() tests', () => {
 
     });        
 
-    testIf(mockTestsEnabled, 'DELETE mock tests', async () => {
+    testIf(MOCK_TESTS_ENABLED, 'DELETE mock tests', async () => {
 
         fetchMock
-            .delete(`${mockHost}/db/Chinook/Customer/FirstName/PUT`, (url, options) => {
+            .delete(`${MOCK_HOST}/db/Chinook/Customer/FirstName/PUT`, (url, options) => {
                 if (!options.headers.apiKey) {
                         return 403;
                     }
 
             return 204;
             })
-            .delete(`${mockHost}/db/Chinook/InvalidResource/FirstName/PUT`, 404)
+            .delete(`${MOCK_HOST}/db/Chinook/InvalidResource/FirstName/PUT`, 404)
 
         // delete a record
-        let r = await fetchWrapper('DELETE', `${mockHost}/db/Chinook/Customer/FirstName/PUT`, undefined, {apiKey:'1234'}, true);
+        let r = await fetchWrapper('DELETE', `${MOCK_HOST}/db/Chinook/Customer/FirstName/PUT`, undefined, {apiKey:'1234'}, true);
         expect(r.status).toBe(204)
-        expect(fetchMock).toHaveLastDeleted(`${mockHost}/db/Chinook/Customer/FirstName/PUT`);
+        expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/Chinook/Customer/FirstName/PUT`);
 
         // delete a non-existent record - 404
         try {
-            await fetchWrapper('DELETE', `${mockHost}/db/Chinook/InvalidResource/FirstName/PUT`, undefined, {apiKey:'1234'}, true);
+            await fetchWrapper('DELETE', `${MOCK_HOST}/db/Chinook/InvalidResource/FirstName/PUT`, undefined, {apiKey:'1234'}, true);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastDeleted(`${mockHost}/db/Chinook/InvalidResource/FirstName/PUT`);
+            expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/Chinook/InvalidResource/FirstName/PUT`);
             expect(e.message).toBe('404');
         }
 
         // // delete a record w/o auth - 403
         try {
-            await fetchWrapper('DELETE', `${mockHost}/db/Chinook/Customer/FirstName/PUT`, undefined, {apiKey:null}, true);
+            await fetchWrapper('DELETE', `${MOCK_HOST}/db/Chinook/Customer/FirstName/PUT`, undefined, {apiKey:null}, true);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastDeleted(`${mockHost}/db/Chinook/Customer/FirstName/PUT`);
+            expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/Chinook/Customer/FirstName/PUT`);
             expect(e.message).toBe('403');
         }
         
     });    
 
-    testIf(liveTestsEnabled, 'DELETE live tests', async () => {
+    testIf(LIVE_TESTS_ENABLED, 'DELETE live tests', async () => {
 
         // valid resource to delete
         try {
-            let r = await fetchWrapper('DELETE', `${liveSdbHost}/db/Chinook/Customer/FirstName/PUT`, undefined, {apiKey:'1234'}, true);
+            let r = await fetchWrapper('DELETE', `${LIVE_SDB_HOST}/db/Chinook/Customer/FirstName/PUT`, undefined, {apiKey:LIVE_SDB_API_KEY}, true);
             expect(r.status).toBe(204)
         }
         catch(e) {
@@ -466,7 +460,7 @@ describe('fetchWrapper() tests', () => {
 
         // non-existent record - 404
         try {
-            await fetchWrapper('DELETE', `${liveSdbHost}/db/Chinook/InvalidResource`, undefined, {apiKey:'1234'}, true);
+            await fetchWrapper('DELETE', `${LIVE_SDB_HOST}/db/Chinook/InvalidResource`, undefined, {apiKey:LIVE_SDB_API_KEY}, true);
         }
         catch(e) {
             expect(e.message).toBe('404');
@@ -474,7 +468,7 @@ describe('fetchWrapper() tests', () => {
 
         // no auth to update record - 403
         try {
-             await fetchWrapper('DELETE', `${liveSdbHost}/userdef/admin`, undefined, undefined, true);
+             await fetchWrapper('DELETE', `${LIVE_SDB_HOST}/userdef/admin`, undefined, undefined, true);
         }
         catch(e) {
             expect(e.message).toBe('403');

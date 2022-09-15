@@ -5,6 +5,7 @@ import { SlashDBClient } from '../modules/slashdbclient.js';
 const testIf = (condition, ...args) =>
   condition ? test(...args) : test.skip(...args);
 
+
 beforeAll( () => {
     // disable console errors, warns
     jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -17,16 +18,9 @@ afterEach( () => {
 
 describe('DataDiscoveryResource() class tests', () => {
 
-    const liveTestsEnabled = true;
-    const mockTestsEnabled = true;
-
-    const liveSdbHost = 'http://192.168.1.9:8000'; 
-    const mockHost = 'http://localhost:9999';
-
-    const mockClient = new SlashDBClient(mockHost,'admin','1234');
-    const liveClient = new SlashDBClient(liveSdbHost,'admin','gez0bk949rhwpcjdxqqsn8w9g4iec709');
+    const mockClient = new SlashDBClient(MOCK_HOST,'admin','1234');
+    const liveClient = new SlashDBClient(LIVE_SDB_HOST,'admin', LIVE_SDB_API_KEY);
     
-
     const customers = 
     [
         {
@@ -258,23 +252,23 @@ describe('DataDiscoveryResource() class tests', () => {
         
     });
 
-    testIf(mockTestsEnabled, 'testing: get() mock tests', async () => {
+    testIf(MOCK_TESTS_ENABLED, 'testing: get() mock tests', async () => {
 
         fetchMock
-            .get(`${mockHost}/db/Chinook/Customer`, customers)
-            .get(`${mockHost}/db/Chinook/Customer/InvalidResource`, 404 )
-            .get(`${mockHost}/db/Chinook/Customer/ForbiddenResource`, (url, options) => {
+            .get(`${MOCK_HOST}/db/Chinook/Customer`, customers)
+            .get(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource`, 404 )
+            .get(`${MOCK_HOST}/db/Chinook/Customer/ForbiddenResource`, (url, options) => {
                 if (!options.headers.apiKey) {
                     return 403;
                 }
                 return 200;
             })
-            .get(`${mockHost}/userdef/admin`, 406 )
+            .get(`${MOCK_HOST}/userdef/admin`, 406 )
 
         let testDDR = new DataDiscoveryResource('Chinook','Customer',mockClient)
         let r = await testDDR.get();
         expect(r.data).toStrictEqual(customers)
-        expect(fetchMock).toHaveLastGot(`${mockHost}/db/Chinook/Customer`);
+        expect(fetchMock).toHaveLastGot(`${MOCK_HOST}/db/Chinook/Customer`);
 
         // get a non-existent resource - 404
         try {
@@ -282,7 +276,7 @@ describe('DataDiscoveryResource() class tests', () => {
             await  testDDR.get('InvalidResource');
         }
         catch(e) {
-            expect(fetchMock).toHaveLastGot(`${mockHost}/db/Chinook/Customer/InvalidResource`);
+            expect(fetchMock).toHaveLastGot(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource`);
             expect(e.message).toBe('404');
         }
 
@@ -292,7 +286,7 @@ describe('DataDiscoveryResource() class tests', () => {
             await testDDR.get('ForbiddenResource');
         }
         catch(e) {
-            expect(fetchMock).toHaveLastGot(`${mockHost}/db/Chinook/Customer/ForbiddenResource`);
+            expect(fetchMock).toHaveLastGot(`${MOCK_HOST}/db/Chinook/Customer/ForbiddenResource`);
             expect(e.message).toBe('403');
         }
 
@@ -304,14 +298,14 @@ describe('DataDiscoveryResource() class tests', () => {
         //     await testDDR.get();            
         // }
         // catch(e) {
-        //     expect(fetchMock).toHaveLastGot(`${mockHost}/userdef/admin`);
+        //     expect(fetchMock).toHaveLastGot(`${MOCK_HOST}/userdef/admin`);
         //     expect(e.message).toBe('406');
         // }
        
     });
 
 
-     testIf(liveTestsEnabled, 'testing: get() live tests', async () => {
+     testIf(LIVE_TESTS_ENABLED, 'testing: get() live tests', async () => {
 
         try {
             let testDDR = new DataDiscoveryResource('Chinook','Customer',liveClient)
@@ -365,7 +359,7 @@ describe('DataDiscoveryResource() class tests', () => {
     });
 
 
-    testIf(mockTestsEnabled, 'testing: post() mock tests', async () => {
+    testIf(MOCK_TESTS_ENABLED, 'testing: post() mock tests', async () => {
 
         let newCustomer = {
             "FirstName": "POST",
@@ -381,7 +375,7 @@ describe('DataDiscoveryResource() class tests', () => {
         }
 
         fetchMock
-            .post(`${mockHost}/db/Chinook/Customer`, (url, options) => {
+            .post(`${MOCK_HOST}/db/Chinook/Customer`, (url, options) => {
                 let b = JSON.parse(options.body)
                 if (!options.headers.apiKey) {
                         return 403;
@@ -397,20 +391,20 @@ describe('DataDiscoveryResource() class tests', () => {
                 
             return 201;
             })
-            .post(`${mockHost}/db/Chinook/Customer/InvalidResource`, 404)
+            .post(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource`, 404)
 
         // create a new record
         let testDDR = new DataDiscoveryResource('Chinook','Customer',mockClient)        
         let r = await testDDR.post(newCustomer);
         expect(r.status).toBe(201)
-        expect(fetchMock).toHaveLastPosted(`${mockHost}/db/Chinook/Customer`);
+        expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/Chinook/Customer`);
 
         // create a record for a non-existent resource - 404
         try {
             await testDDR.post(newCustomer,'InvalidResource');
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPosted(`${mockHost}/db/Chinook/Customer/InvalidResource`);
+            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource`);
             expect(e.message).toBe('404');
         }
 
@@ -420,7 +414,7 @@ describe('DataDiscoveryResource() class tests', () => {
             await testDDR.post(newCustomer);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPosted(`${mockHost}/db/Chinook/Customer`);
+            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/Chinook/Customer`);
             expect(e.message).toBe('403');
             mockClient.sdbConfig.apKey = '1234';             
         }
@@ -431,7 +425,7 @@ describe('DataDiscoveryResource() class tests', () => {
             await testDDR.post(newCustomer);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPosted(`${mockHost}/db/Chinook/Customer`);
+            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/Chinook/Customer`);
             expect(e.message).toBe('400');
             newCustomer['nonExistentField'] = undefined;
         }
@@ -442,14 +436,14 @@ describe('DataDiscoveryResource() class tests', () => {
             await testDDR.post(newCustomer);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPosted(`${mockHost}/db/Chinook/Customer`);
+            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/Chinook/Customer`);
             expect(e.message).toBe('409');
             newCustomer['CustomerId'] = undefined;
         }
         
     });    
 
-    testIf(liveTestsEnabled, 'testing: post() live tests', async () => {
+    testIf(LIVE_TESTS_ENABLED, 'testing: post() live tests', async () => {
 
         let newCustomer = {
             "FirstName": "POST",
@@ -510,7 +504,7 @@ describe('DataDiscoveryResource() class tests', () => {
     });    
 
     
-    testIf(mockTestsEnabled, 'testing: put() mock tests', async () => {
+    testIf(MOCK_TESTS_ENABLED, 'testing: put() mock tests', async () => {
 
         let updateCustomer = {
             "FirstName": "PUT",
@@ -526,7 +520,7 @@ describe('DataDiscoveryResource() class tests', () => {
         }
 
         fetchMock
-            .put(`${mockHost}/db/Chinook/Customer/FirstName/POST`, (url, options) => {
+            .put(`${MOCK_HOST}/db/Chinook/Customer/FirstName/POST`, (url, options) => {
                 let b = JSON.parse(options.body)
                 if (!options.headers.apiKey) {
                         return 403;
@@ -542,20 +536,20 @@ describe('DataDiscoveryResource() class tests', () => {
 
             return 201;
             })
-            .put(`${mockHost}/db/Chinook/Customer/InvalidResource/FirstName/POST`, 404)
+            .put(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource/FirstName/POST`, 404)
 
         // update a record
         let testDDR = new DataDiscoveryResource('Chinook','Customer',mockClient)    
         let r = await testDDR.put('FirstName/POST', updateCustomer);
         expect(r.status).toBe(201)
-        expect(fetchMock).toHaveLastPut(`${mockHost}/db/Chinook/Customer/FirstName/POST`);
+        expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/Chinook/Customer/FirstName/POST`);
 
         // update a non-existent record - 404
         try {
             await testDDR.put('InvalidResource/FirstName/POST', updateCustomer);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPut(`${mockHost}/db/Chinook/Customer/InvalidResource/FirstName/POST`);
+            expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource/FirstName/POST`);
             expect(e.message).toBe('404');
         }
 
@@ -566,7 +560,7 @@ describe('DataDiscoveryResource() class tests', () => {
             
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPut(`${mockHost}/db/Chinook/Customer/FirstName/POST`);
+            expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/Chinook/Customer/FirstName/POST`);
             expect(e.message).toBe('403');
             mockClient.sdbConfig.apiKey = '1234';
         }
@@ -577,7 +571,7 @@ describe('DataDiscoveryResource() class tests', () => {
             await testDDR.put('FirstName/POST', updateCustomer);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPut(`${mockHost}/db/Chinook/Customer/FirstName/POST`);
+            expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/Chinook/Customer/FirstName/POST`);
             expect(e.message).toBe('400');
             updateCustomer['nonExistentField'] = undefined;
         }
@@ -585,7 +579,7 @@ describe('DataDiscoveryResource() class tests', () => {
         
     });    
 
-    testIf(liveTestsEnabled, 'testing: put() live tests', async () => {
+    testIf(LIVE_TESTS_ENABLED, 'testing: put() live tests', async () => {
 
         let updateCustomer = {
             "FirstName": "PUT",
@@ -642,24 +636,24 @@ describe('DataDiscoveryResource() class tests', () => {
 
     });        
 
-    testIf(mockTestsEnabled, 'testing: delete() mock tests', async () => {
+    testIf(MOCK_TESTS_ENABLED, 'testing: delete() mock tests', async () => {
 
         fetchMock
-            .delete(`${mockHost}/db/Chinook/Customer/FirstName/PUT`, (url, options) => {
+            .delete(`${MOCK_HOST}/db/Chinook/Customer/FirstName/PUT`, (url, options) => {
                 if (!options.headers.apiKey) {
                         return 403;
                     }
 
             return 204;
             })
-            .delete(`${mockHost}/db/Chinook/InvalidResource/FirstName/PUT`, 404)
-            .delete(`${mockHost}/db/Chinook/Customer/InvalidResource/FirstName/PUT`, 400)
+            .delete(`${MOCK_HOST}/db/Chinook/InvalidResource/FirstName/PUT`, 404)
+            .delete(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource/FirstName/PUT`, 400)
 
         // delete a record
         let testDDR = new DataDiscoveryResource('Chinook','Customer',mockClient)    
         let r = await testDDR.delete('FirstName/PUT');
         expect(r.status).toBe(204)
-        expect(fetchMock).toHaveLastDeleted(`${mockHost}/db/Chinook/Customer/FirstName/PUT`);
+        expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/Chinook/Customer/FirstName/PUT`);
 
         // delete a non-existent record - 404
         try {
@@ -667,7 +661,7 @@ describe('DataDiscoveryResource() class tests', () => {
             let r = await testDDR.delete('FirstName/PUT');
         }
         catch(e) {
-            expect(fetchMock).toHaveLastDeleted(`${mockHost}/db/Chinook/InvalidResource/FirstName/PUT`);
+            expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/Chinook/InvalidResource/FirstName/PUT`);
             expect(e.message).toBe('404');
         }
 
@@ -677,7 +671,7 @@ describe('DataDiscoveryResource() class tests', () => {
             let r = await testDDR.delete('InvalidResource/FirstName/PUT');
         }
         catch(e) {
-            //expect(fetchMock).toHaveLastDeleted(`${mockHost}/db/Chinook/Customer/InvalidResource/FirstName/PUT`);
+            //expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource/FirstName/PUT`);
             expect(e.message).toBe('400');
         }
 
@@ -688,14 +682,14 @@ describe('DataDiscoveryResource() class tests', () => {
             await testDDR.delete('FirstName/PUT');
         }
         catch(e) {
-            expect(fetchMock).toHaveLastDeleted(`${mockHost}/db/Chinook/Customer/FirstName/PUT`);
+            expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/Chinook/Customer/FirstName/PUT`);
             expect(e.message).toBe('403');
             mockClient.apiKey = '1234';
         }
 
     });    
 
-    testIf(liveTestsEnabled, 'testing: delete() live tests', async () => {
+    testIf(LIVE_TESTS_ENABLED, 'testing: delete() live tests', async () => {
 
         // valid resource to delete
         try {
