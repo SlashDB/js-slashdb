@@ -6,6 +6,9 @@ Tests are executed using the [```Jest```](https://jestjs.io/) framework.  The te
 
 The ```Jest``` and ```fetch-mock``` packages are included as dev dependencies.  The ```@babel/plugin-transform-modules-commonjs``` package and the ```.babelrc``` file in the root of this repo are also included for Jest to function properly, since the project modules are created using ES6 syntax.  There's also a couple other utility packages installed for development purposes.
 
+
+### Testing Configuration
+
 The test scripts responsible for testing modules that include fetch API calls have a few lines of code near the top of each script that must be configured for your environment.  There are mock tests that isolate functions from making real fetch calls over the network; there are also tests that permit the functions to execute fetch calls over the network.
 
 These lines enable/disable real fetch API tests and mock fetch API tests, respectively: 
@@ -25,6 +28,8 @@ These lines create client connection objects for testing; only ```liveClient``` 
     const mockClient = new SlashDBClient(mockHost,'admin','1234');
     const liveClient = new SlashDBClient(liveSdbHost,'admin','APIKEYHERE');
 ```
+
+### Running Tests
 
 Once Node is installed, packages have been installed, and the lines above have been set for your environment, you can run all test suites using the command:
 
