@@ -396,7 +396,7 @@ describe('DataDiscoveryResource() class tests', () => {
         // create a new record
         let testDDR = new DataDiscoveryResource('Chinook','Customer',mockClient)        
         let r = await testDDR.post(newCustomer);
-        expect(r.status).toBe(201)
+        expect(r.res.status).toBe(201)
         expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/Chinook/Customer`);
 
         // create a record for a non-existent resource - 404
@@ -464,7 +464,7 @@ describe('DataDiscoveryResource() class tests', () => {
         try {
             let testDDR = new DataDiscoveryResource('Chinook','Customer',liveClient) 
             let r = await testDDR.post(newCustomer);
-            expect(r.status).toBe(201)
+            expect(r.res.status).toBe(201)
         }
         catch(e) {
             throw Error(e)
@@ -541,7 +541,7 @@ describe('DataDiscoveryResource() class tests', () => {
         // update a record
         let testDDR = new DataDiscoveryResource('Chinook','Customer',mockClient)    
         let r = await testDDR.put('FirstName/POST', updateCustomer);
-        expect(r.status).toBe(201)
+        expect(r.res.status).toBe(201)
         expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/Chinook/Customer/FirstName/POST`);
 
         // update a non-existent record - 404
@@ -598,7 +598,7 @@ describe('DataDiscoveryResource() class tests', () => {
         try {
             let testDDR = new DataDiscoveryResource('Chinook','Customer',liveClient)    
             let r = await testDDR.put('FirstName/POST', updateCustomer);            
-            expect(r.status).toBe(204)
+            expect(r.res.status).toBe(204)
         }
         catch(e) {
             throw Error(e)
@@ -652,7 +652,7 @@ describe('DataDiscoveryResource() class tests', () => {
         // delete a record
         let testDDR = new DataDiscoveryResource('Chinook','Customer',mockClient)    
         let r = await testDDR.delete('FirstName/PUT');
-        expect(r.status).toBe(204)
+        expect(r.res.status).toBe(204)
         expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/Chinook/Customer/FirstName/PUT`);
 
         // delete a non-existent record - 404
@@ -695,7 +695,7 @@ describe('DataDiscoveryResource() class tests', () => {
         try {
             let testDDR = new DataDiscoveryResource('Chinook','Customer',liveClient)    
             let r = await testDDR.delete('FirstName/PUT');                    
-            expect(r.status).toBe(204)
+            expect(r.res.status).toBe(204)
         }
         catch(e) {
             throw Error(e)
