@@ -227,7 +227,7 @@ class DataDiscoveryResource {
             ...this.extraHeaders            
         };        
 
-        return fetchWrapper('POST', url, data, headers, true);
+        return fetchWrapper('POST', url, data, headers);
     }
 
     async put(path, data) {
@@ -243,7 +243,7 @@ class DataDiscoveryResource {
             ...this.extraHeaders       
         };        
 
-        return fetchWrapper('PUT', url, data, headers, true);
+        return fetchWrapper('PUT', url, data, headers);
     }    
 
     async delete(path) {
@@ -254,7 +254,7 @@ class DataDiscoveryResource {
             ...this.extraHeaders            
         };
 
-        return fetchWrapper('DELETE', url, undefined, headers, true);
+        return fetchWrapper('DELETE', url, undefined, headers);
     }
 
 
