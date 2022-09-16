@@ -3,8 +3,11 @@
 <script type="module">
     import  { SlashDBClient } from './modules/slashdbclient.js';
     import { DataDiscoveryResource, DataDiscoveryDatabase } from './modules/datadiscovery.js';
-    import { DataDiscoveryFilter, eq, any, between, gte, lte, not, and, desc, asc } from './modules/datadiscoveryfilter.js';
+    import { DataDiscoveryFilter } from './modules/datadiscoveryfilter.js';
+    import {  desc, asc } from './modules/basefilter.js';
     import {fetchWrapper } from './modules/fetchwrapper.js'
+    import { eq, any, between, gte, lte, not, and } from './modules/filterfunctions.js';
+    import { SQLPassThruFilter } from './modules/sqlpassthrufilter.js';
 
 
     // make methods, modules, available to console for debugging
@@ -24,12 +27,14 @@
     window.DataDiscoveryDatabase = DataDiscoveryDatabase
     window.fetchWrapper = fetchWrapper;
 
+    let sq1 = new SQLPassThruFilter();
+    console.log(sq1); 
     let q2 = new DataDiscoveryFilter(eq("Country","Canada")).addFilter(and(eq("ZIP","78501"),any("Name","A","B","C"))).join("Invoice").addFilter(eq("Country","USA")).addFilter(eq("State","Texas"))
     console.log(q2)
 
 
     //create an SDB client and login
-    const sdb1 = new SlashDBClient('http://192.168.1.19:8000', 'admin', 'gez0bk949rhwpcjdxqqsn8w9g4iec709');
+    const sdb1 = new SlashDBClient('http://192.168.1.9:8000', 'admin', 'gez0bk949rhwpcjdxqqsn8w9g4iec709');
     const sdb2 = new SlashDBClient('http://192.168.1.20:9999', 'admin', 'gez0bk949rhwpcjdxqqsn8w9g4iec709');
     sdb1.login();
     console.log('Logged in status:', await sdb1.isAuthenticated())
@@ -55,7 +60,8 @@
     console.log(await sdb1.getQueryDef('add-new-customer'));
     console.log('---------------------------------------------------------------------------------\n')
 
-    let q1 = new DataDiscoveryFilter().addFilter(any('FirstName','J*,H*')).addFilter(eq('Country','USA')).sort('FirstName',desc('LastName'))
+    let q1 = new DataDiscoveryFilter().addFilter(any('FirstName','J*,H*')).addFilter(eq('Country','USA')).sort('LastName',desc('FirstName'))
+        .cols('FirstName','LastName','Company')
     console.log(q1)
 
 
@@ -73,6 +79,9 @@
     console.log(cust_res)
     let r = await cust_res.accept('csv').get(eq("FirstName","J*"))
     console.log(r.data)
+    r = await cust_res.get(q1)
+    console.log(r.data)
+    //q1.cols(false)
     r = await cust_res.get(q1)
     console.log(r.data)
     
