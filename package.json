@@ -5,7 +5,7 @@
   "main": "slashdb_sdk.js",
   "scripts": {
     "test": "jest",
-    "start": "http-server -c-1 -p 8080"
+    "localserver": "http-server -c-1 -p 8080"
   },
   "author": "",
   "license": "MIT",
