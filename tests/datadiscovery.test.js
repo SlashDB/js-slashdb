@@ -117,26 +117,19 @@ describe('DataDiscoveryResource() class tests', () => {
         expect(testDDR).toHaveProperty('sdbClient');
         expect(testDDR.sdbClient).toBeInstanceOf(SlashDBClient)        
 
-        // special case for SDB config object
-        testDDR = new DataDiscoveryResource(null,null,mockClient,true)
-        expect(testDDR).toHaveProperty('dbPrefix');
-        expect(testDDR.dbPrefix).toBe('');
-        expect(testDDR).toHaveProperty('dbName');
-        expect(testDDR.dbName).toBe('');
-        expect(testDDR).toHaveProperty('resourceName');
-        expect(testDDR.resourceName).toBe('');
-        expect(testDDR).toHaveProperty('sdbClient');
-        expect(testDDR.sdbClient).toBeInstanceOf(SlashDBClient)    
-        
-
         // ERROR cases
         expect(() => {
             result = new DataDiscoveryResource();
         }).toThrowError();
 
-        // trying to create special SDB object w/o passing boolean flag
+        // no database name or object given
         expect(() => {
-            result = new DataDiscoveryResource(null,null,mockClient);
+            result = new DataDiscoveryResource(undefined,'Customer',mockClient);
+        }).toThrowError();
+
+        // no resource name or object given
+        expect(() => {
+            result = new DataDiscoveryResource('Chinook',undefined,mockClient);
         }).toThrowError();
 
         // no client object provided
