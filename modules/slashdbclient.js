@@ -1,4 +1,5 @@
-import { DataDiscoveryResource as SDBConfig, DataDiscoveryDatabase } from './datadiscovery.js'
+import { DataDiscoveryDatabase } from './datadiscovery.js'
+import { BaseRequestHandler as SDBConfig } from './baserequesthandler.js';
 
 const SDB_SDBC_INVALID_HOSTNAME = 'Invalid hostname parameter, must be string';
 const SDB_SDBC_INVALID_USERNAME = 'Invalid username parameter, must be string';
@@ -28,8 +29,8 @@ class SlashDBClient {
       this.headers = { apikey: this.apiKey }
       this.isAuthenticatedFlag = false;
 
-      // create the special case DataDiscovery object for interacting with config endpoints
-      this.sdbConfig = new SDBConfig(null, null, this, true);
+      // create the special case BaseRequestHandler object for interacting with config endpoints
+      this.sdbConfig = new SDBConfig(this);
 
       // SlashDB config endpoints
       this.loginEP = '/login';
