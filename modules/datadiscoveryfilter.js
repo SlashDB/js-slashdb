@@ -43,6 +43,16 @@ class DataDiscoveryFilter extends BaseFilter {
 		this.filters = (filter === undefined || filter === null) ? {rootResource : [] } : {rootResource : [filter] };	// track the filter strings for each resource
 		this.lastContext = 'rootResource';
 
+		this.urlStringParams = {
+			...this.urlStringParams,
+			stream: false,
+			depth: undefined,
+			headers: false,
+			csvNullStr: false,
+			href: false,
+			cardinality: undefined
+		}
+		
 		// the path as it is built up
 		this.pathString = '';
 		this.pathString += filter == null ? '' : `/${filter}`;
@@ -90,7 +100,7 @@ class DataDiscoveryFilter extends BaseFilter {
 	}
 
 	stream(toggle = true) {
-		this.queryParams['stream'] = toggle === true;
+		this.urlStringParams['stream'] = toggle === true;
 		return this.build();
 	}
 
@@ -100,36 +110,36 @@ class DataDiscoveryFilter extends BaseFilter {
 				throw TypeError(SDB_DDF_DEPTH_TYPE);
 			}
 		}
-		this.queryParams['depth'] = level !== false ? level : undefined;
+		this.urlStringParams['depth'] = level !== false ? level : undefined;
 		return this.build();
 	}
 		
 
 	wantarray(toggle = true) {
-		this.queryParams['wantarray'] = toggle === true;
+		this.urlStringParams['wantarray'] = toggle === true;
 		return this.build();
 	}
 		
 	// for CSV data only - will be ignored otherwise 
 	csvHeader(toggle = true) {
-		this.queryParams['headers'] = toggle === true;
+		this.urlStringParams['headers'] = toggle === true;
 		return this.build();
 	}
 
 	csvNullStr(toggle = true) {
-		this.queryParams['csvNullStr'] = toggle === true;
+		this.urlStringParams['csvNullStr'] = toggle === true;
 		return this.build();
 	}
 
 	jsonHref(toggle = true) {
-		this.queryParams['href'] = toggle === true;
+		this.urlStringParams['href'] = toggle === true;
 		return this.build();
 	}	
 
 	xsdCardinality(value = 'unbounded') {
 
 		if (value === false) {
-			this.queryParams['cardinality'] = undefined;
+			this.urlStringParams['cardinality'] = undefined;
 		}
 		
 		else if (value !== 'unbounded') {
@@ -144,7 +154,7 @@ class DataDiscoveryFilter extends BaseFilter {
 
 		}
 		
-		this.queryParams['cardinality'] = value;
+		this.urlStringParams['cardinality'] = value;
 		return this.build();
 	}	
 
@@ -163,9 +173,9 @@ class DataDiscoveryFilter extends BaseFilter {
 		let columns = this.returnColumns ? `/${this.returnColumns}` : '';
 
 		let paramString = '';
-		for (const p in this.queryParams) {
-			if (this.queryParams[p] !== undefined && this.queryParams[p] !== false) {
-				paramString += `${p}=${this.queryParams[p]}&` ;
+		for (const p in this.urlStringParams) {
+			if (this.urlStringParams[p] !== undefined && this.urlStringParams[p] !== false) {
+				paramString += `${p}=${this.urlStringParams[p]}&` ;
 			}
 		}
 		paramString = paramString.slice(0,paramString.length-1);	// chop trailing &

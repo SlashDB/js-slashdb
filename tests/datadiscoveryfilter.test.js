@@ -60,20 +60,20 @@ describe('DataDiscoveryFilter class tests', () => {
         expect(result.pathString).toBe('');
         expect(result).toHaveProperty('lastContext');
         expect(result.lastContext).toBe('rootResource');
-        expect(result).toHaveProperty('queryParams');
-        expect(result.queryParams).toHaveProperty('sort');
-        expect(result.queryParams).toHaveProperty('distinct');
-        expect(result.queryParams).toHaveProperty('limit');
-        expect(result.queryParams).toHaveProperty('offset');
-        expect(result.queryParams).toHaveProperty('stream');
-        expect(result.queryParams).toHaveProperty('depth');
-        expect(result.queryParams).toHaveProperty('transpose');
-        expect(result.queryParams).toHaveProperty('wantarray');        
-        expect(result.queryParams).toHaveProperty('headers');        
-        expect(result.queryParams).toHaveProperty('csvNullStr');        
-        expect(result.queryParams).toHaveProperty('href');        
-        expect(result.queryParams).toHaveProperty('nil_visible');        
-        expect(result.queryParams).toHaveProperty('cardinality');        
+        expect(result).toHaveProperty('urlStringParams');
+        expect(result.urlStringParams).toHaveProperty('sort');
+        expect(result.urlStringParams).toHaveProperty('distinct');
+        expect(result.urlStringParams).toHaveProperty('limit');
+        expect(result.urlStringParams).toHaveProperty('offset');
+        expect(result.urlStringParams).toHaveProperty('stream');
+        expect(result.urlStringParams).toHaveProperty('depth');
+        expect(result.urlStringParams).toHaveProperty('transpose');
+        expect(result.urlStringParams).toHaveProperty('wantarray');        
+        expect(result.urlStringParams).toHaveProperty('headers');        
+        expect(result.urlStringParams).toHaveProperty('csvNullStr');        
+        expect(result.urlStringParams).toHaveProperty('href');        
+        expect(result.urlStringParams).toHaveProperty('nil_visible');        
+        expect(result.urlStringParams).toHaveProperty('cardinality');        
         
     });
 
