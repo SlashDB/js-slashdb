@@ -6,20 +6,14 @@ const SDB_BF_OFFSET_TYPE = 'Offset row number must be a positive integer value';
 class BaseFilter {
 	constructor() {
 		// will contain any query parameters that are set
-		this.queryParams = {
+		this.urlStringParams = {
 			sort : undefined,
 			distinct : false,
 			limit: undefined,
 			offset: undefined,
-			stream : false,
-			depth : undefined,
 			transpose : false,
 			wantarray: false,
-			headers: false,
-			csvNullStr: false,
-			href: false,
 			nil_visible: false,
-			cardinality: undefined
 		};
 	
 		// for specifying which columns to return if desired
@@ -37,7 +31,7 @@ class BaseFilter {
 
 
 	sort(...columns) {
-		this.queryParams['sort'] = this.#columnArrayParser(...columns);
+		this.urlStringParams['sort'] = this.#columnArrayParser(...columns);
 		return this.build();
 	}
 
@@ -68,7 +62,7 @@ class BaseFilter {
 	}	
 
 	distinct(toggle = true) {
-		this.queryParams['distinct'] = toggle === true;
+		this.urlStringParams['distinct'] = toggle === true;
 		return this.build();
 	}
 
@@ -78,7 +72,7 @@ class BaseFilter {
 				throw TypeError(SDB_BF_LIMIT_TYPE);
 			}
 		}
-		this.queryParams['limit'] = numRows !== false ? numRows : undefined;
+		this.urlStringParams['limit'] = numRows !== false ? numRows : undefined;
 		return this.build();
 	}
 
@@ -88,17 +82,17 @@ class BaseFilter {
 				throw TypeError(SDB_BF_OFFSET_TYPE);
 			}
 		}
-		this.queryParams['offset'] = numRows !== false ? numRows : undefined;
+		this.urlStringParams['offset'] = numRows !== false ? numRows : undefined;
 		return this.build();
 	}
 
 	transpose(toggle = true) {
-		this.queryParams['transpose'] = toggle === true;
+		this.urlStringParams['transpose'] = toggle === true;
 		return this.build();
 	}
 
 	xmlNilVisible(toggle = true) {
-		this.queryParams['nil_visible'] = toggle === true;
+		this.urlStringParams['nil_visible'] = toggle === true;
 		return this.build();
 	}	
 

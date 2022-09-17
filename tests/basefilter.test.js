@@ -23,21 +23,14 @@ describe('BaseFilter class tests', () => {
         expect(result).toBeInstanceOf(BaseFilter);
         expect(result).toHaveProperty('endpoint');
         expect(result.endpoint).toBe(null);
-        expect(result).toHaveProperty('queryParams');
-        expect(result.queryParams).toHaveProperty('sort');
-        expect(result.queryParams).toHaveProperty('distinct');
-        expect(result.queryParams).toHaveProperty('limit');
-        expect(result.queryParams).toHaveProperty('offset');
-        expect(result.queryParams).toHaveProperty('stream');
-        expect(result.queryParams).toHaveProperty('depth');
-        expect(result.queryParams).toHaveProperty('transpose');
-        expect(result.queryParams).toHaveProperty('wantarray');        
-        expect(result.queryParams).toHaveProperty('headers');        
-        expect(result.queryParams).toHaveProperty('csvNullStr');        
-        expect(result.queryParams).toHaveProperty('href');        
-        expect(result.queryParams).toHaveProperty('nil_visible');        
-        expect(result.queryParams).toHaveProperty('cardinality');        
-        
+        expect(result).toHaveProperty('urlStringParams');
+        expect(result.urlStringParams).toHaveProperty('sort');
+        expect(result.urlStringParams).toHaveProperty('distinct');
+        expect(result.urlStringParams).toHaveProperty('limit');
+        expect(result.urlStringParams).toHaveProperty('offset');
+        expect(result.urlStringParams).toHaveProperty('transpose');
+        expect(result.urlStringParams).toHaveProperty('wantarray');        
+        expect(result.urlStringParams).toHaveProperty('nil_visible');        
     });
 
     test('testing: sort() method', () => {
@@ -49,9 +42,9 @@ describe('BaseFilter class tests', () => {
         result = new BaseFilter();
         
         result.sort(desc(validCol1), asc(validCol2)); // sort by columns
-        expect(result.queryParams['sort']).toBe(`-${validCol1},${validCol2}`);
+        expect(result.urlStringParams['sort']).toBe(`-${validCol1},${validCol2}`);
         result.sort(false); // reset sort
-        expect(result.queryParams['sort']).toBe(undefined);        
+        expect(result.urlStringParams['sort']).toBe(undefined);        
 
         // ERROR CASES
 
@@ -140,9 +133,9 @@ describe('BaseFilter class tests', () => {
 
         result = new BaseFilter();
         result.limit(validValue); 
-        expect(result.queryParams['limit']).toBe(validValue);
+        expect(result.urlStringParams['limit']).toBe(validValue);
         result.limit();
-        expect(result.queryParams['limit']).toBe(undefined);        
+        expect(result.urlStringParams['limit']).toBe(undefined);        
 
         // ERROR CASES
 
@@ -168,9 +161,9 @@ describe('BaseFilter class tests', () => {
 
         result = new BaseFilter();
         result.offset(validValue); 
-        expect(result.queryParams['offset']).toBe(validValue);
+        expect(result.urlStringParams['offset']).toBe(validValue);
         result.offset();
-        expect(result.queryParams['offset']).toBe(undefined);        
+        expect(result.urlStringParams['offset']).toBe(undefined);        
 
         // ERROR CASES
 
@@ -195,15 +188,15 @@ describe('BaseFilter class tests', () => {
         
         // set distinct
         result.distinct();
-        expect(result.queryParams['distinct']).toBe(true);
+        expect(result.urlStringParams['distinct']).toBe(true);
         
         // remove distinct
         result.distinct(false);
-        expect(result.queryParams['distinct']).toBe(false);
+        expect(result.urlStringParams['distinct']).toBe(false);
         
         // should be ignored - only true/false allowed
         result.distinct(1);
-        expect(result.queryParams['distinct']).toBe(false);
+        expect(result.urlStringParams['distinct']).toBe(false);
     });
 
 
@@ -214,15 +207,15 @@ describe('BaseFilter class tests', () => {
         
         // set transpose
         result.transpose();
-        expect(result.queryParams['transpose']).toBe(true);
+        expect(result.urlStringParams['transpose']).toBe(true);
         
         // remove transpose
         result.transpose(false);
-        expect(result.queryParams['transpose']).toBe(false);
+        expect(result.urlStringParams['transpose']).toBe(false);
         
         // should be ignored - only true/false allowed
         result.transpose(1);
-        expect(result.queryParams['transpose']).toBe(false);
+        expect(result.urlStringParams['transpose']).toBe(false);
     });    
 
 
@@ -233,15 +226,15 @@ describe('BaseFilter class tests', () => {
         
         // set xmlNil
         result.xmlNilVisible();
-        expect(result.queryParams['nil_visible']).toBe(true);
+        expect(result.urlStringParams['nil_visible']).toBe(true);
         
         // remove xmlNil
         result.xmlNilVisible(false);
-        expect(result.queryParams['nil_visible']).toBe(false);
+        expect(result.urlStringParams['nil_visible']).toBe(false);
         
         // should be ignored - only true/false allowed
         result.xmlNilVisible(1);
-        expect(result.queryParams['nil_visible']).toBe(false);
+        expect(result.urlStringParams['nil_visible']).toBe(false);
     });   
 
 
