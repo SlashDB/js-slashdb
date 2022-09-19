@@ -497,101 +497,99 @@ describe('BaseRequestHandler() class tests', () => {
 
     });        
 
-    // testIf(MOCK_TESTS_ENABLED, 'testing: delete() mock tests', async () => {
+    testIf(MOCK_TESTS_ENABLED, 'testing: delete() mock tests', async () => {
 
-    //     fetchMock
-    //         .delete(`${MOCK_HOST}/db/Chinook/Customer/FirstName/PUT`, (url, options) => {
-    //             if (!options.headers.apiKey) {
-    //                     return 403;
-    //                 }
+        fetchMock
+            .delete(`${MOCK_HOST}/testEndPoint`, (url, options) => {
+                if (!options.headers.apiKey) {
+                        return 403;
+                    }
 
-    //         return 204;
-    //         })
-    //         .delete(`${MOCK_HOST}/db/Chinook/InvalidResource/FirstName/PUT`, 404)
-    //         .delete(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource/FirstName/PUT`, 400)
+            return 204;
+            })
+            .delete(`${MOCK_HOST}/testEndPoint/InvalidResource`, 404)
+            .delete(`${MOCK_HOST}/testEndPoint/InvalidRequest`, 400)
 
-    //     // delete a record
-    //     let testBRH = new DataDiscoveryResource('Chinook','Customer',mockClient)    
-    //     let r = await testBRH.delete('FirstName/PUT');
-    //     expect(r.res.status).toBe(204)
-    //     expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/Chinook/Customer/FirstName/PUT`);
+        // delete a record
+        let testBRH = new BaseRequestHandler(mockClient);    
+        let r = await testBRH.delete('testEndPoint');
+        expect(r.res.status).toBe(204);
+        expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/testEndPoint`);
 
-    //     // delete a non-existent record - 404
-    //     try {
-    //         let testBRH = new DataDiscoveryResource('Chinook','InvalidResource',mockClient)    
-    //         let r = await testBRH.delete('FirstName/PUT');
-    //     }
-    //     catch(e) {
-    //         expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/Chinook/InvalidResource/FirstName/PUT`);
-    //         expect(e.message).toBe('404');
-    //     }
+        // delete a non-existent record - 404
+        try {
+            let testBRH = new BaseRequestHandler(mockClient);
+            let r = await testBRH.delete('testEndPoint/InvalidResource');
+        }
+        catch(e) {
+            expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/testEndPoint/InvalidResource`);
+            expect(e.message).toBe('404');
+        }
 
-    //     // non-existent column in record - 400
-    //     try {
-    //         let testBRH = new DataDiscoveryResource('Chinook','Customer',mockClient)    
-    //         let r = await testBRH.delete('InvalidResource/FirstName/PUT');
-    //     }
-    //     catch(e) {
-    //         //expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource/FirstName/PUT`);
-    //         expect(e.message).toBe('400');
-    //     }
+        // non-existent column in record - 400
+        try {
+            let testBRH = new BaseRequestHandler(mockClient);
+            let r = await testBRH.delete('testEndPoint/InvalidRequest');
+        }
+        catch(e) {
+            expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/testEndPoint/InvalidRequest`);
+            expect(e.message).toBe('400');
+        }
 
-    //     // delete a record w/o auth - 403
-    //     try {
-    //         mockClient.apiKey = '';
-    //         let testBRH = new DataDiscoveryResource('Chinook','Customer',mockClient) 
-    //         await testBRH.delete('FirstName/PUT');
-    //     }
-    //     catch(e) {
-    //         expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/Chinook/Customer/FirstName/PUT`);
-    //         expect(e.message).toBe('403');
-    //         mockClient.apiKey = '1234';
-    //     }
+        // delete a record w/o auth - 403
+        try {
+            mockClient.apiKey = '';
+            let testBRH = new BaseRequestHandler(mockClient);
+            await testBRH.delete('testEndPoint');
+        }
+        catch(e) {
+            expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/testEndPoint`);
+            expect(e.message).toBe('403');
+            mockClient.apiKey = '1234';
+        }
 
-    // });    
+    });    
 
-    // testIf(LIVE_TESTS_ENABLED, 'testing: delete() live tests', async () => {
+    testIf(LIVE_TESTS_ENABLED, 'testing: delete() live tests', async () => {
 
-    //     // valid resource to delete
-    //     try {
-    //         let testBRH = new DataDiscoveryResource('Chinook','Customer',liveClient)    
-    //         let r = await testBRH.delete('FirstName/PUT');                    
-    //         expect(r.res.status).toBe(204)
-    //     }
-    //     catch(e) {
-    //         throw Error(e)
-    //     }
+        // valid resource to delete
+        try {
+            let testBRH = new BaseRequestHandler(liveClient);
+            let r = await testBRH.delete('/db/Chinook/Customer/FirstName/PUT');                    
+            expect(r.res.status).toBe(204)
+        }
+        catch(e) {
+            throw Error(e)
+        }
 
-    //     // non-existent record - 404
-    //     try {
-    //         let testBRH = new DataDiscoveryResource('Chinook','InvalidResource',liveClient)    
-    //         await testBRH.delete();   
-    //     }
-    //     catch(e) {
-    //         expect(e.message).toBe('404');
-    //     }
+        // non-existent record - 404
+        try {
+            let testBRH = new BaseRequestHandler(liveClient);
+            await testBRH.delete('/db/Chinook/InvalidResource');   
+        }
+        catch(e) {
+            expect(e.message).toBe('404');
+        }
 
-    //     // non-existent column in record - 400
-    //     try {
-    //         let testBRH = new DataDiscoveryResource('Chinook','Customer',liveClient)    
-    //         await testBRH.delete('InvalidResource');   
-    //     }
-    //     catch(e) {
-    //         expect(e.message).toBe('400');
-    //     }
+        // non-existent column in record - 400
+        try {
+            let testBRH = new BaseRequestHandler(liveClient);
+            await testBRH.delete('/db/Chinook/Customer/InvalidResource');   
+        }
+        catch(e) {
+            expect(e.message).toBe('400');
+        }
 
-    //     // no auth to update record - 403
-    //     try {
-    //         liveClient.apiKey = '';
-    //         let testBRH = new DataDiscoveryResource('/userdef','deleteme',liveClient) 
-    //         testBRH.dbPrefix = '';
-    //         testBRH.resourceName = '';
-    //         await testBRH.delete('admin');               
-    //     }
-    //     catch(e) {
-    //         expect(e.message).toBe('403');
-    //     }            
+        // no auth to update record - 403
+        try {
+            liveClient.apiKey = '';
+            let testBRH = new BaseRequestHandler(liveClient);
+            await testBRH.delete('/userdef/admin');               
+        }
+        catch(e) {
+            expect(e.message).toBe('403');
+        }            
 
-    // });            
+    });            
 });
 
