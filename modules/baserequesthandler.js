@@ -44,18 +44,23 @@ class BaseRequestHandler {
         }
         
         format = format.toLowerCase()
-        
+
         if (this.validMimeTypes.hasOwnProperty(format)) {
             this.acceptHeader = this.validMimeTypes[format];
-  
+            return this;
         }
 
         else {
             this.acceptHeader = format;
-            console.warn('Accept type ${format} unknown');
-        }
 
-        return this;
+            for (const ct in this.validMimeTypes) {
+                if (this.validMimeTypes[ct] === format) {
+                    return this;
+                }
+            }
+
+            console.warn(`Accept-Type '${format}' unknown`);
+        }
     }
 
     contentType(format) {
@@ -71,15 +76,20 @@ class BaseRequestHandler {
 
         if (this.validMimeTypes.hasOwnProperty(format)) {
             this.contentTypeHeader = this.validMimeTypes[format];
-  
+            return this;
         }
 
         else {
             this.contentTypeHeader = format;
-            console.warn('Content-Type ${format} unknown');
-        }
 
-        return this;
+            for (const ct in this.validMimeTypes) {
+                if (this.validMimeTypes[ct] === format) {
+                    return this;
+                }
+            }
+
+            console.warn(`Content-Type '${format}' unknown`);
+        }
     }
 
     // for setting custom headers in HTTP request
@@ -163,7 +173,7 @@ class BaseRequestHandler {
         let endpoint = '';
         
         if (!path) {
-            return endpoint;
+            return this.sdbClient.host + endpoint;
         }
         
         if (typeof(path) === 'string') {
