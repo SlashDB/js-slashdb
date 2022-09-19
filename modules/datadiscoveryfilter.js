@@ -50,7 +50,8 @@ class DataDiscoveryFilter extends BaseFilter {
 			headers: false,
 			csvNullStr: false,
 			href: false,
-			cardinality: undefined
+			cardinality: undefined,
+			wantarray: false,
 		}
 		
 		// the path as it is built up
@@ -185,11 +186,6 @@ class DataDiscoveryFilter extends BaseFilter {
 		
 		return this;
 	}
-
-	str() {
-		return this.endpoint;
-	}  	
-
 }
 
 export { DataDiscoveryFilter }
