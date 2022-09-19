@@ -26,7 +26,10 @@
     window.SlashDBClient = SlashDBClient
     window.DataDiscoveryResource = DataDiscoveryResource
     window.DataDiscoveryDatabase = DataDiscoveryDatabase
-    window.fetchWrapper = fetchWrapper;
+    window.fetchWrapper = fetchWrapper
+    window.SQLPassThruFilter = SQLPassThruFilter
+    window.SQLPassThruQueryList = SQLPassThruQueryList
+    window.SQLPassThruQuery = SQLPassThruQuery
 
     let sqf1 = new SQLPassThruQuery('myquery');
     console.log(sqf1); 
@@ -68,6 +71,8 @@
     console.log(await sdb1.getQueryDef());
     console.log('Query definition for add-new-customer --');
     console.log(await sdb1.getQueryDef('add-new-customer'));
+    console.log('Queries packaged up -- ')
+    console.log(await sdb1.getQueries());
     console.log('---------------------------------------------------------------------------------\n')
 
     let q1 = new DataDiscoveryFilter().addFilter(any('FirstName','J*,H*')).addFilter(eq('Country','USA')).sort('LastName',desc('FirstName'))
@@ -95,7 +100,6 @@
     r = await cust_res.get(q1)
     console.log(r.data)
     
-
     console.log('\noption2 -- sending JSON')
     chinookdb = new DataDiscoveryDatabase(sdb1, 'Chinook')
     cust_res = new DataDiscoveryResource(chinookdb,'Customer');
