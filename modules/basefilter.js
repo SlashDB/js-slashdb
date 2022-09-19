@@ -12,7 +12,6 @@ class BaseFilter {
 			limit: undefined,
 			offset: undefined,
 			transpose : false,
-			wantarray: false,
 			nil_visible: false,
 		};
 	
@@ -124,8 +123,25 @@ class BaseFilter {
 		}
 	}
 
+	// generate the full filter string
 	build() {
+		let columns = this.returnColumns ? `/${this.returnColumns}` : '';
+
+		let paramString = '';
+		for (const p in this.urlStringParams) {
+			if (this.urlStringParams[p] !== undefined && this.urlStringParams[p] !== false) {
+				paramString += `${p}=${this.urlStringParams[p]}&` ;
+			}
+		}
+		paramString = paramString.slice(0,paramString.length-1);	// chop trailing &
+		
+		this.endpoint = paramString.length > 0 ? `${columns}?${paramString}` : `${columns}`;
+		
 		return this;
+	}
+
+	str() {
+		return this.endpoint;
 	}
 }
 
