@@ -16,6 +16,9 @@ class DataDiscoveryDatabase {
             throw ReferenceError(SDB_DDD_NO_DB);
         }
 
+        if (!isNaN(dbName)) {
+            throw TypeError(SDB_DDR_NO_DB);
+        }              
         this.sdbClient = clientObj;
         this.dbName = dbName;
 
@@ -107,7 +110,7 @@ class DataDiscoveryResource extends BaseRequestHandler {
         
         // if no path is provided, the HTTP operation will act on all resource records
         if (!path) {
-            return endpoint;
+            return this.sdbClient.host + endpoint;
         }
 
         
