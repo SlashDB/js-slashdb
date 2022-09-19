@@ -1,6 +1,6 @@
 import fetchMock from 'fetch-mock-jest';
-import { DataDiscoveryResource, DataDiscoveryDatabase } from '../modules/datadiscovery.js';
 import { SlashDBClient } from '../modules/slashdbclient.js';
+import { DataDiscoveryResource, DataDiscoveryDatabase } from '../modules/datadiscovery.js';
 
 const testIf = (condition, ...args) =>
   condition ? test(...args) : test.skip(...args);
