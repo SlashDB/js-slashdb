@@ -23,13 +23,13 @@ describe('BaseFilter class tests', () => {
         expect(result).toBeInstanceOf(BaseFilter);
         expect(result).toHaveProperty('endpoint');
         expect(result.endpoint).toBe(null);
+        expect(result).toHaveProperty('returnColumns');
         expect(result).toHaveProperty('urlStringParams');
         expect(result.urlStringParams).toHaveProperty('sort');
         expect(result.urlStringParams).toHaveProperty('distinct');
         expect(result.urlStringParams).toHaveProperty('limit');
         expect(result.urlStringParams).toHaveProperty('offset');
         expect(result.urlStringParams).toHaveProperty('transpose');
-        expect(result.urlStringParams).toHaveProperty('wantarray');        
         expect(result.urlStringParams).toHaveProperty('nil_visible');        
     });
 
@@ -43,8 +43,10 @@ describe('BaseFilter class tests', () => {
         
         result.sort(desc(validCol1), asc(validCol2)); // sort by columns
         expect(result.urlStringParams['sort']).toBe(`-${validCol1},${validCol2}`);
+        expect(result.endpoint).toBe(`?sort=-${validCol1},${validCol2}`);
         result.sort(false); // reset sort
-        expect(result.urlStringParams['sort']).toBe(undefined);        
+        expect(result.urlStringParams['sort']).toBe(undefined);       
+        expect(result.endpoint).toBe(''); 
 
         // ERROR CASES
 
@@ -134,8 +136,10 @@ describe('BaseFilter class tests', () => {
         result = new BaseFilter();
         result.limit(validValue); 
         expect(result.urlStringParams['limit']).toBe(validValue);
+        expect(result.endpoint).toBe(`?limit=${validValue}`);
         result.limit();
         expect(result.urlStringParams['limit']).toBe(undefined);        
+        expect(result.endpoint).toBe('');
 
         // ERROR CASES
 
@@ -162,9 +166,10 @@ describe('BaseFilter class tests', () => {
         result = new BaseFilter();
         result.offset(validValue); 
         expect(result.urlStringParams['offset']).toBe(validValue);
+        expect(result.endpoint).toBe(`?offset=${validValue}`);        
         result.offset();
         expect(result.urlStringParams['offset']).toBe(undefined);        
-
+        expect(result.endpoint).toBe('');
         // ERROR CASES
 
         expect(() => {
@@ -189,14 +194,16 @@ describe('BaseFilter class tests', () => {
         // set distinct
         result.distinct();
         expect(result.urlStringParams['distinct']).toBe(true);
+        expect(result.endpoint).toBe(`?distinct=true`);        
         
         // remove distinct
         result.distinct(false);
         expect(result.urlStringParams['distinct']).toBe(false);
-        
+        expect(result.endpoint).toBe('');        
         // should be ignored - only true/false allowed
         result.distinct(1);
         expect(result.urlStringParams['distinct']).toBe(false);
+        expect(result.endpoint).toBe('');
     });
 
 
@@ -208,14 +215,16 @@ describe('BaseFilter class tests', () => {
         // set transpose
         result.transpose();
         expect(result.urlStringParams['transpose']).toBe(true);
+        expect(result.endpoint).toBe(`?transpose=true`);        
         
         // remove transpose
         result.transpose(false);
         expect(result.urlStringParams['transpose']).toBe(false);
-        
+        expect(result.endpoint).toBe('');        
         // should be ignored - only true/false allowed
         result.transpose(1);
         expect(result.urlStringParams['transpose']).toBe(false);
+        expect(result.endpoint).toBe('');
     });    
 
 
@@ -224,17 +233,19 @@ describe('BaseFilter class tests', () => {
         let result;
         result = new BaseFilter();
         
-        // set xmlNil
+        // set xmlNilVisible
         result.xmlNilVisible();
         expect(result.urlStringParams['nil_visible']).toBe(true);
+        expect(result.endpoint).toBe(`?nil_visible=true`);        
         
-        // remove xmlNil
+        // remove xmlNilVisible
         result.xmlNilVisible(false);
         expect(result.urlStringParams['nil_visible']).toBe(false);
-        
+        expect(result.endpoint).toBe('');        
         // should be ignored - only true/false allowed
         result.xmlNilVisible(1);
         expect(result.urlStringParams['nil_visible']).toBe(false);
+        expect(result.endpoint).toBe('');
     });   
 
 
