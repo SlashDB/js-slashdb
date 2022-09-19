@@ -1,5 +1,6 @@
 import { DataDiscoveryDatabase } from './datadiscovery.js'
-import { BaseRequestHandler as SDBConfig } from './baserequesthandler.js';
+import { SQLPassThruQueryList } from './sqlpassthru.js'
+import { BaseRequestHandler } from './baserequesthandler.js';
 
 const SDB_SDBC_INVALID_HOSTNAME = 'Invalid hostname parameter, must be string';
 const SDB_SDBC_INVALID_USERNAME = 'Invalid username parameter, must be string';
@@ -30,7 +31,7 @@ class SlashDBClient {
       this.isAuthenticatedFlag = false;
 
       // create the special case BaseRequestHandler object for interacting with config endpoints
-      this.sdbConfig = new SDBConfig(this);
+      this.sdbConfig = new BaseRequestHandler(this);
 
       // SlashDB config endpoints
       this.loginEP = '/login';
@@ -117,7 +118,7 @@ class SlashDBClient {
    		return (await this.sdbConfig.get(ep)).data;
    	}	    
 
-    // explore databases on system
+    // explore databases on host
     async getDatabases() {
       const databases = {};
       let dbList = await this.getReflectStatus();
@@ -127,6 +128,11 @@ class SlashDBClient {
       return databases;
     }
 
+    // explore queries on host
+    async getQueries() {
+        const queries = new SQLPassThruQueryList(this).getQueryList();
+        return queries;
+    }
 }
 
 
