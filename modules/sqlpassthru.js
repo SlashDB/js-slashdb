@@ -13,7 +13,6 @@ class SQLPassThruQueryList {
         }
 
         this.sdbClient = clientObj;
-
     }
 
     async getQueryList() {
@@ -22,17 +21,30 @@ class SQLPassThruQueryList {
         
         // create a query object for each query in the list
         for (const query in queryList) {
-            const q = queryList[query]
-            queries[q.query_id] = new SQLPassThruQuery(q.query_id, this.sdbClient, q.http_methods, q.url_template); 
+            
+            // required since url_template is not included when getQueryDef returns all queries, only for individual ones
+            const q = await this.sdbClient.getQueryDef(query);  
+
+            // find parameters in URL template string and create list
+            let params = []
+            const tokens = q.url_template.match(/{(.*?)}/gm);
+            if (tokens) {
+                for (let t of tokens) {
+                    t = t.replaceAll('{','').replaceAll('}','');;
+                    params.push(t);
+                }
+            }
+
+            queries[q.query_id] = new SQLPassThruQuery(q.query_id, this.sdbClient, q.http_methods, params); 
 
             // remove HTTP methods that are disabled from the newly created query object
-            const methods = ['get','post','put','delete'];
+            const methods = ['GET','POST','PUT','DELETE'];
             for (const m of methods) {
-                if (q.http_methods.hasOwnProperty(m.toUpperCase()) && q.http_methods[m.toUpperCase()] === true) {
+                if (q.http_methods.hasOwnProperty(m) && q.http_methods[m] === true) {
                     continue;
                 }
                 else {
-                    queries[q.query_id][m] = null;
+                    queries[q.query_id][m.toLowerCase()] = null;
                 }
             }
         }
@@ -49,7 +61,7 @@ const SDB_SPTQ_INVALID_PATH_TYPE = 'Path is not a string or a DataDiscoveryFilte
 
 class SQLPassThruQuery extends BaseRequestHandler {
 
-    constructor(queryName, clientObj, methods=null, urlTemplate=null) {
+    constructor(queryName, clientObj, methods=null, params=null) {
         super(clientObj)
 
 		if (typeof(queryName) !== 'string' || queryName.trim().length < 1) {
@@ -63,16 +75,18 @@ class SQLPassThruQuery extends BaseRequestHandler {
 			throw SyntaxError(SDB_SPTQ_INVALID_QUERYNAME);
 		}
         
+        // object key/value pairs of methods
         if (methods) {
             this.methods = methods;
         }
 
-        if (urlTemplate) {
-            this.urlTemplate = urlTemplate;
+        // array of parameters
+        if (params) {
+            this.params = params;
         }
 
         this.queryName = queryName;
-        this.queryPrefix = '/query/'
+        this.queryPrefix = '/query/';
 
     }
 
@@ -86,7 +100,7 @@ class SQLPassThruQuery extends BaseRequestHandler {
         
         // if no path is provided, the HTTP operation just request to execute the query w/o parameters
         if (!path) {
-            return endpoint;
+            return this.sdbClient.host + endpoint;
         }
 
         
