@@ -49,8 +49,6 @@ describe('DataDiscoveryFilter class tests', () => {
         // simplest case - filter object, no parameters defined
         result = new DataDiscoveryFilter();
         expect(result).toBeInstanceOf(DataDiscoveryFilter);
-        expect(result).toHaveProperty('endpoint');
-        expect(result.endpoint).toBe('');
         expect(result).toHaveProperty('resources');
         expect(result.resources.size).toBe(1);
         expect(result.resources).toContain('rootResource');
@@ -60,19 +58,16 @@ describe('DataDiscoveryFilter class tests', () => {
         expect(result.pathString).toBe('');
         expect(result).toHaveProperty('lastContext');
         expect(result.lastContext).toBe('rootResource');
+        expect(result).toHaveProperty('wildcard');
+        expect(result.wildcard).toBe('*');
+        expect(result).toHaveProperty('separator');
+        expect(result.separator).toBe(',');
         expect(result).toHaveProperty('urlStringParams');
-        expect(result.urlStringParams).toHaveProperty('sort');
-        expect(result.urlStringParams).toHaveProperty('distinct');
-        expect(result.urlStringParams).toHaveProperty('limit');
-        expect(result.urlStringParams).toHaveProperty('offset');
         expect(result.urlStringParams).toHaveProperty('stream');
         expect(result.urlStringParams).toHaveProperty('depth');
-        expect(result.urlStringParams).toHaveProperty('transpose');
-        expect(result.urlStringParams).toHaveProperty('wantarray');        
         expect(result.urlStringParams).toHaveProperty('headers');        
         expect(result.urlStringParams).toHaveProperty('csvNullStr');        
         expect(result.urlStringParams).toHaveProperty('href');        
-        expect(result.urlStringParams).toHaveProperty('nil_visible');        
         expect(result.urlStringParams).toHaveProperty('cardinality');        
         
     });
@@ -491,11 +486,11 @@ describe('DataDiscoveryFilter class tests', () => {
         result.join(validResource);
         result.addFilter(validFilter2);
         
-        // set distinct
+        // set stream
         result.stream();
         expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}?stream=true`);
         
-        // remove distinct
+        // remove stream
         result.stream(false);
         expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
         
@@ -511,11 +506,11 @@ describe('DataDiscoveryFilter class tests', () => {
         result.join(validResource);
         result.addFilter(validFilter2);
         
-        // set distinct
+        // set transpose
         result.transpose();
         expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}?transpose=true`);
         
-        // remove distinct
+        // remove transpose
         result.transpose(false);
         expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
         
@@ -531,11 +526,11 @@ describe('DataDiscoveryFilter class tests', () => {
         result.join(validResource);
         result.addFilter(validFilter2);
         
-        // set distinct
+        // set wantarray
         result.wantarray();
         expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}?wantarray=true`);
         
-        // remove distinct
+        // remove wantarray
         result.wantarray(false);
         expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
         
@@ -551,11 +546,11 @@ describe('DataDiscoveryFilter class tests', () => {
         result.join(validResource);
         result.addFilter(validFilter2);
         
-        // set distinct
+        // set csvHeader
         result.csvHeader();
         expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}?headers=true`);
         
-        // remove distinct
+        // remove csvHeader
         result.csvHeader(false);
         expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
         
@@ -571,11 +566,11 @@ describe('DataDiscoveryFilter class tests', () => {
         result.join(validResource);
         result.addFilter(validFilter2);
         
-        // set distinct
+        // set csvNullStr
         result.csvNullStr();
         expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}?csvNullStr=true`);
         
-        // remove distinct
+        // remove csvNullStr
         result.csvNullStr(false);
         expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
         
@@ -591,11 +586,11 @@ describe('DataDiscoveryFilter class tests', () => {
         result.join(validResource);
         result.addFilter(validFilter2);
         
-        // set distinct
+        // set jsonHref
         result.jsonHref();
         expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}?href=true`);
         
-        // remove distinct
+        // remove jsonHref
         result.jsonHref(false);
         expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
         
@@ -611,11 +606,11 @@ describe('DataDiscoveryFilter class tests', () => {
         result.join(validResource);
         result.addFilter(validFilter2);
         
-        // set distinct
+        // set xmlNilVisible
         result.xmlNilVisible();
         expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}?nil_visible=true`);
         
-        // remove distinct
+        // remove xmlNilVisible
         result.xmlNilVisible(false);
         expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
         
