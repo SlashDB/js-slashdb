@@ -1,42 +1,63 @@
 import { BaseFilter } from "./basefilter.js";
 
-const SDB_SPTF_INVALID_QUERY = 'Query must be a non-empty string/cannot contain spaces/cannot begin with a number/cannot contain "/" character';
-const SDB_SPTF_INVALID_PARAM_NAME = 'Parameter name must be a non-empty string. To pass JSON/CSV/XML, use addBodyParam() method';
-const SDB_SPTF_INVALID_PARAM_VALUE = 'Parameter value must be a non-empty string or integer. To pass JSON/CSV/XML, use addBodyParam() method';
-
+const SDB_SPTF_INVALID_PARAM_FORMAT = 'Parameters must be given as an object of key/value pairs';
+const SDB_SPTF_INVALID_PARAM_NAME = "Parameter name must be a non-empty string, cannot contain '/' character";
+const SDB_SPTF_INVALID_PARAM_VALUE = "Parameter value must be a non-empty string or integer, cannot contain '/'";
+const SDB_SPTF_INVALID_XMLTYPE = "Parameter must be a non-empty string";
 
 // construct a SlashDB path with filter for resource
 class SQLPassThruFilter extends BaseFilter {
-	constructor() {
+	constructor(params = undefined) {
 		super()
 
+		this.pathString = '';
 		this.queryParams = {};
+
+		if (params) {
+			this.addParams(params);
+		}
+
 		this.urlStringParams = {
 			...this.urlStringParams,
 			count: false,
 			xmlType: undefined,
 		};
 
-		this.pathString = '';
 		this.build();
 	}
 	
 	// add a query parameter to the URL string
-	addParam(paramName, paramValue) {
+	addParams(params) {
 
-		if (typeof(paramName) !== 'string' || paramName.trim().length < 1) {
-			if (!isNaN(parseInt(paramName)) || resource.indexOf(' ') !== -1) {
+		if (! (typeof(params) === 'object' && !Array.isArray(params)) ){
+			throw SyntaxError(SDB_SPTF_INVALID_PARAM_FORMAT);
+		}
+
+		for (const key in params) {
+
+			if (!isNaN(parseInt(key)) ) {
 				throw SyntaxError(SDB_SPTF_INVALID_PARAM_NAME);
 			}
-			throw TypeError(SDB_SPTF_INVALID_PARAM_NAME);
-		}
 
-		if (typeof(paramValue) !== 'number' && (typeof(paramValue) !== 'string' || paramValue.trim().length < 1)) {
-			throw TypeError(SDB_SPTF_INVALID_PARAM_VALUE);
-		}
+			if (typeof(key) !== 'string' || key.indexOf(' ') !== -1) {
+				throw TypeError(SDB_SPTF_INVALID_PARAM_NAME);
+			}
+	
+			if (key.indexOf('/') !== -1) {
+				throw TypeError(SDB_SPTF_INVALID_PARAM_NAME);
+			}
 
-		this.queryParams[paramName] = paramValue;
-		this.pathString += `/${paramName}/${paramValue}`; 
+			if (typeof(params[key]) !== 'number' && (typeof(params[key]) !== 'string' || params[key].trim().length < 1)) {
+				throw TypeError(SDB_SPTF_INVALID_PARAM_VALUE);
+			}
+
+			if ( typeof(params[key]) === 'string' && params[key].indexOf('/') !== -1) {
+				throw TypeError(SDB_SPTF_INVALID_PARAM_VALUE);
+			}
+
+			this.queryParams[key] = params[key];
+			this.pathString += `/${key}/${params[key]}`;
+		}
 
 		return this.build();
 	}
@@ -46,7 +67,12 @@ class SQLPassThruFilter extends BaseFilter {
 		return this.build();
 	}
 
-	xmlType(val) {
+	xmlType(val = undefined) {
+		if (val) {
+			if (typeof(val) !== 'string') {
+				throw TypeError(SDB_SPTF_INVALID_XMLTYPE);
+			}
+		}
 		this.urlStringParams['xmlType'] = val;
 		return this.build();
 	}
@@ -67,15 +93,10 @@ class SQLPassThruFilter extends BaseFilter {
 		
 		return this;
 	}
-
-	str() {
-		return this.endpoint;
-	}
-
 }
 
 
 export { SQLPassThruFilter }
 
 // for testing only
-export { SDB_SPTF_INVALID_QUERY, SDB_SPTF_INVALID_PARAM_NAME, SDB_SPTF_INVALID_PARAM_VALUE }
+export { SDB_SPTF_INVALID_PARAM_FORMAT, SDB_SPTF_INVALID_PARAM_NAME, SDB_SPTF_INVALID_PARAM_VALUE,SDB_SPTF_INVALID_XMLTYPE }
