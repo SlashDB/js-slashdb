@@ -7,8 +7,8 @@ const SDB_SPTF_INVALID_XMLTYPE = "Parameter must be a non-empty string";
 
 // construct a SlashDB path with filter for resource
 class SQLPassThruFilter extends BaseFilter {
-	constructor(params = undefined) {
-		super()
+	constructor(params = undefined, urlPlaceholder = '__') {
+		super(urlPlaceholder)
 
 		this.pathString = '';
 		this.queryParams = {};
@@ -88,7 +88,8 @@ class SQLPassThruFilter extends BaseFilter {
 			}
 		}
 		paramString = paramString.slice(0,paramString.length-1);	// chop trailing &
-		
+		paramString += this._urlPlaceholderFn();
+
 		this.endpoint = paramString.length > 0 ? `${this.pathString}${columns}?${paramString}` : `${this.pathString}${columns}`;
 		
 		return this;

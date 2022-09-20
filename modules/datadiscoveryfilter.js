@@ -10,8 +10,8 @@ const SDB_DDF_XSDCARD_TYPE = 'xsdCardinality must be a string or positive intege
 
 // construct a SlashDB path with filter for resource
 class DataDiscoveryFilter extends BaseFilter {
-	constructor(filter = null, wildcard = '*', separator = ',') {
-		super()
+	constructor(filter = null, wildcard = '*', separator = ',', urlPlaceholder = '__') {
+		super(urlPlaceholder);
 
 		if (wildcard !== undefined) {
 			if (typeof(wildcard) !== 'string' || wildcard.indexOf('/') !== -1  || wildcard.trim().length < 1) {
@@ -180,7 +180,7 @@ class DataDiscoveryFilter extends BaseFilter {
 			}
 		}
 		paramString = paramString.slice(0,paramString.length-1);	// chop trailing &
-		paramString += this.#separator() + this.#wildcard();
+		paramString += this.#separator() + this.#wildcard() + this._urlPlaceholderFn();
 		
 		this.endpoint = paramString.length > 0 ? `${this.pathString}${columns}?${paramString}` : `${this.pathString}${columns}`;
 		

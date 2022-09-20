@@ -1,10 +1,11 @@
 const SDB_BF_INVALID_SORT_COL = 'Column must be a non-empty string/cannot contain spaces/cannot begin with a number';
 const SDB_BF_LIMIT_TYPE = 'Limit row number must be a positive integer value';
 const SDB_BF_OFFSET_TYPE = 'Offset row number must be a positive integer value';
+const SDB_BF_INVALID_WILDCARD = 'URL string placeholder must be a string, cannot contain slash (/)';
 
 // construct a SlashDB path with filter for resource
 class BaseFilter {
-	constructor() {
+	constructor(urlPlaceholder = '__') {
 		// will contain any query parameters that are set
 		this.urlStringParams = {
 			sort : undefined,
@@ -15,6 +16,14 @@ class BaseFilter {
 			nil_visible: false,
 		};
 	
+		if (urlPlaceholder !== undefined) {
+			if (typeof(urlPlaceholder) !== 'string' || urlPlaceholder.indexOf('/') !== -1  || urlPlaceholder.trim().length < 1) {
+				throw TypeError(SDB_BF_INVALID_WILDCARD);
+			}
+		}
+
+		this._urlPlaceholder = urlPlaceholder;
+
 		// for specifying which columns to return if desired
 		this.returnColumns = undefined;
 		
@@ -22,6 +31,12 @@ class BaseFilter {
 		this.endpoint = null;
 	}
 
+	// add placeholder to query string - only used internally
+	_urlPlaceholderFn() {
+		return this._urlPlaceholder !== '__' ? `&placeholder=${this._urlPlaceholder}` : '';
+	}	
+
+		
 	// specify which columns to return
 	cols(...columns) {
 		this.returnColumns = this.#columnArrayParser(...columns);
@@ -134,7 +149,8 @@ class BaseFilter {
 			}
 		}
 		paramString = paramString.slice(0,paramString.length-1);	// chop trailing &
-		
+		paramString += this._urlPlaceholderFn();
+
 		this.endpoint = paramString.length > 0 ? `${columns}?${paramString}` : `${columns}`;
 		
 		return this;
