@@ -292,149 +292,115 @@ describe('SQLPassThruQuery() class tests', () => {
     });
 
 
-    // testIf(MOCK_TESTS_ENABLED, 'testing: post() mock tests', async () => {
+    testIf(MOCK_TESTS_ENABLED, 'testing: post() mock tests', async () => {
 
-    //     let newCustomer = {
-    //         "FirstName": "POST",
-    //         "LastName": "Test",
-    //         "Company": "TestCompany",
-    //         "Address": "123 Street",
-    //         "City": "Seattle",
-    //         "State": "WA",
-    //         "Country": "USA",
-    //         "PostalCode": "58501",
-    //         "Phone": "+1 (555) 555-5555",
-    //         "Email": "user@testcompany.com",
-    //     }
+        let newCustomer = {
+            "FirstName": "POST",
+            "LastName": "Test",
+            "City": "Seattle",
+            "State": "WA",
+            "Phone": "+1 (555) 555-5555",
+            "Email": "user@testcompany.com",
+        }
 
-    //     fetchMock
-    //         .post(`${MOCK_HOST}/db/Chinook/Customer`, (url, options) => {
-    //             let b = JSON.parse(options.body)
-    //             if (!options.headers.apiKey) {
-    //                     return 403;
-    //                 }
+        fetchMock
+            .post(`${MOCK_HOST}/query/add-new-customer/`, (url, options) => {
+                let b = JSON.parse(options.body)
+                if (!options.headers.apiKey) {
+                        return 403;
+                    }
 
-    //             if (b.hasOwnProperty('nonExistentField')) {
-    //                 return 400;
-    //             }
+                if (b.hasOwnProperty('nonExistentField')) {
+                    return 400;
+                }
 
-    //             if (b.hasOwnProperty('CustomerId') && b.CustomerId === 1) {
-    //                 return 409;
-    //             }
-                
-    //         return 201;
-    //         })
-    //         .post(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource`, 404)
+            return 201;
+            })
+            .post(`${MOCK_HOST}/query/InvalidQuery/`, 404)
 
-    //     // create a new record
-    //     let testDDR = new SQLPassThruQuery('Chinook','Customer',mockClient)        
-    //     let r = await testDDR.post(newCustomer);
-    //     expect(r.res.status).toBe(201)
-    //     expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/Chinook/Customer`);
+        // valid query using POST
+        let testSPTQ = new SQLPassThruQuery('add-new-customer', mockClient);        
+        let r = await testSPTQ.post(newCustomer);
+        expect(r.res.status).toBe(201);
+        expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/query/add-new-customer/`);
 
-    //     // create a record for a non-existent resource - 404
-    //     try {
-    //         await testDDR.post(newCustomer,'InvalidResource');
-    //     }
-    //     catch(e) {
-    //         expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource`);
-    //         expect(e.message).toBe('404');
-    //     }
+        // non-existent query
+        try {
+            let testSPTQ = new SQLPassThruQuery('InvalidQuery', mockClient);        
+            let r = await testSPTQ.post(newCustomer);
+        }
+        catch(e) {
+            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/query/InvalidQuery/`);
+            expect(e.message).toBe('404');
+        }
 
-    //     // create a new record w/o auth - 403
-    //     try {
-    //         mockClient.sdbConfig.apKey = null;            
-    //         await testDDR.post(newCustomer);
-    //     }
-    //     catch(e) {
-    //         expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/Chinook/Customer`);
-    //         expect(e.message).toBe('403');
-    //         mockClient.sdbConfig.apKey = '1234';             
-    //     }
+        // query w/o auth - 403
+        try {
+            mockClient.sdbConfig.apKey = null; 
+            await testSPTQ.post(newCustomer);
+        }
+        catch(e) {
+            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/query/add-new-customer/`);
+            expect(e.message).toBe('403');
+            mockClient.sdbConfig.apKey = '1234';             
+        }
 
-    //     // create a new record with non-existent fields for given resource - 400
-    //     try {
-    //         newCustomer['nonExistentField'] = 'invalidValue';
-    //         await testDDR.post(newCustomer);
-    //     }
-    //     catch(e) {
-    //         expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/Chinook/Customer`);
-    //         expect(e.message).toBe('400');
-    //         newCustomer['nonExistentField'] = undefined;
-    //     }
+        // query with invalid params - 400
+        try {
+            newCustomer['nonExistentField'] = 'invalidValue';
+            await testSPTQ.post(newCustomer);
+        }
+        catch(e) {
+            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/query/add-new-customer/`);
+            expect(e.message).toBe('400');
+            newCustomer['nonExistentField'] = undefined;
+        }
 
-    //     // create a record that already exists - 409
-    //     try {
-    //         newCustomer['CustomerId'] = 1
-    //         await testDDR.post(newCustomer);
-    //     }
-    //     catch(e) {
-    //         expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/Chinook/Customer`);
-    //         expect(e.message).toBe('409');
-    //         newCustomer['CustomerId'] = undefined;
-    //     }
-        
-    // });    
+      
+    });    
 
-    // testIf(LIVE_TESTS_ENABLED, 'testing: post() live tests', async () => {
+    testIf(LIVE_TESTS_ENABLED, 'testing: post() live tests', async () => {
 
-    //     let newCustomer = {
-    //         "FirstName": "POST",
-    //         "LastName": "Test",
-    //         "Company": "TestCompany",
-    //         "Address": "123 Street",
-    //         "City": "Seattle",
-    //         "State": "WA",
-    //         "Country": "USA",
-    //         "PostalCode": "58501",
-    //         "Phone": "+1 (555) 555-5555",
-    //         "Email": "user@testcompany.com",
-    //     }
+        let newCustomer = {
+            "FirstName": "POST",
+            "LastName": "Test",
+            "City": "Seattle",
+            "State": "WA",
+            "Phone": "+1 (555) 555-5555",
+            "Email": "user@testcompany.com",
+        }
 
      
 
-    //     // valid resource to create
-    //     try {
-    //         let testDDR = new SQLPassThruQuery('Chinook','Customer',liveClient) 
-    //         let r = await testDDR.post(newCustomer);
-    //         expect(r.res.status).toBe(201)
-    //     }
-    //     catch(e) {
-    //         throw Error(e)
-    //     }
+        // valid query using POST
+        try {
+            let testSPTQ = new SQLPassThruQuery('add-new-customer',liveClient) 
+            let r = await testSPTQ.post(newCustomer);
+            expect(r.res.status).toBe(200)
+        }
+        catch(e) {
+            throw Error(e)
+        }
 
-    //     // non-existent resource - 404
-    //     try {
-    //         let testDDR = new SQLPassThruQuery('Chinook','Customer',liveClient) 
-    //         let r = await testDDR.post(newCustomer);
-    //     }
-    //     catch(e) {
-    //         expect(e.message).toBe('404');
-    //     }
+        // non-existent query - 404
+        try {
+            let testSPTQ = new SQLPassThruQuery('InvalidQuery',liveClient) 
+            let r = await testSPTQ.post(newCustomer);
+        }
+        catch(e) {
+            expect(e.message).toBe('404');
+        }
 
-    //     // create a record that already exists - 409
-    //     try {
-    //         newCustomer['CustomerId'] = 1
-    //         let testDDR = new SQLPassThruQuery('Chinook','Customer',liveClient) 
-    //         let r = await testDDR.post(newCustomer);
-    //     }
-    //     catch(e) {
-    //         expect(e.message).toBe('409');
-    //         newCustomer['CustomerId'] = undefined;
-    //     }
-
-    //     // no auth to create record - 403
-    //     try {
-    //         liveClient.apiKey = '';
-    //         let testDDR = new SQLPassThruQuery('/userdef','deleteme',liveClient) 
-    //         testDDR.dbPrefix = '';
-    //         testDDR.resourceName = '';
-    //         let r = await testDDR.post(newCustomer);
-    //     }
-    //     catch(e) {
-    //         expect(e.message).toBe('403');
-    //     }               
-    // });    
+        // no auth for query - 403
+        try {
+            liveClient.apiKey = '';
+            let testSPTQ = new SQLPassThruQuery('add-new-customer',liveClient) 
+            let r = await testSPTQ.post(newCustomer);
+        }
+        catch(e) {
+            expect(e.message).toBe('403');
+        }               
+    });    
 
     
     // testIf(MOCK_TESTS_ENABLED, 'testing: put() mock tests', async () => {
@@ -442,18 +408,14 @@ describe('SQLPassThruQuery() class tests', () => {
     //     let updateCustomer = {
     //         "FirstName": "PUT",
     //         "LastName": "Test",
-    //         "Company": "PUTCompany",
-    //         "Address": "456 Ave",
     //         "City": "Boston",
     //         "State": "MA",
-    //         "Country": "USA",
-    //         "PostalCode": "12345",
     //         "Phone": "+1 (555) 555-5555",
     //         "Email": "user@putcompany.com",
     //     }
 
     //     fetchMock
-    //         .put(`${MOCK_HOST}/db/Chinook/Customer/FirstName/POST`, (url, options) => {
+    //         .put(`${MOCK_HOST}/query/add-new-customer/`, (url, options) => {
     //             let b = JSON.parse(options.body)
     //             if (!options.headers.apiKey) {
     //                     return 403;
@@ -463,17 +425,13 @@ describe('SQLPassThruQuery() class tests', () => {
     //                 return 400;
     //             }
 
-    //             if (b.hasOwnProperty('CustomerId') && b.CustomerId === 1) {
-    //                 return 409;
-    //             }
-
     //         return 201;
     //         })
-    //         .put(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource/FirstName/POST`, 404)
+    //         .put(`${MOCK_HOST}/query/add-new-customer/`, 404)
 
     //     // update a record
-    //     let testDDR = new SQLPassThruQuery('Chinook','Customer',mockClient)    
-    //     let r = await testDDR.put('FirstName/POST', updateCustomer);
+    //     let testSPTQ = new SQLPassThruQuery('add-new-customer',liveClient) 
+    //     let r = await testSPTQ.put('', updateCustomer);
     //     expect(r.res.status).toBe(201)
     //     expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/Chinook/Customer/FirstName/POST`);
 
