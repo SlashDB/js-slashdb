@@ -4,7 +4,7 @@ Tests are executed using the [```Jest```](https://jestjs.io/) framework.  The te
 
 ```Jest``` runs on Node; Node 17.5+ is required to run these tests, since the native fetch API is used.  To run tests under an older version of Node, you would need to install the [```node-fetch```](https://www.npmjs.com/package/node-fetch) package separately; however, the unit tests that make use of ```fetch-mock``` probably will not work without some tinkering to the source files.
 
-The ```Jest``` and ```fetch-mock``` packages are included as dev dependencies.  The ```@babel/plugin-transform-modules-commonjs``` package and the ```.babelrc``` file in the root of this repo are also included for Jest to function properly, since the project modules are created using ES6 syntax.  There's also a couple other utility packages installed for development purposes.
+The ```Jest``` and ```fetch-mock``` packages are included as dev dependencies.  The ```@babel/plugin-transform-modules-commonjs``` package and the ```.babelrc``` file in the root of this repo are also required for Jest to function properly, since the project modules are created using ES6 syntax.  There's also a couple other utility packages installed for development purposes.
 
 
 ### Testing Configuration
