@@ -15,12 +15,19 @@ class SQLPassThruQueryList {
         this.sdbClient = clientObj;
     }
 
-    async getQueryList() {
+    async getQueryList(dbName = undefined) {
         let queryList = await this.sdbClient.getQueryDef();
         const queries = {};  
+
         
         // create a query object for each query in the list
         for (const query in queryList) {
+            
+            if (dbName) {
+                if (queryList[query]['database'] !== dbName) {
+                    continue;
+                }
+            }
             
             // required since url_template is not included when getQueryDef returns all queries, only for individual ones
             const q = await this.sdbClient.getQueryDef(query);  
