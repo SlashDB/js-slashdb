@@ -4,10 +4,12 @@ import { BaseRequestHandler } from './baserequesthandler.js';
 
 const SDB_SDBC_INVALID_HOSTNAME = 'Invalid hostname parameter, must be string';
 const SDB_SDBC_INVALID_USERNAME = 'Invalid username parameter, must be string';
+const SDB_SDBC_MISSING_AUTH = 'API key or password must be provided';
 const SDB_SDBC_INVALID_APIKEY = 'Invalid apiKey parameter, must be string';
+const SDB_SDBC_INVALID_PASSWORD = 'Invalid password parameter, must be string';
 
 class SlashDBClient {
-    constructor(host, username, apiKey) {
+    constructor(host, username, apiKey, password = undefined) {
 
       if (!host || typeof(host) !== 'string') {
         throw TypeError(SDB_SDBC_INVALID_HOSTNAME);
@@ -19,14 +21,23 @@ class SlashDBClient {
 
       }
 
-      if (!apiKey || typeof(apiKey) !== 'string') {
-        throw TypeError(SDB_SDBC_INVALID_APIKEY);
-
+      if (!apiKey && !password) {
+        throw ReferenceError(SDB_SDBC_MISSING_AUTH);
       }
+
+      if (apiKey && typeof(apiKey) !== 'string') {
+        throw TypeError(SDB_SDBC_INVALID_APIKEY);
+      }
+
+      if (password && typeof(password) !== 'string') {
+        throw TypeError(SDB_SDBC_INVALID_PASSWORD);
+      }
+
 
       this.host = host;
       this.username = username
       this.apiKey = apiKey;
+      this.password = password;
       this.headers = { apikey: this.apiKey }
       this.isAuthenticatedFlag = false;
 
@@ -59,6 +70,7 @@ class SlashDBClient {
       }
       catch(e) {
         this.isAuthenticatedFlag = false;
+        throw Error(e);
       }
     }
 
