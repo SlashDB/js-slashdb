@@ -33,12 +33,15 @@ class SlashDBClient {
         throw TypeError(SDB_SDBC_INVALID_PASSWORD);
       }
 
+      if (apiKey && password) {
+        console.warn('API key and password provided, using API key');
+        password = undefined;
+      }
 
       this.host = host;
       this.username = username
       this.apiKey = apiKey;
       this.password = password;
-      this.headers = { apikey: this.apiKey }
       this.isAuthenticatedFlag = false;
 
       // create the special case BaseRequestHandler object for interacting with config endpoints
@@ -66,6 +69,11 @@ class SlashDBClient {
         let response = (await this.sdbConfig.post(body, this.loginEP)).res
         if (response.ok === true) {
           this.isAuthenticatedFlag = true;
+          return this.isAuthenticatedFlag;
+        }
+        else {
+          this.isAuthenticatedFlag = false;
+          return false;
         }
       }
       catch(e) {
@@ -82,6 +90,10 @@ class SlashDBClient {
         if (response.ok === true) {
           this.isAuthenticatedFlag = true;
           return true;
+        }
+        else {
+          this.isAuthenticatedFlag = false;
+          return false;
         }
       }
       catch(e) {
