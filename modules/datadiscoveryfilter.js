@@ -160,12 +160,12 @@ class DataDiscoveryFilter extends BaseFilter {
 	}	
 
 	// add wildcard to query string - only used internally
-	#wildcard() {
+	_setWildcard() {
 		return this.wildcard !== '*' ? `&wildcard=${this.wildcard}` : '';
 	}	
 
 	// add separator to query string - only used internally
-	#separator() {
+	_setSeparator() {
 		return this.separator !== ',' ? `&separator=${this.separator}` : '' ;
 	}
 
@@ -180,7 +180,7 @@ class DataDiscoveryFilter extends BaseFilter {
 			}
 		}
 		paramString = paramString.slice(0,paramString.length-1);	// chop trailing &
-		paramString += this.#separator() + this.#wildcard() + this._urlPlaceholderFn();
+		paramString += this._setSeparator() + this._setWildcard() + this._urlPlaceholderFn();
 		
 		this.endpoint = paramString.length > 0 ? `${this.pathString}${columns}?${paramString}` : `${this.pathString}${columns}`;
 		

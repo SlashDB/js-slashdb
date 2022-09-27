@@ -39,13 +39,13 @@ class BaseFilter {
 		
 	// specify which columns to return
 	cols(...columns) {
-		this.returnColumns = this.#columnArrayParser(...columns);
+		this.returnColumns = this._columnArrayParser(...columns);
 		return this.build();
 	}
 
 
 	sort(...columns) {
-		this.urlStringParams['sort'] = this.#columnArrayParser(...columns);
+		this.urlStringParams['sort'] = this._columnArrayParser(...columns);
 		return this.build();
 	}
 
@@ -111,7 +111,7 @@ class BaseFilter {
 	}	
 
 	// used by both sort() and cols()
-	#columnArrayParser(...columns) {
+	_columnArrayParser(...columns) {
 		let s = '';
 		if (columns.length < 1) {
 			throw TypeError(SDB_BF_INVALID_SORT_COL);
