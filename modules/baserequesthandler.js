@@ -110,11 +110,21 @@ class BaseRequestHandler {
 
     async get(path) {
         const url = this.buildEndpointString(path);
-        const headers = { 
-            apiKey: this.sdbClient.apiKey, 
-            Accept: this.acceptHeader,
-            ...this.extraHeaders
-        };
+
+        let headers = {};
+        if (this.sdbClient.apiKey) {
+            headers = { 
+                apiKey: this.sdbClient.apiKey, 
+                Accept: this.acceptHeader,
+                ...this.extraHeaders
+            };
+        }
+        else {
+            headers = { 
+                Accept: this.acceptHeader,
+                ...this.extraHeaders
+            };
+        }
 
         return fetchWrapper('GET', url, undefined, headers);
     }
@@ -127,12 +137,23 @@ class BaseRequestHandler {
         }        
 
         const url = this.buildEndpointString(path);
-        const headers = { 
-            apiKey: this.sdbClient.apiKey, 
-            Accept: this.acceptHeader,
-            'Content-Type': this.contentTypeHeader,
-            ...this.extraHeaders            
-        };        
+
+        let headers = {};
+        if (this.sdbClient.apiKey) {
+            headers = { 
+                apiKey: this.sdbClient.apiKey, 
+                'Content-Type': this.contentTypeHeader,                
+                Accept: this.acceptHeader,
+                ...this.extraHeaders
+            };
+        }
+        else {
+            headers = { 
+                Accept: this.acceptHeader,
+                'Content-Type': this.contentTypeHeader,                
+                ...this.extraHeaders
+            };
+        }
 
         return fetchWrapper('POST', url, data, headers);
     }
@@ -143,23 +164,44 @@ class BaseRequestHandler {
         }    
 
         const url = this.buildEndpointString(path);
-        const headers = { 
-            apiKey: this.sdbClient.apiKey, 
-            Accept: this.acceptHeader,
-            'Content-Type': this.contentTypeHeader,
-            ...this.extraHeaders       
-        };        
+
+        let headers = {};
+        if (this.sdbClient.apiKey) {
+            headers = { 
+                apiKey: this.sdbClient.apiKey, 
+                'Content-Type': this.contentTypeHeader,                
+                Accept: this.acceptHeader,
+                ...this.extraHeaders
+            };
+        }
+        else {
+            headers = { 
+                Accept: this.acceptHeader,
+                'Content-Type': this.contentTypeHeader,                
+                ...this.extraHeaders
+            };
+        }
 
         return fetchWrapper('PUT', url, data, headers);
     }    
 
     async delete(path) {
         const url = this.buildEndpointString(path);
-        const headers = { 
-            apiKey: this.sdbClient.apiKey, 
-            Accept: this.acceptHeader,
-            ...this.extraHeaders            
-        };
+        
+        let headers = {};
+        if (this.sdbClient.apiKey) {
+            headers = { 
+                apiKey: this.sdbClient.apiKey, 
+                Accept: this.acceptHeader,
+                ...this.extraHeaders
+            };
+        }
+        else {
+            headers = { 
+                Accept: this.acceptHeader,
+                ...this.extraHeaders
+            };
+        }
 
         return fetchWrapper('DELETE', url, undefined, headers);
     }
