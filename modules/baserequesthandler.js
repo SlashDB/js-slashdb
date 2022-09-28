@@ -8,8 +8,15 @@ const SDB_BRH_INVALID_DATA = 'Data for POST/PUT body missing';
 const SDB_BRH_INVALID_HEADER_OBJ = 'Invalid header parameter - must be an object containing key/value pairs';
 const SDB_BRH_INVALID_HEADER_VALUE = 'Invalid header value - must be string or number';
 
+/** 
+ * Executes HTTP requests for SlashDB.  Base class for DataDiscoveryResource and SQLPassThruQuery classes.
+ */
 class BaseRequestHandler {
 
+   /**
+   * Create a BaseRequestHandler object for a given SlashDB instance
+   * @param {SlashDBClient} [clientObj] - a configured SlashDBClient object
+   */
     constructor(clientObj = null) {
 
         if (clientObj instanceof SlashDBClient) {
@@ -34,6 +41,13 @@ class BaseRequestHandler {
 
     }
 
+   /**
+   * Sets Accept header value for HTTP requests
+   * @param {string} format - a valid MIME type (e.g. 'application/json'), or a key value of the validMimeTypes property in this class (e.g. 'json','csv')
+   * @throws {TypeError} if format missing
+   * @throws {TypeError} if format is not string
+   * @returns the BaseRequestHandler class instance
+   */
     accept(format) {
         if (!format) {
             throw TypeError(SDB_BRH_INVALID_ACCEPT_TYPE);
@@ -61,8 +75,16 @@ class BaseRequestHandler {
 
             console.warn(`Accept-Type '${format}' unknown`);
         }
+        return this;        
     }
 
+   /**
+   * Sets Content-Type header value for HTTP POST/PUT requests
+   * @param {string} format - a valid MIME type (e.g. 'application/json'), or a key value of the validMimeTypes property in this class (e.g. 'json','csv')
+   * @throws {TypeError} if format missing
+   * @throws {TypeError} if format is not string
+   * @returns the BaseRequestHandler class instance
+   */    
     contentType(format) {
         if (!format) {
             throw TypeError(SDB_BRH_INVALID_CONTENT_TYPE);
@@ -90,9 +112,16 @@ class BaseRequestHandler {
 
             console.warn(`Content-Type '${format}' unknown`);
         }
+        return this;
     }
 
-    // for setting custom headers in HTTP request
+   /**
+   * Sets arbitrary custom header value for HTTP requests
+   * @param {Object} headersObj - an object containing key/value pairs of header properties
+   * @throws {TypeError} headersObj is not an object
+   * @throws {TypeError} if the value of a key/value pair is not a string or number
+   * @returns the BaseRequestHandler class instance
+   */
     setExtraHeaders(headerObj) {
         if (typeof(headerObj) === 'object' && !Array.isArray(headerObj) && headerObj !== null) {
             for (const key in headerObj) {
@@ -106,10 +135,17 @@ class BaseRequestHandler {
         else {
             throw TypeError(SDB_BRH_INVALID_HEADER_OBJ);
         }
+        return this;        
     }
 
+   /**
+   * Executes HTTP GET request
+   * @param {string | DataDiscoveryFilter | SQLPassThruFilter} [path] - an optional string containing a URI fragment with URL query parameters 
+     * (e.g. /Customer/FirstName/Tim?distinct=true), or a DataDiscoveryFilter/SQLPassThruFilter object that contains all the query details 
+   * @returns {Promise} promise containing HTTP response status and data
+   */    
     async get(path) {
-        const url = this.buildEndpointString(path);
+        const url = this._buildEndpointString(path);
 
         let headers = {};
         if (this.sdbClient.apiKey) {
@@ -129,6 +165,16 @@ class BaseRequestHandler {
         return fetchWrapper('GET', url, undefined, headers);
     }
 
+
+   /**
+   * Executes HTTP POST request
+   * @param {any} data - an object or string containing data values to include in the POST request body.  Can be JSON, an object, or CSV/XML formatted string
+   * @param {string | DataDiscoveryFilter | SQLPassThruFilter} [path] - an optional string containing a URI fragment with URL query parameters 
+     * (e.g. /Customer/FirstName/Tim?distinct=true), or a DataDiscoveryFilter/SQLPassThruFilter object that contains all the query details.  Not used under normal
+     * circumstances.
+   * @returns {Promise} promise containing HTTP response status and data
+   */  
+
     // path here is handled slightly differently since it would not be common to specify;
     // used in SlashDBClient's config methods
     async post(data, path = undefined) {
@@ -136,7 +182,7 @@ class BaseRequestHandler {
             throw ReferenceError(SDB_BRH_INVALID_DATA)
         }        
 
-        const url = this.buildEndpointString(path);
+        const url = this._buildEndpointString(path);
 
         let headers = {};
         if (this.sdbClient.apiKey) {
@@ -158,12 +204,21 @@ class BaseRequestHandler {
         return fetchWrapper('POST', url, data, headers);
     }
 
+
+   /**
+   * Executes HTTP PUT request
+   * @param {any} data - an object or string containing data values to include in the PUT request body.  Can be JSON, an object, or CSV/XML formatted string
+   * @param {string | DataDiscoveryFilter | SQLPassThruFilter | null | undefined} path - a string containing a URI fragment with URL query parameters 
+     * (e.g. /Customer/FirstName/Tim?distinct=true), or a DataDiscoveryFilter/SQLPassThruFilter object that contains all the query details.  Set to null or undefined
+     * if not required.
+   * @returns {Promise} promise containing HTTP response status and data
+   */      
     async put(path, data) {
         if (!data) {
             throw ReferenceError(SDB_BRH_INVALID_DATA)
         }    
 
-        const url = this.buildEndpointString(path);
+        const url = this._buildEndpointString(path);
 
         let headers = {};
         if (this.sdbClient.apiKey) {
@@ -185,8 +240,14 @@ class BaseRequestHandler {
         return fetchWrapper('PUT', url, data, headers);
     }    
 
+   /**
+   * Executes HTTP DELETE request
+   * @param {string | DataDiscoveryFilter | SQLPassThruFilter} [path] - an optional string containing a URI fragment with URL query parameters 
+     * (e.g. /Customer/FirstName/Tim?distinct=true), or a DataDiscoveryFilter/SQLPassThruFilter object that contains all the query details 
+   * @returns {Promise} promise containing HTTP response status and data
+   */       
     async delete(path) {
-        const url = this.buildEndpointString(path);
+        const url = this._buildEndpointString(path);
         
         let headers = {};
         if (this.sdbClient.apiKey) {
@@ -206,7 +267,17 @@ class BaseRequestHandler {
         return fetchWrapper('DELETE', url, undefined, headers);
     }
 
-    buildEndpointString(path) {
+
+    /**
+     * Builds the full endpoint to the requested resource.  Meant for internal use only.  Overloaded in DataDiscoveryResource/SQLPassThruQuery
+     * @param {string} [path] - an optional string containing a URI fragment with SQL query parameters/values and URL query parameters 
+     * (e.g. /FirstName/Tim?distinct=true)
+     * @returns {string} the full endpoint
+     * @throws {ReferenceError} if no SlashDBClient object is found attached to this object
+     * @throws {SyntaxError} if path parameter is an empty string
+     * @throws {TypeError} if path parameter is neither a string or a SQLPassThruFilter object
+     */    
+    _buildEndpointString(path) {
 
         if (! this.sdbClient || ! (this.sdbClient instanceof SlashDBClient)) {
             throw ReferenceError(SDB_BRH_NO_CLIENTOBJ);
