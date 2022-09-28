@@ -3,8 +3,16 @@ const SDB_BF_LIMIT_TYPE = 'Limit row number must be a positive integer value';
 const SDB_BF_OFFSET_TYPE = 'Offset row number must be a positive integer value';
 const SDB_BF_INVALID_WILDCARD = 'URL string placeholder must be a string, cannot contain slash (/)';
 
-// construct a SlashDB path with filter for resource
+/** 
+ * Filter class for creating SlashDB-compatible URL strings.  Base class for DataDiscoveryFilter and SQLPassThruFilter classes.
+ */
 class BaseFilter {
+
+   /**
+   * Create a BaseFilter object
+   * @param {string} [urlPlaceholder] - a string that contains a character or string to set for the placeholder query parameter (used to indicate what char/string
+   * was used to replace '/' character in values contained in the URL that may contain the '/' character);  default is '__'
+   */	
 	constructor(urlPlaceholder = '__') {
 		// will contain any query parameters that are set
 		this.urlStringParams = {
@@ -31,25 +39,40 @@ class BaseFilter {
 		this.endpoint = null;
 	}
 
-	// add placeholder to query string - only used internally
+	/**
+	 * Sets the placeholder query string parameter; only used internally
+	* @returns {string} an empty string, or a query parameter string for the placeholder query parameter 
+	*/ 
 	_urlPlaceholderFn() {
 		return this._urlPlaceholder !== '__' ? `&placeholder=${this._urlPlaceholder}` : '';
 	}	
 
 		
-	// specify which columns to return
+	/**
+	* Appends the URL with set of columns to return from request
+	* @param {...string} columns - a list of column names (e.g. 'FirstName','LastName','Email')
+	*/ 
 	cols(...columns) {
 		this.returnColumns = this._columnArrayParser(...columns);
 		return this.build();
 	}
 
-
+	/**
+	* Set the sort query string parameter
+	* @param {...string} columns - a list of column names to sort by (e.g. 'FirstName','LastName','Email')
+	*/ 
 	sort(...columns) {
 		this.urlStringParams['sort'] = this._columnArrayParser(...columns);
 		return this.build();
 	}
 
-	// helper for sort to mark column sort as descending, exposed as external function desc, not used internally
+	/**
+	* Mark a column as descending for sort() method.  Not used in class; exposed externally as its own function in this module
+	* @param {string} col - a column name to mark as descending
+	* @returns {string} a column name that has been marked as descending for sort() method
+	* @throws {TypeError} if column name given is not a string
+	* @throws {SyntaxError} if column name given contains spaces or parses to a number
+	*/ 
 	_sort_desc(col) {
 		
 		if (typeof(col) !== 'string') {
@@ -62,7 +85,14 @@ class BaseFilter {
 		return `-${col}`;
 	}
 
-	// just to have an explicit ascending sort - doesn't do any modifications, exposed as external function asc, not used internally
+	/**
+	* Mark a column as ascending for sort() method.  Not used in class; exposed externally as its own function in this module; note
+	* that this method doesn't do any modifications to the column name, it's here just so developers have an explicit method
+	* @param {string} col - a column name to mark as descending
+	* @returns {string} a column name that has been marked as descending for sort() method
+	* @throws {TypeError} if column name given is not a string
+	* @throws {SyntaxError} if column name given contains spaces or parses to a number
+	*/ 
 	_sort_asc(col) {
 		
 		if (typeof(col) !== 'string') {
@@ -75,11 +105,21 @@ class BaseFilter {
 		return `${col}`;
 	}	
 
+	/**
+	* Sets the distinct query string parameter
+	* @param {boolean} [toggle] - sets the distinct query string parameter; removes the query string parametr if not provided or set to false
+	*/ 
 	distinct(toggle = true) {
 		this.urlStringParams['distinct'] = toggle === true;
 		return this.build();
 	}
 
+	/**
+	* Sets the limit query string parameter
+	* @param {number | boolean} [numRows] - sets the limit query string parameter with the value provided; removes the query string
+	* parameter if not provided or set to false
+	* @throws {TypeError} if value provided is not an integer or < 1
+	*/ 	
 	limit(numRows = false) {
 		if (numRows) {
 			if ( !Number.isInteger(numRows) || numRows < 1) {
@@ -90,6 +130,12 @@ class BaseFilter {
 		return this.build();
 	}
 
+	/**
+	* Sets the offset query string parameter
+	* @param {number | boolean} [numRows] - sets the offset query string parameter with the value provided; removes the query string
+	* parameter if not provided or set to false
+	* @throws {TypeError} if value provided is not an integer or < 1
+	*/ 		
 	offset(numRows = false) {
 		if (numRows) {
 			if ( !Number.isInteger(numRows) || numRows < 1) {
@@ -100,17 +146,31 @@ class BaseFilter {
 		return this.build();
 	}
 
+	/**
+	* Sets the transpose query string parameter
+	* @param {boolean} [toggle] - sets the transpose query string parameter; removes the query string parametr if not provided or set to false
+	*/ 	
 	transpose(toggle = true) {
 		this.urlStringParams['transpose'] = toggle === true;
 		return this.build();
 	}
 
+	/**
+	* Sets the nil_visible query string parameter
+	* @param {boolean} [toggle] - sets the nil_visible query string parameter; removes the query string parametr if not provided or set to false
+	*/ 	
 	xmlNilVisible(toggle = true) {
 		this.urlStringParams['nil_visible'] = toggle === true;
 		return this.build();
 	}	
 
-	// used by both sort() and cols()
+	/**
+	* Parses out column names; used by sort() and cols() methods.  Not called directly.
+	* @param {...string} columns - a list of column names to parse (e.g. 'FirstName','LastName','Email')
+	* @returns {undefined} if one column given and value of column is false (resets sort/cols)
+	* @throws {TypeError} if no columns given, or if any column names are not strings, or are empty strings
+	* @throws {SyntaxError} if any column names contain spaces, or parse to numbers
+	*/ 
 	_columnArrayParser(...columns) {
 		let s = '';
 		if (columns.length < 1) {
@@ -138,7 +198,11 @@ class BaseFilter {
 		}
 	}
 
-	// generate the full filter string
+	/**
+	* Builds the URL endpoint string from the filter strings provided to the class and the query string parameters that have been set;
+	* called at the end of most filter string methods and query string parameter methods
+	* @returns {Object} the current instance of this class
+	*/ 
 	build() {
 		let columns = this.returnColumns ? `/${this.returnColumns}` : '';
 
@@ -156,6 +220,10 @@ class BaseFilter {
 		return this;
 	}
 
+	/**
+	* Returns the URL endpoint string in this class created by build()
+	* @returns {string} the URL endpoint string
+	*/ 	
 	str() {
 		return this.endpoint;
 	}
