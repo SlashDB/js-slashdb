@@ -2,83 +2,39 @@ import { SlashDBClient } from './slashdbclient.js';
 import { SQLPassThruFilter } from './sqlpassthrufilter.js';
 import { BaseRequestHandler } from './baserequesthandler.js';
 
-const SDB_SPTQL_NO_CLIENTOBJ = 'Parameter clientObj missing or not valid SlashDBClient object';
-
-// get list of queries
-class SQLPassThruQueryList {
-    constructor(clientObj) {
-        
-        if (!clientObj || !(clientObj instanceof SlashDBClient)) {
-            throw ReferenceError(SDB_SPTQL_NO_CLIENTOBJ);
-        }
-
-        this.sdbClient = clientObj;
-    }
-
-    async getQueryList(dbName = undefined) {
-        let queryList = await this.sdbClient.getQueryDef();
-        const queries = {};  
-
-        
-        // create a query object for each query in the list
-        for (const query in queryList) {
-            
-            if (dbName) {
-                if (queryList[query]['database'] !== dbName) {
-                    continue;
-                }
-            }
-            
-            // required since url_template is not included when getQueryDef returns all queries, only for individual ones
-            const q = await this.sdbClient.getQueryDef(query);  
-
-            // find parameters in URL template string and create list
-            let params = []
-            const tokens = q.url_template.match(/{(.*?)}/gm);
-            if (tokens) {
-                for (let t of tokens) {
-                    t = t.replaceAll('{','').replaceAll('}','');;
-                    params.push(t);
-                }
-            }
-
-            queries[q.query_id] = new SQLPassThruQuery(q.query_id, this.sdbClient, q.http_methods, params); 
-
-            // remove HTTP methods that are disabled from the newly created query object
-            const methods = ['GET','POST','PUT','DELETE'];
-            for (const m of methods) {
-                if (q.http_methods.hasOwnProperty(m) && q.http_methods[m] === true) {
-                    continue;
-                }
-                else {
-                    queries[q.query_id][m.toLowerCase()] = null;
-                }
-            }
-        }
-        
-        return queries;
-    }
-
-}
-
 const SDB_SPTQ_NO_CLIENTOBJ = 'Parameter clientObj missing or not valid SlashDBClient object';
 const SDB_SPTQ_INVALID_QUERYNAME = 'Parameter queryName must be a non-empty string';
 const SDB_SPTQ_INVALID_PATH_EMPTY = 'Empty path given';
 const SDB_SPTQ_INVALID_PATH_TYPE = 'Path is not a string or a DataDiscoveryFilter object';
 
+/** 
+ * Executes HTTP requests for SlashDB SQL Pass-Thru functionality.  Extends the BaseRequestHandler class
+ * for most methods.
+ */
 class SQLPassThruQuery extends BaseRequestHandler {
 
-    constructor(queryName, clientObj, methods=null, params=null) {
+   /**
+   * Create a SQLPassThruQuery object for a given SlashDB instance
+   * @extends BaseRequestHandler
+   * @param {string} queryID - ID of the query to execute, as registered in the SlashDB instance
+   * @param {SlashDBClient} clientObj - a configured SlashDBClient object
+   * @param {Object} [methods] - optional object of key/value pairs specifying which HTTP methods the query supports (e.g. {GET:true, POST:false})
+   * @param {Object} [params] - optional array of strings specifying names of parameters (e.g. ['FirstName','LastName'])
+   * @throws {TypeError} if queryID not a string
+   * @throws {SyntaxError} if queryID contains '/' character
+   * @throws {SyntaxError} if queryID contains spaces or parses to number
+   */
+    constructor(queryID, clientObj, methods=null, params=null) {
         super(clientObj)
 
-		if (typeof(queryName) !== 'string' || queryName.trim().length < 1) {
+		if (typeof(queryID) !== 'string' || queryID.trim().length < 1) {
 			throw TypeError(SDB_SPTQ_INVALID_QUERYNAME);
 		}
-		if (queryName.indexOf('/') !== -1) {
+		if (queryID.indexOf('/') !== -1) {
 			throw SyntaxError(SDB_SPTQ_INVALID_QUERYNAME);
 		}
 
-		if (!isNaN(parseInt(queryName)) || queryName.indexOf(' ') !== -1) {
+		if (!isNaN(parseInt(queryID)) || queryID.indexOf(' ') !== -1) {
 			throw SyntaxError(SDB_SPTQ_INVALID_QUERYNAME);
 		}
         
@@ -92,12 +48,21 @@ class SQLPassThruQuery extends BaseRequestHandler {
             this.params = params;
         }
 
-        this.queryName = queryName;
+        this.queryName = queryID;
         this.queryPrefix = '/query/';
 
     }
 
-    buildEndpointString(path) {
+    /**
+     * Builds the full endpoint to the requested resource.  Meant for internal use only.
+     * @param {string | SQLPassThruFilter} [path] - an optional string containing a URI fragment with SQL query parameters/values and URL query parameters 
+     * (e.g. /FirstName/Tim?distinct=true), or a SQLPassThruFilter object that contains all the query details
+     * @returns {string} the full endpoint
+     * @throws {ReferenceError} if no SlashDBClient object is found attached to this object
+     * @throws {SyntaxError} if path parameter is an empty string
+     * @throws {TypeError} if path parameter is neither a string or a SQLPassThruFilter object
+     */
+    _buildEndpointString(path) {
 
         if (! this.sdbClient || ! (this.sdbClient instanceof SlashDBClient)) {
             throw ReferenceError(SDB_SPTQ_NO_CLIENTOBJ);
@@ -137,4 +102,4 @@ class SQLPassThruQuery extends BaseRequestHandler {
     }
 }
 
-export { SQLPassThruQuery, SQLPassThruQueryList }
+export { SQLPassThruQuery }
