@@ -22,13 +22,13 @@
 
 // *** expression builders - any/eq/between/gte/lte build expressions
 
-const SDB_FILTER_ERR_INVALID_COL_NAME = 'Invalid column name argument: must be non-empty string/cannot contain spaces/cannot begin with a number';
-const SDB_FILTER_ERR_INVALID_NUM_ARGS = 'Invalid number of filter arguments';
+const SDB_FILTER_ERR_INVALID_COL_NAME = 'Invalid column name parameter: must be non-empty string/cannot contain spaces/cannot begin with a number';
+const SDB_FILTER_ERR_INVALID_NUM_ARGS = 'Invalid number of filter parameters';
 const SDB_FILTER_ERR_INVALID_TYPE = 'Invalid data type for value, must be string or number';
 const SDB_FILTER_ERR_EMPTY_STRING = 'String values cannot be empty';
 const SDB_FILTER_ERR_INVALID_COMPARE_TYPE ='Range value data types must match';
 const SDB_FILTER_ERR_INVALID_RANGE = 'Invalid range values';
-const SDB_FILTER_ERR_NO_COL_FOUND = 'No column detected in argument (string must contain at least one of: {col/}';
+const SDB_FILTER_ERR_NO_COL_FOUND = 'No column detected in parameter (string must contain at least one of: {col/}';
 
 // the default delimiter for any()
 let SDB_SEPARATOR = '|SDBSEP|';
@@ -47,7 +47,7 @@ function chgSeparator(value) {
 }
 
 /**
-* Single value filter - give a column name and the value to filter on
+* Single value equality filter - column value equals parameter value
 *
 * eg: eq("CustomerId",1)
 *
@@ -69,7 +69,7 @@ function eq(col, value) {
 
 
 /**
-* Multi-value filter - give a column name, and a list of n values to filter on
+* Multi-value equality filter - column value equals any of the parameter values
 *
 * eg: any("CustomerId",1,2,3)
 *
@@ -108,7 +108,7 @@ function any(col, ...values) {
 
 
 /**
-* Range filter - select a range of values to filter a column on
+* Range filter - column value is between the parameter values (strictly >< , values not included)
 *
 * eg: between("CustomerId",1,10)
 *
@@ -157,7 +157,7 @@ function between(col, r1 = null, r2 = null) {
 }
 
 /**
-* Greater-than-equal filter - select a range of values greater than/equal to filter a column on
+* Greater-than-equal filter - column value is greater than the parameter value (strictly >, value not included)
 *
 * eg: gte("CustomerId",10)
 *
@@ -183,7 +183,7 @@ function gte(col, lb) {
 }
 
 /**
-* Less-than-equal filter - select a range of values less than/equal to filter a column on
+* Less-than-equal filter - column value is less than the parameter value (strictly <, value not included)
 *
 * eg: lte("CustomerId",10)
 *
@@ -231,7 +231,7 @@ function not(colFilter) {
 
 
 /**
-* Concatenates filter expressions - can nest any/eq/and/between/gte/lte expressions
+* Concatenates filter expressions - can nest any/eq/between/gte/lte expressions
 *
 * eg: and( eq("FirstName","David"), any("City","Vancouver","Edmonton") )
 *
