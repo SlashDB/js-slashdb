@@ -15,21 +15,21 @@
 /**
  * fetch API wrapper for handling HTTP requests.
  *
- * @param {String} httpMethod - HTTP Method to be used in the http request send.
+ * @param {String} httpMethod - HTTP method to use for the fetch() call
  * @param {String} url - protocol, host:port and path to resource/endpoint
- * @param {Object} body - Payload to be sent. Object of key value pairs.
-
- * @param {Object} headers - Header params to be included. Object of key value pairs.
- * @param {Boolean} onlyRes - Only response needed or expecting incoming payload.
- * @returns {Boolean} returnObj.data -response payload.
- * @returns {Object} returnObj.res -response.
+ * @param {Object} body - Payload to be sent; object containing key/value pairs.
+ * @param {Object} headers - Header parameters to send in request; object containing key/value pairs.
+ * @param {Boolean} [onlyRes] - Flag to indicate whether to send back HTTP response status only or also send back data
+ * @returns {Object} returnObj.data - response data.
+ * @returns {Object} returnObj.res - response status.
+ * @throws {Error} error message with HTTP status code if applicable on 4xx/5xx/network errors
  */
   async function fetchWrapper(
     httpMethod,
     url,
     body,
     headers,
-    onlyRes
+    onlyRes = false
   ) {
 
     if (body !== undefined) {
