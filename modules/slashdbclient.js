@@ -60,6 +60,7 @@ class SlashDBClient {
 
     // SlashDB config endpoints
     this.loginEP = '/login';
+    this.logoutEP = '/logout';
     this.settingsEP = '/settings.json';
     this.versionEP = '/version.txt';
     this.licenseEP = '/license';
@@ -122,39 +123,48 @@ class SlashDBClient {
     }
   }
 
-      /* *** configuration endpoint getters/setters */
-
-    async getSettings() {
-      return (await this.sdbConfig.get(this.settingsEP)).data
+  async logout() {
+    try {
+      await this.sdbConfig.get(this.logoutEP);
+      this.isAuthenticatedFlag = false;
     }
-
-    async getVersion() {
-   		return (await this.sdbConfig.get(this.versionEP)).data;
-   	}
-
-    async loadModel(dbName) {
- 	  	return (await this.sdbConfig.get(`${this.loadEP}/${dbName}`)).data;
-   	}
-
-    async unloadModel(dbName) {
-      return (await this.sdbConfig.get(`${this.unloadEP}/${dbName}`)).data;
+    catch(e) {
+      console.error(e);
     }
+  }
+  /* *** configuration endpoint getters/setters */
 
-    async getReflectStatus(dbName = undefined) {
- 		  const ep = (!dbName) ? this.reflectStatusEP : `${this.reflectStatusEP.split('.json')[0]}/${dbName}.json`;
- 		  return (await this.sdbConfig.get(ep)).data;
- 	  }
+  async getSettings() {
+    return (await this.sdbConfig.get(this.settingsEP)).data
+  }
 
-    async getUser(username = undefined) {
-   		const ep = (!username) ? this.userEP : `${this.userEP}/${username}`;
-    	return (await this.sdbConfig.get(ep)).data;
- 	  }
+  async getVersion() {
+    return (await this.sdbConfig.get(this.versionEP)).data;
+  }
 
-    async getDbDef(dbName = undefined, guiData = false) {
-      const guiParam = guiData ? '?guidata' : '';
-      const ep = (!dbName) ? `${this.dbDefEP}${guiParam}` : `${this.dbDefEP}/${dbName}${guiParam}`;
-      return (await this.sdbConfig.get(ep)).data;
-    }  
+  async loadModel(dbName) {
+    return (await this.sdbConfig.get(`${this.loadEP}/${dbName}`)).data;
+  }
+
+  async unloadModel(dbName) {
+    return (await this.sdbConfig.get(`${this.unloadEP}/${dbName}`)).data;
+  }
+
+  async getReflectStatus(dbName = undefined) {
+    const ep = (!dbName) ? this.reflectStatusEP : `${this.reflectStatusEP.split('.json')[0]}/${dbName}.json`;
+    return (await this.sdbConfig.get(ep)).data;
+  }
+
+  async getUser(username = undefined) {
+    const ep = (!username) ? this.userEP : `${this.userEP}/${username}`;
+    return (await this.sdbConfig.get(ep)).data;
+  }
+
+  async getDbDef(dbName = undefined, guiData = false) {
+    const guiParam = guiData ? '?guidata' : '';
+    const ep = (!dbName) ? `${this.dbDefEP}${guiParam}` : `${this.dbDefEP}/${dbName}${guiParam}`;
+    return (await this.sdbConfig.get(ep)).data;
+  }  
 
  	  async getQueryDef(queryName = undefined, guiData = false) {
    		const guiParam = guiData ? '?guidata' : '';
