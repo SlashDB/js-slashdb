@@ -1,20 +1,56 @@
 import fetchMock from 'fetch-mock-jest';
 import { SlashDBClient } from '../modules/slashdbclient.js';
+import { fetchWrapper } from '../modules/fetchwrapper.js';
 import { BaseRequestHandler } from '../modules/baserequesthandler.js';
 
 const testIf = (condition, ...args) =>
   condition ? test(...args) : test.skip(...args);
 
 
-beforeAll( () => {
+  beforeAll( () => {
     // disable console errors, warns
     jest.spyOn(console, 'error').mockImplementation(() => {});
     jest.spyOn(console, 'warn').mockImplementation(() => {});
-});
 
-afterEach( () => {
-    fetchMock.mockReset();
-});
+    let testCustomer = {
+        "FirstName": "BaseRequestTestRecord",
+        "LastName": "NewRecord",
+        "Company": "TestCompany",
+        "Address": "123 Street",
+        "City": "Seattle",
+        "State": "WA",
+        "Country": "USA",
+        "PostalCode": "58501",
+        "Phone": "+1 (555) 555-5555",
+        "Email": "user@testcompany.com",
+    }
+
+    // add a record to Chinook database Customer table for PUT/DELETE tests
+    fetchWrapper("POST", `${LIVE_SDB_HOST}/db/Chinook/Customer`, testCustomer, {'Content-Type': 'application/json'});
+    
+    });
+
+    afterEach( () => {
+        fetchMock.mockReset();
+    });
+
+
+    afterAll( async () => {
+        // delete the record created by the POST test
+        try {
+            let r = await fetchWrapper("DELETE", `${LIVE_SDB_HOST}/db/Chinook/Customer/FirstName/POSTTest`);
+        }
+        catch(e) {
+            null;
+        }
+        // delete the record created before tests ran if DELETE test failed to delete it
+        try {
+            let r = await fetchWrapper("DELETE", `${LIVE_SDB_HOST}/db/Chinook/Customer/FirstName/BaseRequestTestRecord`);
+        }
+        catch(e) {
+            null;
+        }
+    });
 
 describe('BaseRequestHandler() class tests', () => {
 
@@ -150,13 +186,14 @@ describe('BaseRequestHandler() class tests', () => {
 
         // get a forbidden resource - 403
         try {
-            mockClient['headers']['apiKey'] = undefined;
+            mockClient['apiKey'] = undefined;
             let testBRH = new BaseRequestHandler(mockClient);
             await testBRH.get('testEndPoint/ForbiddenResource');
         }
         catch(e) {
             expect(fetchMock).toHaveLastGot(`${MOCK_HOST}/testEndPoint/ForbiddenResource`);
             expect(e.message).toBe('403');
+            mockClient['apiKey'] = '1234';
         }
 
         // // get a resource in a non-existent format - 406
@@ -227,7 +264,7 @@ describe('BaseRequestHandler() class tests', () => {
     testIf(MOCK_TESTS_ENABLED, 'testing: post() mock tests', async () => {
 
         let newCustomer = {
-            "FirstName": "POST",
+            "FirstName": "POSTTest",
             "LastName": "Test",
             "Company": "TestCompany",
             "Address": "123 Street",
@@ -311,7 +348,7 @@ describe('BaseRequestHandler() class tests', () => {
     testIf(LIVE_TESTS_ENABLED, 'testing: post() live tests', async () => {
 
         let newCustomer = {
-            "FirstName": "POST",
+            "FirstName": "POSTTest",
             "LastName": "Test",
             "Company": "TestCompany",
             "Address": "123 Street",
@@ -370,8 +407,8 @@ describe('BaseRequestHandler() class tests', () => {
     testIf(MOCK_TESTS_ENABLED, 'testing: put() mock tests', async () => {
 
         let updateCustomer = {
-            "FirstName": "PUT",
-            "LastName": "Test",
+            "FirstName": "PUTTest",
+            "LastName": "ChangedRecord",
             "Company": "PUTCompany",
             "Address": "456 Ave",
             "City": "Boston",
@@ -445,22 +482,14 @@ describe('BaseRequestHandler() class tests', () => {
     testIf(LIVE_TESTS_ENABLED, 'testing: put() live tests', async () => {
 
         let updateCustomer = {
-            "FirstName": "PUT",
-            "LastName": "Test",
-            "Company": "PUTCompany",
-            "Address": "456 Ave",
-            "City": "Boston",
-            "State": "MA",
-            "Country": "USA",
-            "PostalCode": "12345",
-            "Phone": "+1 (555) 555-5555",
-            "Email": "user@putcompany.com",
+            "LastName": "ChangedRecord",
+
         }
 
         // valid resource to update
         try {
             let testBRH = new BaseRequestHandler(liveClient);
-            let r = await testBRH.put('/db/Chinook/Customer/FirstName/POST', updateCustomer);            
+            let r = await testBRH.put('/db/Chinook/Customer/FirstName/BaseRequestTestRecord', updateCustomer);            
             expect(r.res.status).toBe(204);
         }
         catch(e) {
@@ -479,7 +508,7 @@ describe('BaseRequestHandler() class tests', () => {
         // non-existent column in record - 400
         try {
             let testBRH = new BaseRequestHandler(liveClient); 
-            let r = await testBRH.put('/db/Chinook/Customer/InvalidColumn/POST', updateCustomer);  
+            let r = await testBRH.put('/db/Chinook/Customer/InvalidColumn/BaseRequestTestRecord', updateCustomer);  
         }
         catch(e) {
             expect(e.message).toBe('400');
@@ -555,7 +584,7 @@ describe('BaseRequestHandler() class tests', () => {
         // valid resource to delete
         try {
             let testBRH = new BaseRequestHandler(liveClient);
-            let r = await testBRH.delete('/db/Chinook/Customer/FirstName/PUT');                    
+            let r = await testBRH.delete('/db/Chinook/Customer/FirstName/BaseRequestTestRecord');                    
             expect(r.res.status).toBe(204)
         }
         catch(e) {

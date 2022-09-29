@@ -1,19 +1,55 @@
 import fetchMock from 'fetch-mock-jest';
 import { SlashDBClient } from '../modules/slashdbclient.js';
+import { fetchWrapper } from '../modules/fetchwrapper.js';
 import { DataDiscoveryResource, DataDiscoveryDatabase } from '../modules/datadiscovery.js';
 
 const testIf = (condition, ...args) =>
   condition ? test(...args) : test.skip(...args);
 
 
-beforeAll( () => {
+  beforeAll( () => {
     // disable console errors, warns
     jest.spyOn(console, 'error').mockImplementation(() => {});
     jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    let testCustomer = {
+        "FirstName": "DataDiscoveryTestRecord",
+        "LastName": "NewRecord",
+        "Company": "TestCompany",
+        "Address": "123 Street",
+        "City": "Seattle",
+        "State": "WA",
+        "Country": "USA",
+        "PostalCode": "58501",
+        "Phone": "+1 (555) 555-5555",
+        "Email": "user@testcompany.com",
+    }
+
+    // add a record to Chinook database Customer table for PUT/DELETE tests
+    fetchWrapper("POST", `${LIVE_SDB_HOST}/db/Chinook/Customer`, testCustomer, {'Content-Type': 'application/json'});
+    
 });
 
 afterEach( () => {
     fetchMock.mockReset();
+});
+
+
+afterAll( async () => {
+    // delete the record created by the POST test
+    try {
+        let r = await fetchWrapper("DELETE", `${LIVE_SDB_HOST}/db/Chinook/Customer/FirstName/POSTTest`);
+    }
+    catch(e) {
+        null;
+    }
+    // delete the record created before tests ran if DELETE test failed to delete it
+    try {
+        let r = await fetchWrapper("DELETE", `${LIVE_SDB_HOST}/db/Chinook/Customer/FirstName/DataDiscoveryTestRecord`);
+    }
+    catch(e) {
+        null;
+    }
 });
 
 describe('DataDiscoveryResource() class tests', () => {
@@ -355,7 +391,7 @@ describe('DataDiscoveryResource() class tests', () => {
     testIf(MOCK_TESTS_ENABLED, 'testing: post() mock tests', async () => {
 
         let newCustomer = {
-            "FirstName": "POST",
+            "FirstName": "POSTTest",
             "LastName": "Test",
             "Company": "TestCompany",
             "Address": "123 Street",
@@ -439,7 +475,7 @@ describe('DataDiscoveryResource() class tests', () => {
     testIf(LIVE_TESTS_ENABLED, 'testing: post() live tests', async () => {
 
         let newCustomer = {
-            "FirstName": "POST",
+            "FirstName": "POSTTest",
             "LastName": "Test",
             "Company": "TestCompany",
             "Address": "123 Street",
@@ -513,7 +549,7 @@ describe('DataDiscoveryResource() class tests', () => {
         }
 
         fetchMock
-            .put(`${MOCK_HOST}/db/Chinook/Customer/FirstName/POST`, (url, options) => {
+            .put(`${MOCK_HOST}/db/Chinook/Customer/FirstName/DataDiscoveryTestRecord`, (url, options) => {
                 let b = JSON.parse(options.body)
                 if (!options.headers.apiKey) {
                         return 403;
@@ -529,31 +565,31 @@ describe('DataDiscoveryResource() class tests', () => {
 
             return 201;
             })
-            .put(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource/FirstName/POST`, 404)
+            .put(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource/FirstName/DataDiscoveryTestRecord`, 404)
 
         // update a record
         let testDDR = new DataDiscoveryResource('Chinook','Customer',mockClient)    
-        let r = await testDDR.put('FirstName/POST', updateCustomer);
+        let r = await testDDR.put('FirstName/DataDiscoveryTestRecord', updateCustomer);
         expect(r.res.status).toBe(201)
-        expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/Chinook/Customer/FirstName/POST`);
+        expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/Chinook/Customer/FirstName/DataDiscoveryTestRecord`);
 
         // update a non-existent record - 404
         try {
-            await testDDR.put('InvalidResource/FirstName/POST', updateCustomer);
+            await testDDR.put('InvalidResource/FirstName/DataDiscoveryTestRecord', updateCustomer);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource/FirstName/POST`);
+            expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource/FirstName/DataDiscoveryTestRecord`);
             expect(e.message).toBe('404');
         }
 
         // create a new record w/o auth - 403
         try {
             mockClient.sdbConfig.apKey = null;   
-            await testDDR.put('FirstName/POST', updateCustomer);
+            await testDDR.put('FirstName/DataDiscoveryTestRecord', updateCustomer);
             
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/Chinook/Customer/FirstName/POST`);
+            expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/Chinook/Customer/FirstName/DataDiscoveryTestRecord`);
             expect(e.message).toBe('403');
             mockClient.sdbConfig.apiKey = '1234';
         }
@@ -561,10 +597,10 @@ describe('DataDiscoveryResource() class tests', () => {
         // update a record with non-existent fields for given resource - 400
         try {
             updateCustomer['nonExistentField'] = 'invalidValue';
-            await testDDR.put('FirstName/POST', updateCustomer);
+            await testDDR.put('FirstName/DataDiscoveryTestRecord', updateCustomer);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/Chinook/Customer/FirstName/POST`);
+            expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/Chinook/Customer/FirstName/DataDiscoveryTestRecord`);
             expect(e.message).toBe('400');
             updateCustomer['nonExistentField'] = undefined;
         }
@@ -575,22 +611,13 @@ describe('DataDiscoveryResource() class tests', () => {
     testIf(LIVE_TESTS_ENABLED, 'testing: put() live tests', async () => {
 
         let updateCustomer = {
-            "FirstName": "PUT",
-            "LastName": "Test",
-            "Company": "PUTCompany",
-            "Address": "456 Ave",
-            "City": "Boston",
-            "State": "MA",
-            "Country": "USA",
-            "PostalCode": "12345",
-            "Phone": "+1 (555) 555-5555",
-            "Email": "user@putcompany.com",
+            "LastName": "ChangedRecord",
         }
 
         // valid resource to update
         try {
             let testDDR = new DataDiscoveryResource('Chinook','Customer',liveClient)    
-            let r = await testDDR.put('FirstName/POST', updateCustomer);            
+            let r = await testDDR.put('FirstName/DataDiscoveryTestRecord', updateCustomer);            
             expect(r.res.status).toBe(204)
         }
         catch(e) {
@@ -600,7 +627,7 @@ describe('DataDiscoveryResource() class tests', () => {
         // non-existent record - 404
         try {
             let testDDR = new DataDiscoveryResource('Chinook','InvalidResource',liveClient)    
-            let r = await testDDR.put('FirstName/POST', updateCustomer);  
+            let r = await testDDR.put('FirstName/DataDiscoveryTestRecord', updateCustomer);  
         }
         catch(e) {
             expect(e.message).toBe('404');
@@ -609,7 +636,7 @@ describe('DataDiscoveryResource() class tests', () => {
         // non-existent column in record - 400
         try {
             let testDDR = new DataDiscoveryResource('Chinook','Customer',liveClient)    
-            let r = await testDDR.put('InvalidResource/POST', updateCustomer);  
+            let r = await testDDR.put('InvalidResource/DataDiscoveryTestRecord', updateCustomer);  
         }
         catch(e) {
             expect(e.message).toBe('400');
@@ -632,36 +659,36 @@ describe('DataDiscoveryResource() class tests', () => {
     testIf(MOCK_TESTS_ENABLED, 'testing: delete() mock tests', async () => {
 
         fetchMock
-            .delete(`${MOCK_HOST}/db/Chinook/Customer/FirstName/PUT`, (url, options) => {
+            .delete(`${MOCK_HOST}/db/Chinook/Customer/FirstName/DataDiscoveryTestRecord`, (url, options) => {
                 if (!options.headers.apiKey) {
                         return 403;
                     }
 
             return 204;
             })
-            .delete(`${MOCK_HOST}/db/Chinook/InvalidResource/FirstName/PUT`, 404)
-            .delete(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource/FirstName/PUT`, 400)
+            .delete(`${MOCK_HOST}/db/Chinook/InvalidResource/FirstName/DataDiscoveryTestRecord`, 404)
+            .delete(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource/FirstName/DataDiscoveryTestRecord`, 400)
 
         // delete a record
         let testDDR = new DataDiscoveryResource('Chinook','Customer',mockClient)    
-        let r = await testDDR.delete('FirstName/PUT');
+        let r = await testDDR.delete('FirstName/DataDiscoveryTestRecord');
         expect(r.res.status).toBe(204)
-        expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/Chinook/Customer/FirstName/PUT`);
+        expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/Chinook/Customer/FirstName/DataDiscoveryTestRecord`);
 
         // delete a non-existent record - 404
         try {
             let testDDR = new DataDiscoveryResource('Chinook','InvalidResource',mockClient)    
-            let r = await testDDR.delete('FirstName/PUT');
+            let r = await testDDR.delete('FirstName/DataDiscoveryTestRecord');
         }
         catch(e) {
-            expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/Chinook/InvalidResource/FirstName/PUT`);
+            expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/Chinook/InvalidResource/FirstName/DataDiscoveryTestRecord`);
             expect(e.message).toBe('404');
         }
 
         // non-existent column in record - 400
         try {
             let testDDR = new DataDiscoveryResource('Chinook','Customer',mockClient)    
-            let r = await testDDR.delete('InvalidResource/FirstName/PUT');
+            let r = await testDDR.delete('InvalidResource/FirstName/DataDiscoveryTestRecord');
         }
         catch(e) {
             //expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource/FirstName/PUT`);
@@ -672,10 +699,10 @@ describe('DataDiscoveryResource() class tests', () => {
         try {
             mockClient.apiKey = '';
             let testDDR = new DataDiscoveryResource('Chinook','Customer',mockClient) 
-            await testDDR.delete('FirstName/PUT');
+            await testDDR.delete('FirstName/DataDiscoveryTestRecord');
         }
         catch(e) {
-            expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/Chinook/Customer/FirstName/PUT`);
+            expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/Chinook/Customer/FirstName/DataDiscoveryTestRecord`);
             expect(e.message).toBe('403');
             mockClient.apiKey = '1234';
         }
@@ -687,7 +714,7 @@ describe('DataDiscoveryResource() class tests', () => {
         // valid resource to delete
         try {
             let testDDR = new DataDiscoveryResource('Chinook','Customer',liveClient)    
-            let r = await testDDR.delete('FirstName/PUT');                    
+            let r = await testDDR.delete('FirstName/DataDiscoveryTestRecord');                    
             expect(r.res.status).toBe(204)
         }
         catch(e) {

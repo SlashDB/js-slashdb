@@ -1,6 +1,7 @@
 import fetchMock from 'fetch-mock-jest';
 import { SlashDBClient } from '../modules/slashdbclient.js';
-import { SQLPassThruQuery, SQLPassThruQueryList } from '../modules/sqlpassthru.js';
+import { fetchWrapper } from '../modules/fetchwrapper.js';
+import { SQLPassThruQuery } from '../modules/sqlpassthru.js';
 
 const testIf = (condition, ...args) =>
   condition ? test(...args) : test.skip(...args);
@@ -14,6 +15,16 @@ beforeAll( () => {
 
 afterEach( () => {
     fetchMock.mockReset();
+});
+
+afterAll( async () => {
+    // delete the record created by the POST test
+    try {
+        let r = await fetchWrapper("DELETE", `${LIVE_SDB_HOST}/db/Chinook/Customer/FirstName/SQLPassThruPOST`);
+    }
+    catch(e) {
+        null;
+    }
 });
 
 describe('SQLPassThruQuery() class tests', () => {
@@ -215,14 +226,14 @@ describe('SQLPassThruQuery() class tests', () => {
 
         // get a forbidden resource - 403
         try {
-            mockClient.headers.apiKey = undefined;
+            mockClient['apiKey'] = undefined;
             let testSPTQ = new SQLPassThruQuery('ForbiddenQuery',mockClient);
             await  testSPTQ.get();
         }
         catch(e) {
             expect(fetchMock).toHaveLastGot(`${MOCK_HOST}/query/ForbiddenQuery/`);
             expect(e.message).toBe('403');
-            mockClient.headers.apiKey = '1234';
+            mockClient['apiKey'] = '1234';
         }
 
         // // get a resource in a non-existent format - 406
@@ -295,7 +306,7 @@ describe('SQLPassThruQuery() class tests', () => {
     testIf(MOCK_TESTS_ENABLED, 'testing: post() mock tests', async () => {
 
         let newCustomer = {
-            "FirstName": "POST",
+            "FirstName": "SQLPassThruPOST",
             "LastName": "Test",
             "City": "Seattle",
             "State": "WA",
@@ -362,7 +373,7 @@ describe('SQLPassThruQuery() class tests', () => {
     testIf(LIVE_TESTS_ENABLED, 'testing: post() live tests', async () => {
 
         let newCustomer = {
-            "FirstName": "POST",
+            "FirstName": "SQLPassThruPOST",
             "LastName": "Test",
             "City": "Seattle",
             "State": "WA",
