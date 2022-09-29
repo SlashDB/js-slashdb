@@ -166,11 +166,11 @@ class SlashDBClient {
     return (await this.sdbConfig.get(ep)).data;
   }  
 
- 	  async getQueryDef(queryName = undefined, guiData = false) {
-   		const guiParam = guiData ? '?guidata' : '';
-   		const ep = (!queryName) ? `${this.queryDefEP}${guiParam}` : `${this.queryDefEP}/${queryName}${guiParam}`;
-   		return (await this.sdbConfig.get(ep)).data;
-   	}	    
+  async getQueryDef(queryName = undefined, guiData = false) {
+    const guiParam = guiData ? '?guidata' : '';
+    const ep = (!queryName) ? `${this.queryDefEP}${guiParam}` : `${this.queryDefEP}/${queryName}${guiParam}`;
+    return (await this.sdbConfig.get(ep)).data;
+  }	    
 
   /**
    * Retrieve a list of databases that are configured on the SlashDB instance

@@ -9,7 +9,7 @@ const SDB_BF_INVALID_WILDCARD = 'URL string placeholder must be a string, cannot
 class BaseFilter {
 
    /**
-   * Create a BaseFilter object
+   * Create a BaseFilter object for making SlashDB-compatible URL strings
    * @param {string} [urlPlaceholder] - a string that contains a character or string to set for the placeholder query parameter (used to indicate what char/string
    * was used to replace '/' character in values contained in the URL that may contain the '/' character);  default is '__'
    */	
@@ -51,6 +51,7 @@ class BaseFilter {
 	/**
 	* Appends the URL with set of columns to return from request
 	* @param {...string} columns - a list of column names (e.g. 'FirstName','LastName','Email')
+	* @returns this object	
 	*/ 
 	cols(...columns) {
 		this.returnColumns = this._columnArrayParser(...columns);
@@ -60,6 +61,7 @@ class BaseFilter {
 	/**
 	* Set the sort query string parameter
 	* @param {...string} columns - a list of column names to sort by (e.g. 'FirstName','LastName','Email')
+	* @returns this object	
 	*/ 
 	sort(...columns) {
 		this.urlStringParams['sort'] = this._columnArrayParser(...columns);
@@ -107,7 +109,8 @@ class BaseFilter {
 
 	/**
 	* Sets the distinct query string parameter
-	* @param {boolean} [toggle] - sets the distinct query string parameter; removes the query string parametr if not provided or set to false
+	* @param {boolean} [toggle] - sets the distinct query string parameter if not provided; removes the query string parameter if set to false
+	* @returns this object
 	*/ 
 	distinct(toggle = true) {
 		this.urlStringParams['distinct'] = toggle === true;
@@ -116,8 +119,9 @@ class BaseFilter {
 
 	/**
 	* Sets the limit query string parameter
-	* @param {number | boolean} [numRows] - sets the limit query string parameter with the value provided; removes the query string
+	* @param {number | boolean} [numRows] - sets the limit query string parameter with the value provided;  removes the query string 
 	* parameter if not provided or set to false
+	* @returns this object	
 	* @throws {TypeError} if value provided is not an integer or < 1
 	*/ 	
 	limit(numRows = false) {
@@ -134,6 +138,7 @@ class BaseFilter {
 	* Sets the offset query string parameter
 	* @param {number | boolean} [numRows] - sets the offset query string parameter with the value provided; removes the query string
 	* parameter if not provided or set to false
+	* @returns this object	
 	* @throws {TypeError} if value provided is not an integer or < 1
 	*/ 		
 	offset(numRows = false) {
@@ -148,7 +153,8 @@ class BaseFilter {
 
 	/**
 	* Sets the transpose query string parameter
-	* @param {boolean} [toggle] - sets the transpose query string parameter; removes the query string parametr if not provided or set to false
+	* @param {boolean} [toggle] - sets the transpose query string parameter if not provided; removes the query string parameter if set to false
+	* @returns this object	
 	*/ 	
 	transpose(toggle = true) {
 		this.urlStringParams['transpose'] = toggle === true;
@@ -157,7 +163,8 @@ class BaseFilter {
 
 	/**
 	* Sets the nil_visible query string parameter
-	* @param {boolean} [toggle] - sets the nil_visible query string parameter; removes the query string parametr if not provided or set to false
+	* @param {boolean} [toggle] - sets the nil_visible query string parameter if not provided; removes the query string parameter if set to false
+	* @returns this object	
 	*/ 	
 	xmlNilVisible(toggle = true) {
 		this.urlStringParams['nil_visible'] = toggle === true;
@@ -168,6 +175,7 @@ class BaseFilter {
 	* Parses out column names; used by sort() and cols() methods.  Not called directly.
 	* @param {...string} columns - a list of column names to parse (e.g. 'FirstName','LastName','Email')
 	* @returns {undefined} if one column given and value of column is false (resets sort/cols)
+	* @returns {string} string of column names separated by ','
 	* @throws {TypeError} if no columns given, or if any column names are not strings, or are empty strings
 	* @throws {SyntaxError} if any column names contain spaces, or parse to numbers
 	*/ 

@@ -8,8 +8,23 @@ const SDB_DDF_INVALID_SEPARATOR = 'Separator must be a string, cannot contain sl
 const SDB_DDF_DEPTH_TYPE = 'Depth must be a positive integer value';
 const SDB_DDF_XSDCARD_TYPE = 'xsdCardinality must be a string or positive integer'
 
-// construct a SlashDB path with filter for resource
+/** 
+ * Class for creating URL strings for SlashDB Data Discovery functionality
+ */
 class DataDiscoveryFilter extends BaseFilter {
+
+   /**
+   * Create a DataDiscoveryFilter object for making SlashDB-compatible URL strings
+   * @extends BaseFilter
+   * @param {string} [filter] - optional filter string to instantiate object with; accepts strings created using filter expression functions
+   * @param {string} [wildcard] - set if using a special wildcard character(s) in URL strings (default is '*')
+   * @param {string} [separator] - set if using a special separator character(s) in URL strings (default is ',')
+   * @param {string} [urlPlaceholder] -  a string that contains a character(s) to set for the placeholder query parameter (used to indicate what character(s)
+   * was used to replace '/' character in values contained in the URL that may contain the '/' character);  default is '__'
+   * @throws {TypeError} if wildcard or separator parameters are not strings, are empty strings, or contain '/' character
+   * @throws {TypeError} if filter parameter  is not a string or an empty string
+   * @throws {SyntaxError} if filter does not contain '/' character
+   */    	
 	constructor(filter = null, wildcard = '*', separator = ',', urlPlaceholder = '__') {
 		super(urlPlaceholder);
 
@@ -60,8 +75,18 @@ class DataDiscoveryFilter extends BaseFilter {
 
 		this.build();
 	}
-	
-	// add a filter to current context, accepts strings created using filter expression functions
+
+	/**
+	* Add a filter string to this object and stores info about filter; accepts strings created using filter expression functions
+	* @param {string} filterString - a filter string; can contain multiple filters (e.g. 'FirstName/Tim/LastName/Smith') or values 
+	* created using filter expression functions 
+	*
+	* e.g. and(eq('FirstName','Tim'),eq('LastName','Smith'))
+	*
+	* @returns {DataDiscoveryFilter} this object
+	* @throws {TypeError} - if filterString parameter is not a string or is an empty string
+	* @throws {SyntaxError} - if filterString parameter does not contain '/' character
+	*/ 	
 	addFilter(filterString) {
 
 		if (typeof(filterString) !== 'string' || filterString.trim().length < 1) {
@@ -82,6 +107,14 @@ class DataDiscoveryFilter extends BaseFilter {
 		return this.build();
 	}
 
+	/**
+	* Adds a resource to this object and stores info about it 
+	* @param {string} resource - resource name to add to object
+	* @returns {DataDiscoveryFilter} this object
+	* @throws {TypeError} - if resource parameter is not a string or is an empty string
+	* @throws {SyntaxError} - if resource parameter contains '/' character
+	* @throws {SyntaxError} - if resource parameter parses to a number or contains a space
+	*/ 		
 	join(resource) { 
 		if (typeof(resource) !== 'string' || resource.trim().length < 1) {
 			throw TypeError(SDB_DDF_INVALID_RESOURCE);
@@ -100,11 +133,23 @@ class DataDiscoveryFilter extends BaseFilter {
 		return this.build();
 	}
 
+	/**
+	* Sets the stream query string parameter
+	* @param {boolean} [toggle] - sets the stream query string parameter if not provided; removes the query string parameter if set to false
+	* @returns {DataDiscoveryFilter} this object
+	*/ 		 	
 	stream(toggle = true) {
 		this.urlStringParams['stream'] = toggle === true;
 		return this.build();
 	}
 
+	/**
+	* Sets the depth query string parameter
+	* @param {number | boolean} [level] - sets the depth query string parameter with the value provided; removes the query string
+	* parameter if not provided or set to false
+	* @returns {DataDiscoveryFilter} this object
+	* @throws {TypeError} if value provided is not an integer or < 1
+	*/ 	
 	depth(level = false) {
 		if (level) {
 			if ( !Number.isInteger(level) || level < 1) {
@@ -116,27 +161,53 @@ class DataDiscoveryFilter extends BaseFilter {
 	}
 		
 
+	/**
+	* Sets the wantarray query string parameter
+	* @param {boolean} [toggle] - sets the wantarray query string parameter if not provided; removes the query string parameter if set to false
+	* @returns {DataDiscoveryFilter} this object
+	*/ 	
 	wantarray(toggle = true) {
 		this.urlStringParams['wantarray'] = toggle === true;
 		return this.build();
 	}
-		
-	// for CSV data only - will be ignored otherwise 
+
+	/**
+	* Sets the headers query string parameter; applies only to CSV formatted data
+	* @param {boolean} [toggle] - sets the headers query string parameter if not provided; removes the query string parameter if set to false.
+	* @returns {DataDiscoveryFilter} this object
+	*/ 	
 	csvHeader(toggle = true) {
 		this.urlStringParams['headers'] = toggle === true;
 		return this.build();
 	}
 
+	/**
+	* Sets the csvNullStr query string parameter; applies only to CSV formatted data
+	* @param {boolean} [toggle] - sets the csvNullStr query string parameter if not provided; removes the query string parameter if set to false.
+	* @returns {DataDiscoveryFilter} this object
+	*/	
 	csvNullStr(toggle = true) {
 		this.urlStringParams['csvNullStr'] = toggle === true;
 		return this.build();
 	}
 
+	/**
+	* Sets the href query string parameter; applies only to JSON formatted data
+	* @param {boolean} [toggle] - sets the href query string parameter if not provided; removes the query string parameter if set to false.
+	* @returns {DataDiscoveryFilter} this object
+	*/		
 	jsonHref(toggle = true) {
 		this.urlStringParams['href'] = toggle === true;
 		return this.build();
 	}	
 
+	/**
+	* Sets the cardinality query string parameter; applies only to XSD formatted data
+	* @param {string} [value] - the value for the cardinality parameter (default is 'unbounded'); removes the query string parameter if set to false
+	* @returns {DataDiscoveryFilter} this object	
+	* @throws {TypeError} if value parameter is an empty string
+	* @throws {TypeError} if value parameter is not an integer or < 0
+	*/		
 	xsdCardinality(value = 'unbounded') {
 
 		if (value === false) {
@@ -169,7 +240,11 @@ class DataDiscoveryFilter extends BaseFilter {
 		return this.separator !== ',' ? `&separator=${this.separator}` : '' ;
 	}
 
-	// generate the full filter string
+	/**
+	* Builds the URL endpoint string from the filter strings provided to the class and the query string parameters that have been set;
+	* called at the end of most filter string methods and query string parameter methods
+	* @returns {DataDiscoveryFilter} the current instance of this class
+	*/ 
 	build() {
 		let columns = this.returnColumns ? `/${this.returnColumns}` : '';
 
