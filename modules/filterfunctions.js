@@ -13,7 +13,7 @@
 		.join("Track")																			// join a related resource - last context
 		.sort("Name","UnitPrice")																// sort results by these columns
 		
-	qString = q1.build(true)																	// retrieve the constructed query string
+	qstring = q1.build(true)																	// retrieve the constructed query string
 */
 
  	// output:
@@ -25,7 +25,7 @@
 const SDB_FILTER_ERR_INVALID_COL_NAME = 'Invalid column name parameter: must be non-empty string/cannot contain spaces/cannot begin with a number';
 const SDB_FILTER_ERR_INVALID_NUM_ARGS = 'Invalid number of filter parameters';
 const SDB_FILTER_ERR_INVALID_TYPE = 'Invalid data type for value, must be string or number';
-const SDB_FILTER_ERR_EMPTY_STRING = 'String values cannot be empty';
+const SDB_FILTER_ERR_EMPTY_STRING = 'string values cannot be empty';
 const SDB_FILTER_ERR_INVALID_COMPARE_TYPE ='Range value data types must match';
 const SDB_FILTER_ERR_INVALID_RANGE = 'Invalid range values';
 const SDB_FILTER_ERR_NO_COL_FOUND = 'No column detected in parameter (string must contain at least one of: {col/}';
@@ -51,9 +51,9 @@ function chgSeparator(value) {
 *
 * eg: eq("CustomerId",1)
 *
-* @param {String} col - name of column to apply filter to
-* @param {String | Number} value - parameter containing the value to filter by
-* @returns {String} s - constructed URL fragment for filtering the given column
+* @param {string} col - name of column to apply filter to
+* @param {string | number} value - parameter containing the value to filter by
+* @returns {string} constructed URL fragment for filtering the given column
 */
 function eq(col, value) {
 	if (arguments.length !== 2) 									{ throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS) }
@@ -73,9 +73,9 @@ function eq(col, value) {
 *
 * eg: any("CustomerId",1,2,3)
 *
-* @param {String} col - name of column to apply filter to
-* @param {String[] | Number[]} values - rest parameter containing the values to filter by (can be mixed strings/numbers)
-* @returns {String} s - constructed URL fragment for filtering the given column
+* @param {string} col - name of column to apply filter to
+* @param {...string | ...number} values - comma delimited list of values to filter by (can be mixed strings/numbers)
+* @returns {string} constructed URL fragment for filtering the given column
 */
 function any(col, ...values) {
 	if (arguments.length < 2) 										{ throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS) }
@@ -112,10 +112,10 @@ function any(col, ...values) {
 *
 * eg: between("CustomerId",1,10)
 *
-* @param {String} col - name of column to apply filter to
-* @param {String | Number | null} r1 - lower bound value of the range
-* @param {String | Number | null} r2 - upper bound value of the range
-* @returns {String} s - constructed URL fragment for filtering the given column
+* @param {string} col - name of column to apply filter to
+* @param {string | number | null} r1 - lower bound value of the range
+* @param {string | number | null} r2 - upper bound value of the range
+* @returns {string} constructed URL fragment for filtering the given column
 */
 function between(col, r1 = null, r2 = null) {
 
@@ -161,9 +161,9 @@ function between(col, r1 = null, r2 = null) {
 *
 * eg: gte("CustomerId",10)
 *
-* @param {String} col - name of column to apply filter to
-* @param {String | Number } lb - lower bound value of the filter
-* @returns {String} s - constructed URL fragment for filtering the given column
+* @param {string} col - name of column to apply filter to
+* @param {string | number } lb - lower bound value of the filter
+* @returns {string} constructed URL fragment for filtering the given column
 */
 
 function gte(col, lb) {
@@ -187,9 +187,9 @@ function gte(col, lb) {
 *
 * eg: lte("CustomerId",10)
 *
-* @param {String} col - name of column to apply filter to
-* @param {String | Number } ub - upperr bound value of the filter
-* @returns {String} s - constructed URL fragment for filtering the given column
+* @param {string} col - name of column to apply filter to
+* @param {string | number } ub - upperr bound value of the filter
+* @returns {string} constructed URL fragment for filtering the given column
 */
 function lte(col, ub) {
 	if (arguments.length !== 2) 									{ throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS) }
@@ -215,8 +215,8 @@ function lte(col, ub) {
 *
 * eg: not(eq("CustomerId",1))
 *
-* @param {String} colFilter - a string containing column filter (can contain concatenated filters)
-* @returns {String} s - negated version of URL fragment for filtering the given column(s)
+* @param {string} colFilter - a string containing column filter (can contain concatenated filters)
+* @returns {string} negated version of URL fragment for filtering the given column(s)
 */
 function not(colFilter) { 
 	if (arguments.length !== 1) 										{ throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS) }
@@ -235,8 +235,8 @@ function not(colFilter) {
 *
 * eg: and( eq("FirstName","David"), any("City","Vancouver","Edmonton") )
 *
-* @param {String[]} colFilter - an array of strings containing multiple column filters
-* @returns {String} s - concatenated URL fragment containing multiple column filters
+* @param {...string} colFilters - comma delimited list of strings containing column filters
+* @returns {string} concatenated URL fragment containing multiple column filters
 */
 function and(...colFilters) {
 

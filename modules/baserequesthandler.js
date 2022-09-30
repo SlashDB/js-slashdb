@@ -46,7 +46,7 @@ class BaseRequestHandler {
    * @param {string} format - a valid MIME type (e.g. 'application/json'), or a key value of the validMimeTypes property in this class (e.g. 'json','csv')
    * @throws {TypeError} if format missing
    * @throws {TypeError} if format is not string
-   * @returns the BaseRequestHandler class instance
+   * @returns {BaseRequestHandler} this object
    */
     accept(format) {
         if (!format) {
@@ -83,7 +83,7 @@ class BaseRequestHandler {
    * @param {string} format - a valid MIME type (e.g. 'application/json'), or a key value of the validMimeTypes property in this class (e.g. 'json','csv')
    * @throws {TypeError} if format missing
    * @throws {TypeError} if format is not string
-   * @returns the BaseRequestHandler class instance
+   * @returns {BaseRequestHandler} this object
    */    
     contentType(format) {
         if (!format) {
@@ -117,10 +117,10 @@ class BaseRequestHandler {
 
    /**
    * Sets arbitrary custom header value for HTTP requests
-   * @param {Object} headersObj - an object containing key/value pairs of header properties
+   * @param {object} headersObj - an object containing key/value pairs of header properties
    * @throws {TypeError} headersObj is not an object
    * @throws {TypeError} if the value of a key/value pair is not a string or number
-   * @returns the BaseRequestHandler class instance
+   * @returns {BaseRequestHandler} this object
    */
     setExtraHeaders(headerObj) {
         if (typeof(headerObj) === 'object' && !Array.isArray(headerObj) && headerObj !== null) {
@@ -168,7 +168,7 @@ class BaseRequestHandler {
 
    /**
    * Executes HTTP POST request
-   * @param {any} data - an object or string containing data values to include in the POST request body.  Can be JSON, an object, or CSV/XML formatted string
+   * @param {string | object} data - an object or string containing data values to include in the POST request body.  Can be JSON, an object, or CSV/XML formatted string
    * @param {string | DataDiscoveryFilter | SQLPassThruFilter} [path] - an optional string containing a URI fragment with URL query parameters 
      * (e.g. /Customer/FirstName/Tim?distinct=true), or a DataDiscoveryFilter/SQLPassThruFilter object that contains all the query details.  Not used under normal
      * circumstances.
@@ -207,7 +207,7 @@ class BaseRequestHandler {
 
    /**
    * Executes HTTP PUT request
-   * @param {any} data - an object or string containing data values to include in the PUT request body.  Can be JSON, an object, or CSV/XML formatted string
+   * @param {string | object} data - an object or string containing data values to include in the PUT request body.  Can be JSON, an object, or CSV/XML formatted string
    * @param {string | DataDiscoveryFilter | SQLPassThruFilter | null | undefined} path - a string containing a URI fragment with URL query parameters 
      * (e.g. /Customer/FirstName/Tim?distinct=true), or a DataDiscoveryFilter/SQLPassThruFilter object that contains all the query details.  Set to null or undefined
      * if not required.

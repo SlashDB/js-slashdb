@@ -18,7 +18,7 @@ class SlashDBClient {
    * @param {string} host - hostname/IP address of the SlashDB instance, including protocol and port number (e.g. http://192.168.1.1:8080)
    * @param {string} username - SlashDB username to use when connecting to instance
    * @param {string} apiKey - API key associated with username; set to null if using password
-   * @param {string} [password] - password associated with username; if API key also provided, API key will be used for connection
+   * @param {string} [password] - optional password associated with username; if API key also provided, API key will be used for connection
    */
   constructor(host, username, apiKey, password = undefined) {
 
@@ -77,7 +77,7 @@ class SlashDBClient {
   /**
    * Logs in to SlashDB instance.  Only required when using password-based login.
    * @returns {true} true - on successful login
-   * @throws {Error} e - on invalid login or error in login process
+   * @throws {Error} on invalid login or error in login process
    */
   async login() {
     
@@ -101,7 +101,7 @@ class SlashDBClient {
 
   /**
    * Checks whether SlashDB client is authenticated against instance.  
-   * @returns {bool} bool - to indicate if currently authenticated
+   * @returns {boolean} boolean - to indicate if currently authenticated
    */  
   async isAuthenticated() {
     const url = `${this.userEP}/${this.username}.json`;
@@ -189,7 +189,7 @@ class SlashDBClient {
   /**
    * Retrieve a list of SQL Pass-Thru queries that are configured on the SlashDB instance
    * @param {string} [dbName] - database name; if specified, will only return queries associated with the given database
-   * @returns {Object} queries - a key/value pair object keyed by query ID, with
+   * @returns {object} queries - a key/value pair object keyed by query ID, with
    * a corresponding SQLPassThruQuery object for each key
    */
   async getQueries(dbName = undefined) {

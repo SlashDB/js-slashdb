@@ -243,7 +243,7 @@ class DataDiscoveryFilter extends BaseFilter {
 	/**
 	* Builds the URL endpoint string from the filter strings provided to the class and the query string parameters that have been set;
 	* called at the end of most filter string methods and query string parameter methods
-	* @returns {DataDiscoveryFilter} the current instance of this class
+	* @returns {DataDiscoveryFilter} this object
 	*/ 
 	build() {
 		let columns = this.returnColumns ? `/${this.returnColumns}` : '';

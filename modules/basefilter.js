@@ -91,7 +91,7 @@ class BaseFilter {
 	* Mark a column as ascending for sort() method.  Not used in class; exposed externally as its own function in this module; note
 	* that this method doesn't do any modifications to the column name, it's here just so developers have an explicit method
 	* @param {string} col - a column name to mark as descending
-	* @returns {string} a column name that has been marked as descending for sort() method
+	* @returns {string} a column name that has been marked as ascending for sort() method (effectively, no changes to input)
 	* @throws {TypeError} if column name given is not a string
 	* @throws {SyntaxError} if column name given contains spaces or parses to a number
 	*/ 
@@ -173,7 +173,7 @@ class BaseFilter {
 
 	/**
 	* Parses out column names; used by sort() and cols() methods.  Not called directly.
-	* @param {...string} columns - a list of column names to parse (e.g. 'FirstName','LastName','Email')
+	* @param {...string} columns - a comma delimited list of column names to parse (e.g. 'FirstName','LastName','Email')
 	* @returns {undefined} if one column given and value of column is false (resets sort/cols)
 	* @returns {string} string of column names separated by ','
 	* @throws {TypeError} if no columns given, or if any column names are not strings, or are empty strings

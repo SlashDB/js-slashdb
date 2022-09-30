@@ -15,13 +15,13 @@
 /**
  * fetch API wrapper for handling HTTP requests.
  *
- * @param {String} httpMethod - HTTP method to use for the fetch() call
- * @param {String} url - protocol, host:port and path to resource/endpoint
- * @param {Object} body - Payload to be sent; object containing key/value pairs.
- * @param {Object} headers - Header parameters to send in request; object containing key/value pairs.
- * @param {Boolean} [onlyRes] - Flag to indicate whether to send back HTTP response status only or also send back data
- * @returns {Object} returnObj.data - response data.
- * @returns {Object} returnObj.res - response status.
+ * @param {string} httpMethod - HTTP method to use for the fetch() call
+ * @param {string} url - protocol, host:port and path to resource/endpoint
+ * @param {object} body - Payload to be sent; object containing key/value pairs.
+ * @param {object} headers - Header parameters to send in request; object containing key/value pairs.
+ * @param {boolean} [onlyRes] - Flag to indicate whether to send back HTTP response status only or also send back data
+ * @returns {object} returnObj.data - response data.
+ * @returns {object} returnObj.res - response status.
  * @throws {Error} error message with HTTP status code if applicable on 4xx/5xx/network errors
  */
   async function fetchWrapper(
@@ -85,7 +85,7 @@
   /** Helper function to handle requests response.
  *
  * @param {*} response
- * @returns {Object} data
+ * @returns {object} data
  */
 async function handleResponse(response, returnObj) {
   let data, text;
