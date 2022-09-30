@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: slashdbclient.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: slashdbclient.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { DataDiscoveryDatabase } from './datadiscovery.js'
+import { SQLPassThruQuery } from './sqlpassthru.js'
+import { BaseRequestHandler } from './baserequesthandler.js';
+
+const SDB_SDBC_INVALID_HOSTNAME = 'Invalid hostname parameter, must be string';
+const SDB_SDBC_INVALID_USERNAME = 'Invalid username parameter, must be string';
+const SDB_SDBC_MISSING_AUTH = 'API key or password must be provided';
+const SDB_SDBC_INVALID_APIKEY = 'Invalid apiKey parameter, must be string';
+const SDB_SDBC_INVALID_PASSWORD = 'Invalid password parameter, must be string';
+
+/** 
+ * Stores parameters necessary to communicate with a SlashDB instance and provides methods for retrieving metadata from the instance.
+ */
+class SlashDBClient {
+
+  /** 
+   * Creates a SlashDB client to connect to a SlashDB instance. 
+   * @param {string} host - hostname/IP address of the SlashDB instance, including protocol and port number (e.g. http://192.168.1.1:8080)
+   * @param {string} username - SlashDB username to use when connecting to instance
+   * @param {string} apiKey - API key associated with username; set to null if using password
+   * @param {string} [password] - optional password associated with username; if API key also provided, API key will be used for connection
+   */
+  constructor(host, username, apiKey, password = undefined) {
+
+    if (!host || typeof(host) !== 'string') {
+      throw TypeError(SDB_SDBC_INVALID_HOSTNAME);
+
+    }
+
+    if (!username || typeof(username) !== 'string') {
+      throw TypeError(SDB_SDBC_INVALID_USERNAME);
+
+    }
+
+    if (!apiKey &amp;&amp; !password) {
+      throw ReferenceError(SDB_SDBC_MISSING_AUTH);
+    }
+
+    if (apiKey &amp;&amp; typeof(apiKey) !== 'string') {
+      throw TypeError(SDB_SDBC_INVALID_APIKEY);
+    }
+
+    if (password &amp;&amp; typeof(password) !== 'string') {
+      throw TypeError(SDB_SDBC_INVALID_PASSWORD);
+    }
+
+    if (apiKey &amp;&amp; password) {
+      console.warn('API key and password provided, using API key');
+      password = undefined;
+    }
+
+    this.host = host;
+    this.username = username
+    this.apiKey = apiKey;
+    this.password = password;
+    this.isAuthenticatedFlag = false;
+
+    // create the special case BaseRequestHandler object for interacting with config endpoints
+    this.sdbConfig = new BaseRequestHandler(this);
+
+    // SlashDB config endpoints
+    this.loginEP = '/login';
+    this.logoutEP = '/logout';
+    this.settingsEP = '/settings.json';
+    this.versionEP = '/version.txt';
+    this.licenseEP = '/license';
+    this.loadEP = '/load-model';
+    this.unloadEP = '/unload-model';
+    this.checkDBConnEP = '/settings/check-database-connection.json';
+    this.reflectStatusEP = '/settings/reflect-status.json';
+    this.userEP = '/userdef';       
+    this.dbDefEP = '/dbdef';        
+    this.queryDefEP = '/querydef';  
+              
+  }
+
+  /**
+   * Logs in to SlashDB instance.  Only required when using password-based login.
+   * @returns {true} true - on successful login
+   * @throws {Error} on invalid login or error in login process
+   */
+  async login() {
+    
+    const body = { login: this.username, password: this.password };
+    try {
+      let response = (await this.sdbConfig.post(body, this.loginEP)).res
+      if (response.ok === true) {
+        this.isAuthenticatedFlag = true;
+        return this.isAuthenticatedFlag;
+      }
+      else {
+        this.isAuthenticatedFlag = false;
+        return false;
+      }
+    }
+    catch(e) {
+      this.isAuthenticatedFlag = false;
+      throw Error(e);
+    }
+  }
+
+  /**
+   * Checks whether SlashDB client is authenticated against instance.  
+   * @returns {boolean} boolean - to indicate if currently authenticated
+   */  
+  async isAuthenticated() {
+    const url = `${this.userEP}/${this.username}.json`;
+    
+    try {
+      let response = (await this.sdbConfig.get(url)).res
+      if (response.ok === true) {
+        this.isAuthenticatedFlag = true;
+        return true;
+      }
+      else {
+        this.isAuthenticatedFlag = false;
+        return false;
+      }
+    }
+    catch(e) {
+      this.isAuthenticatedFlag = false;
+      return false;
+    }
+  }
+
+  async logout() {
+    try {
+      await this.sdbConfig.get(this.logoutEP);
+      this.isAuthenticatedFlag = false;
+    }
+    catch(e) {
+      console.error(e);
+    }
+  }
+  /* *** configuration endpoint getters/setters */
+
+  async getSettings() {
+    return (await this.sdbConfig.get(this.settingsEP)).data
+  }
+
+  async getVersion() {
+    return (await this.sdbConfig.get(this.versionEP)).data;
+  }
+
+  async loadModel(dbName) {
+    return (await this.sdbConfig.get(`${this.loadEP}/${dbName}`)).data;
+  }
+
+  async unloadModel(dbName) {
+    return (await this.sdbConfig.get(`${this.unloadEP}/${dbName}`)).data;
+  }
+
+  async getReflectStatus(dbName = undefined) {
+    const ep = (!dbName) ? this.reflectStatusEP : `${this.reflectStatusEP.split('.json')[0]}/${dbName}.json`;
+    return (await this.sdbConfig.get(ep)).data;
+  }
+
+  async getUser(username = undefined) {
+    const ep = (!username) ? this.userEP : `${this.userEP}/${username}`;
+    return (await this.sdbConfig.get(ep)).data;
+  }
+
+  async getDbDef(dbName = undefined, guiData = false) {
+    const guiParam = guiData ? '?guidata' : '';
+    const ep = (!dbName) ? `${this.dbDefEP}${guiParam}` : `${this.dbDefEP}/${dbName}${guiParam}`;
+    return (await this.sdbConfig.get(ep)).data;
+  }  
+
+  async getQueryDef(queryName = undefined, guiData = false) {
+    const guiParam = guiData ? '?guidata' : '';
+    const ep = (!queryName) ? `${this.queryDefEP}${guiParam}` : `${this.queryDefEP}/${queryName}${guiParam}`;
+    return (await this.sdbConfig.get(ep)).data;
+  }	    
+
+  /**
+   * Retrieve a list of databases that are configured on the SlashDB instance
+   * @returns {Object} databases - a key/value pair object keyed by database name, with
+   * a corresponding DataDiscoveryDatabase object for each key
+   */
+  async getDatabases() {
+    const databases = {};
+    let dbList = await this.getReflectStatus();
+    for (const db in dbList) {
+      databases[db] = new DataDiscoveryDatabase(this, db);
+    }
+    return databases;
+  }
+
+  /**
+   * Retrieve a list of SQL Pass-Thru queries that are configured on the SlashDB instance
+   * @param {string} [dbName] - database name; if specified, will only return queries associated with the given database
+   * @returns {object} queries - a key/value pair object keyed by query ID, with
+   * a corresponding SQLPassThruQuery object for each key
+   */
+  async getQueries(dbName = undefined) {
+    let queryList = await this.getQueryDef();
+    const queries = {};  
+
+    
+    // create a query object for each query in the list
+    for (const query in queryList) {
+        
+        if (dbName) {
+            if (queryList[query]['database'] !== dbName) {
+                continue;
+            }
+        }
+        
+        // required since url_template is not included when getQueryDef returns all queries, only for individual ones
+        const q = await this.getQueryDef(query);  
+
+        // find parameters in URL template string and create list
+        let params = []
+        const tokens = q.url_template.match(/{(.*?)}/gm);
+        if (tokens) {
+            for (let t of tokens) {
+                t = t.replaceAll('{','').replaceAll('}','');;
+                params.push(t);
+            }
+        }
+
+        queries[q.query_id] = new SQLPassThruQuery(q.query_id, this.sdbClient, q.http_methods, params); 
+
+        // remove HTTP methods that are disabled from the newly created query object
+        const methods = ['GET','POST','PUT','DELETE'];
+        for (const m of methods) {
+            if (q.http_methods.hasOwnProperty(m) &amp;&amp; q.http_methods[m] === true) {
+                continue;
+            }
+            else {
+                queries[q.query_id][m.toLowerCase()] = null;
+            }
+        }
+    }
+    
+    return queries;
+  }
+}
+
+
+export { SlashDBClient }
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseFilter.html">BaseFilter</a></li><li><a href="BaseRequestHandler.html">BaseRequestHandler</a></li><li><a href="DataDiscoveryFilter.html">DataDiscoveryFilter</a></li><li><a href="DataDiscoveryResource.html">DataDiscoveryResource</a></li><li><a href="SlashDBClient.html">SlashDBClient</a></li><li><a href="SQLPassThruFilter.html">SQLPassThruFilter</a></li><li><a href="SQLPassThruQuery.html">SQLPassThruQuery</a></li></ul><h3>Global</h3><ul><li><a href="global.html#and">and</a></li><li><a href="global.html#any">any</a></li><li><a href="global.html#between">between</a></li><li><a href="global.html#eq">eq</a></li><li><a href="global.html#fetchWrapper">fetchWrapper</a></li><li><a href="global.html#gte">gte</a></li><li><a href="global.html#handleResponse">handleResponse</a></li><li><a href="global.html#lte">lte</a></li><li><a href="global.html#not">not</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.11</a> on Fri Sep 30 2022 12:59:23 GMT-0400 (Eastern Daylight Saving Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

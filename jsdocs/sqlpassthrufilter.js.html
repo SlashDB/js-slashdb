@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: sqlpassthrufilter.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: sqlpassthrufilter.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { BaseFilter } from "./basefilter.js";
+
+const SDB_SPTF_INVALID_PARAM_FORMAT = 'Parameters must be given as an object of key/value pairs';
+const SDB_SPTF_INVALID_PARAM_NAME = "Parameter name must be a non-empty string, cannot contain '/' character";
+const SDB_SPTF_INVALID_PARAM_VALUE = "Parameter value must be a non-empty string or integer, cannot contain '/'";
+const SDB_SPTF_INVALID_XMLTYPE = "Parameter must be a non-empty string";
+
+/** 
+ * Class for creating URL strings for SlashDB SQL Pass-Thru functionality
+ */
+class SQLPassThruFilter extends BaseFilter {
+
+   /**
+   * Create a SQLPassThruFilter object for making SlashDB-compatible URL strings
+   * @extends BaseFilter
+   * @param {Object} [params] - optional object of key/value pairs representing SQL query parameters to instantiate this object with
+   * @param {string} [urlPlaceholder] -  a string that contains a character(s) to set for the placeholder query parameter (used to indicate what character(s)
+   * was used to replace '/' character in values contained in the URL that may contain the '/' character);  default is '__'
+   */    	
+	constructor(params = undefined, urlPlaceholder = '__') {
+		super(urlPlaceholder)
+
+		this.pathString = '';
+		this.queryParams = {};
+
+		if (params) {
+			this.addParams(params);
+		}
+
+		this.urlStringParams = {
+			...this.urlStringParams,
+			count: false,
+			xmlType: undefined,
+		};
+
+		this.build();
+	}
+	
+	/**
+	* Adds SQL query parameters to this object and stores info about them
+	* @param {Object} params - an object of key/value pairs containing parameter names and values
+	* @returns {SQLPassThruFilter} this object
+	* @throws {SyntaxError} - if params parameter is not an object
+	* @throws {SyntaxError} - if any object keys parse to numbers
+	* @throws {TypeError} - if any object keys are not strings or contain spaces
+	* @throws {TypeError} - if any object keys contain '/' character
+	* @throws {TypeError} - if any object values are not strings or numbers, or are empty strings
+	* @throws {TypeError} - if any object values contain '/' character
+	*/ 	
+	addParams(params) {
+
+		if (! (typeof(params) === 'object' &amp;&amp; !Array.isArray(params)) ){
+			throw SyntaxError(SDB_SPTF_INVALID_PARAM_FORMAT);
+		}
+
+		for (const key in params) {
+
+			if (!isNaN(parseInt(key)) ) {
+				throw SyntaxError(SDB_SPTF_INVALID_PARAM_NAME);
+			}
+
+			if (typeof(key) !== 'string' || key.indexOf(' ') !== -1) {
+				throw TypeError(SDB_SPTF_INVALID_PARAM_NAME);
+			}
+	
+			if (key.indexOf('/') !== -1) {
+				throw TypeError(SDB_SPTF_INVALID_PARAM_NAME);
+			}
+
+			if (typeof(params[key]) !== 'number' &amp;&amp; (typeof(params[key]) !== 'string' || params[key].trim().length &lt; 1)) {
+				throw TypeError(SDB_SPTF_INVALID_PARAM_VALUE);
+			}
+
+			if ( typeof(params[key]) === 'string' &amp;&amp; params[key].indexOf('/') !== -1) {
+				throw TypeError(SDB_SPTF_INVALID_PARAM_VALUE);
+			}
+
+			this.queryParams[key] = params[key];
+			this.pathString += `/${key}/${params[key]}`;
+		}
+
+		return this.build();
+	}
+
+	/**
+	* Sets the count query string parameter
+	* @param {boolean} [toggle] - sets the count query string parameter if not provided; removes the query string parameter if set to false
+	* @returns {SQLPassThruFilter} this object	
+	*/ 		
+	count(toggle = true) {
+		this.urlStringParams['count'] = toggle === true;
+		return this.build();
+	}
+
+	/**
+	* Sets the xmlType query string parameter
+	* @param {string} [val] - value for the xmlType parameter; removes the query string parameter if not provided
+	* @returns {SQLPassThruFilter} this object	
+	* @throws {TypeError} if val paramter is not a string
+	*/ 		
+	xmlType(val = undefined) {
+		if (val) {
+			if (typeof(val) !== 'string') {
+				throw TypeError(SDB_SPTF_INVALID_XMLTYPE);
+			}
+		}
+		this.urlStringParams['xmlType'] = val;
+		return this.build();
+	}
+
+	/**
+	* Builds the URL endpoint string from the filter strings provided to the class and the query string parameters that have been set;
+	* called at the end of most filter string methods and query string parameter methods
+	* @returns {SQLPassThruFilter} this object
+	*/ 	
+	build() {
+		let columns = this.returnColumns ? `/${this.returnColumns}` : '';
+
+		let paramString = '';
+		for (const p in this.urlStringParams) {
+			if (this.urlStringParams[p] !== undefined &amp;&amp; this.urlStringParams[p] !== false) {
+				paramString += `${p}=${this.urlStringParams[p]}&amp;` ;
+			}
+		}
+		paramString = paramString.slice(0,paramString.length-1);	// chop trailing &amp;
+		paramString += this._urlPlaceholderFn();
+
+		this.endpoint = paramString.length > 0 ? `${this.pathString}${columns}?${paramString}` : `${this.pathString}${columns}`;
+		
+		return this;
+	}
+}
+
+
+export { SQLPassThruFilter }
+
+// for testing only
+export { SDB_SPTF_INVALID_PARAM_FORMAT, SDB_SPTF_INVALID_PARAM_NAME, SDB_SPTF_INVALID_PARAM_VALUE,SDB_SPTF_INVALID_XMLTYPE }
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseFilter.html">BaseFilter</a></li><li><a href="BaseRequestHandler.html">BaseRequestHandler</a></li><li><a href="DataDiscoveryFilter.html">DataDiscoveryFilter</a></li><li><a href="DataDiscoveryResource.html">DataDiscoveryResource</a></li><li><a href="SlashDBClient.html">SlashDBClient</a></li><li><a href="SQLPassThruFilter.html">SQLPassThruFilter</a></li><li><a href="SQLPassThruQuery.html">SQLPassThruQuery</a></li></ul><h3>Global</h3><ul><li><a href="global.html#and">and</a></li><li><a href="global.html#any">any</a></li><li><a href="global.html#between">between</a></li><li><a href="global.html#eq">eq</a></li><li><a href="global.html#fetchWrapper">fetchWrapper</a></li><li><a href="global.html#gte">gte</a></li><li><a href="global.html#handleResponse">handleResponse</a></li><li><a href="global.html#lte">lte</a></li><li><a href="global.html#not">not</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.11</a> on Fri Sep 30 2022 12:59:23 GMT-0400 (Eastern Daylight Saving Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
