@@ -2,7 +2,7 @@
 
 Tests are executed using the [```Jest```](https://jestjs.io/) framework.  The test suites also rely on the [```fetch-mock```](https://www.npmjs.com/package/fetch-mock) package for isolation of functions under test that make calls to the fetch API.
 
-```Jest``` runs on Node; Node 17.5+ is recommended to run these tests, since it has a native fetch API.  The ```fetch-mock``` package does not use the native fetch API, so the [```node-fetch```](https://www.npmjs.com/package/node-fetch) *(v2.6.7)*  package is included as a dependency.  If running tests under an older version of Node, you may need to update the ```fetchwrapper.js``` source file to include the ```node-fetch``` package.
+```Jest``` runs on Node; Node 17.5+ is recommended to run these tests, since it has a native fetch API.  The ```fetch-mock``` package does not use the native fetch API, so the [```node-fetch```](https://www.npmjs.com/package/node-fetch) *(v2.6.7)*  package is included as a dependency.  If running tests under an older version of Node, you will need to update the ```fetchwrapper.js``` source file to include the ```node-fetch``` package.
 
 The ```Jest``` and ```fetch-mock``` packages are included as dev dependencies.  The ```@babel/plugin-transform-modules-commonjs``` package and the ```.babelrc``` file in the root of this repo are also required for Jest to function properly, since the project modules are written in ES6 syntax.  There's also a couple other utility packages installed for development purposes.
 
