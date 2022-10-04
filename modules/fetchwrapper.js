@@ -1,5 +1,5 @@
 // for pre v17/18 Node environment, node-fetch module required
-// //let fetch = null;
+//let fetch = null;
 // if (typeof(window) !== 'undefined') {
 //   fetch = window.fetch;
 // }
