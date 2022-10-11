@@ -4,9 +4,9 @@ import { BaseRequestHandler } from './baserequesthandler.js';
 
 const SDB_SDBC_INVALID_HOSTNAME = 'Invalid hostname parameter, must be string';
 const SDB_SDBC_INVALID_USERNAME = 'Invalid username parameter, must be string';
-const SDB_SDBC_MISSING_AUTH = 'API key or password must be provided';
 const SDB_SDBC_INVALID_APIKEY = 'Invalid apiKey parameter, must be string';
 const SDB_SDBC_INVALID_PASSWORD = 'Invalid password parameter, must be string';
+const SDB_SDBC_INVALID_USERNAME_MISMATCH = 'Login username must match object username';
 
 /** 
  * Stores parameters necessary to communicate with a SlashDB instance and provides methods for retrieving metadata from the instance.
@@ -16,44 +16,38 @@ class SlashDBClient {
   /** 
    * Creates a SlashDB client to connect to a SlashDB instance. 
    * @param {string} host - hostname/IP address of the SlashDB instance, including protocol and port number (e.g. http://192.168.1.1:8080)
-   * @param {string} username - SlashDB username to use when connecting to instance
-   * @param {string} apiKey - API key associated with username; set to null if using password
-   * @param {string} [password] - optional password associated with username; if API key also provided, API key will be used for connection
+   * @param {string} [username] - optional username to use when connecting to SlashDB instance
+   * @param {string} [apiKey] - optional API key associated with username
    */
-  constructor(host, username, apiKey, password = undefined) {
+  // constructor(host, username, apiKey, password = undefined) {
+  constructor(host, username, apiKey) {
 
     if (!host || typeof(host) !== 'string') {
       throw TypeError(SDB_SDBC_INVALID_HOSTNAME);
 
     }
 
-    if (!username || typeof(username) !== 'string') {
+    if (username && typeof(username) !== 'string') {
       throw TypeError(SDB_SDBC_INVALID_USERNAME);
 
     }
 
-    if (!apiKey && !password) {
-      throw ReferenceError(SDB_SDBC_MISSING_AUTH);
-    }
+    // if (!apiKey && !password) {
+    //   throw ReferenceError(SDB_SDBC_MISSING_AUTH);
+    // }
 
     if (apiKey && typeof(apiKey) !== 'string') {
       throw TypeError(SDB_SDBC_INVALID_APIKEY);
     }
 
-    if (password && typeof(password) !== 'string') {
-      throw TypeError(SDB_SDBC_INVALID_PASSWORD);
-    }
-
-    if (apiKey && password) {
-      console.warn('API key and password provided, using API key');
-      password = undefined;
-    }
+    // if (password && typeof(password) !== 'string') {
+    //   throw TypeError(SDB_SDBC_INVALID_PASSWORD);
+    // }
 
     this.host = host;
     this.username = username
     this.apiKey = apiKey;
-    this.password = password;
-    this.isAuthenticatedFlag = false;
+    // this.password = password;
 
     // create the special case BaseRequestHandler object for interacting with config endpoints
     this.sdbConfig = new BaseRequestHandler(this);
@@ -79,22 +73,40 @@ class SlashDBClient {
    * @returns {true} true - on successful login
    * @throws {Error} on invalid login or error in login process
    */
-  async login() {
+  async login(username, password) {
+
+    if (typeof(username) !== 'string') {
+      throw TypeError(SDB_SDBC_INVALID_USERNAME);
+
+    }
+
+    if (this.username && this.username !== username) {
+      throw Error(SDB_SDBC_INVALID_USERNAME_MISMATCH);
+    }
     
-    const body = { login: this.username, password: this.password };
+    else {
+      this.username = username;
+    }
+
+    if (typeof(password) !== 'string') {
+       throw TypeError(SDB_SDBC_INVALID_PASSWORD);
+    }
+
+    if (this.apiKey) {
+       console.warn('API key and password provided, API key will take precedence over session cookie');
+    }
+
+    const body = { login: this.username, password: password };
     try {
       let response = (await this.sdbConfig.post(body, this.loginEP)).res
       if (response.ok === true) {
-        this.isAuthenticatedFlag = true;
-        return this.isAuthenticatedFlag;
+        return true;
       }
       else {
-        this.isAuthenticatedFlag = false;
         return false;
       }
     }
     catch(e) {
-      this.isAuthenticatedFlag = false;
       throw Error(e);
     }
   }
@@ -109,16 +121,13 @@ class SlashDBClient {
     try {
       let response = (await this.sdbConfig.get(url)).res
       if (response.ok === true) {
-        this.isAuthenticatedFlag = true;
         return true;
       }
       else {
-        this.isAuthenticatedFlag = false;
         return false;
       }
     }
     catch(e) {
-      this.isAuthenticatedFlag = false;
       return false;
     }
   }
@@ -126,7 +135,6 @@ class SlashDBClient {
   async logout() {
     try {
       await this.sdbConfig.get(this.logoutEP);
-      this.isAuthenticatedFlag = false;
     }
     catch(e) {
       console.error(e);
