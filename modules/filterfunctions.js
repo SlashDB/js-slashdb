@@ -56,9 +56,9 @@ function chgSeparator(value) {
 * @returns {string} constructed URL fragment for filtering the given column
 */
 function eq(col, value) {
-	if (arguments.length !== 2) 									{ throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS) }
-	if (typeof(col) !== 'string')									{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }
-	if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1)		{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }
+	if (arguments.length !== 2) 														{ throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS) }
+	if (typeof(col) !== 'string')														{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }
+	if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1 || col.trim() === '')		{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }
 
 	if (typeof(value) !== 'number' && typeof(value) !== 'string') {
 		throw TypeError(SDB_FILTER_ERR_INVALID_TYPE); 
@@ -78,9 +78,9 @@ function eq(col, value) {
 * @returns {string} constructed URL fragment for filtering the given column
 */
 function any(col, ...values) {
-	if (arguments.length < 2) 										{ throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS) }
-	if (typeof(col) !== 'string')									{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }
-	if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1)		{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }
+	if (arguments.length < 2) 															{ throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS) }
+	if (typeof(col) !== 'string')														{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }
+	if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1 || col.trim() === '')		{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }
 
 	let s = `${col}/`;
 	for (let [i, v] of values.entries()) {
@@ -89,10 +89,10 @@ function any(col, ...values) {
 			throw TypeError(SDB_FILTER_ERR_INVALID_TYPE + ` (parameter ${i+2})`);
 		}		
 		
-		if (typeof(v) === 'string' && v.trim().length === 0) {
-			throw TypeError(SDB_FILTER_ERR_EMPTY_STRING + ` (parameter ${i+2})`); 
-			return ''; 
-		}
+		/** uncomment to disable empty strings for values **/
+		// if (typeof(v) === 'string' && v.trim().length === 0) {
+		// 	throw TypeError(SDB_FILTER_ERR_EMPTY_STRING + ` (parameter ${i+2})`); 
+		// }
 			
 		else {
 			// if (typeof(v) === 'string') {
@@ -102,7 +102,17 @@ function any(col, ...values) {
 			s += `${v}${SDB_SEPARATOR}`
 		}
 	}
-	
+
+	// if value was an empty string, then last character in created string will be '/'
+	// append '/'
+	if (s.endsWith(`/${SDB_SEPARATOR.length}`)) {
+		return s.slice(0, (0 - SDB_SEPARATOR.length) ) + '/';
+	}
+	// if multiple values were given, and final value is an empty string, two separators will
+	// present, remove one separator and append '/'
+	else if (s.endsWith(`${SDB_SEPARATOR}${SDB_SEPARATOR}`)) {
+		return s.slice(0, (0 - SDB_SEPARATOR.length) ) + '/';
+	}
 	return s.slice(0, (0 - SDB_SEPARATOR.length) )
 }
 
@@ -119,9 +129,9 @@ function any(col, ...values) {
 */
 function between(col, r1 = null, r2 = null) {
 
-	if (arguments.length < 2 || arguments.length > 3 ) 				{ throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS) }
-	if (typeof(col) !== 'string')									{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }
-	if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1)		{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }	
+	if (arguments.length < 2 || arguments.length > 3 ) 									{ throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS) }
+	if (typeof(col) !== 'string')														{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }
+	if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1 || col.trim() === '')		{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }	
 	
 	// if both values are null/undefined - error
 	if ( (r1 || r2) == null) {
@@ -167,9 +177,9 @@ function between(col, r1 = null, r2 = null) {
 */
 
 function gte(col, lb) {
-	if (arguments.length !== 2) 									{ throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS) }
-	if (typeof(col) !== 'string')									{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }
-	if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1)		{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }	
+	if (arguments.length !== 2) 														{ throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS) }
+	if (typeof(col) !== 'string')														{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }
+	if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1 || col.trim() === '')		{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }	
 	
 	if (typeof(lb) !== 'number' && typeof(lb) !== 'string') {
 		throw TypeError(SDB_FILTER_ERR_INVALID_TYPE);
@@ -192,9 +202,9 @@ function gte(col, lb) {
 * @returns {string} constructed URL fragment for filtering the given column
 */
 function lte(col, ub) {
-	if (arguments.length !== 2) 									{ throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS) }
-	if (typeof(col) !== 'string')									{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }
-	if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1)		{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }	
+	if (arguments.length !== 2) 														{ throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS) }
+	if (typeof(col) !== 'string')														{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }
+	if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1 || col.trim() === '')		{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }	
 	
 	if (typeof(ub) !== 'number' && typeof(ub) !== 'string') {
 		throw TypeError(SDB_FILTER_ERR_INVALID_TYPE);
@@ -219,7 +229,7 @@ function lte(col, ub) {
 * @returns {string} negated version of URL fragment for filtering the given column(s)
 */
 function not(colFilter) { 
-	if (arguments.length !== 1) 										{ throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS) }
+	if (arguments.length !== 1)											{ throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS) }
 	if (typeof(colFilter) !== 'string' || colFilter.trim().length < 1) 	{ throw TypeError(SDB_FILTER_ERR_INVALID_TYPE) }
 	
 	if (colFilter.indexOf('/') === -1) {

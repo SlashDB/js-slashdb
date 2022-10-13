@@ -14,6 +14,7 @@ describe('Composable functions unit tests', () => {
     const invalidCol_space = 'bad columnName';
     const invalidCol_notstring = 1;
     const invalidCol_firstcharnum = '1columnName';
+    const invalidCol_emptyStr = '';
 
     // value parameter values to test
     const strVal_1 = 'Helena';
@@ -58,15 +59,15 @@ describe('Composable functions unit tests', () => {
         expect(() => {
             eq(invalidCol_firstcharnum, strVal_1);
         }).toThrowError(SDB_FILTER_ERR_INVALID_COL_NAME);       
-    
+
+        expect(() => {
+            eq(invalidCol_emptyStr, strVal_1);
+        }).toThrowError(SDB_FILTER_ERR_INVALID_COL_NAME); 
+
         // non string/number values in parameters
         expect(() => {
             eq(validCol, invalidVal_type);
         }).toThrowError(SDB_FILTER_ERR_INVALID_TYPE);
-    
-        expect(() => {
-            eq(validCol, invalidVal_empty);
-        }).toThrowError(SDB_FILTER_ERR_EMPTY_STRING);
     
         expect(() => {
             eq(validCol, null);
@@ -110,15 +111,16 @@ describe('Composable functions unit tests', () => {
             any(invalidCol_firstcharnum, strVal_1, intVal_1, strVal_2);
         }).toThrowError(SDB_FILTER_ERR_INVALID_COL_NAME);  
 
+        expect(() => {
+            any(invalidCol_emptyStr, strVal_1, intVal_1, strVal_2);            
+        }).toThrowError(SDB_FILTER_ERR_INVALID_COL_NAME);         
+
         // non string/number values in parameters
         expect(() => {
              any(validCol, strVal_1, invalidVal_type, intVal_1, strVal_2);
         }).toThrowError(SDB_FILTER_ERR_INVALID_TYPE);
     
-        expect(() => {
-             any(validCol, strVal_1, invalidVal_empty, intVal_1, strVal_2);
-        }).toThrowError(SDB_FILTER_ERR_EMPTY_STRING);
-        
+       
         expect(() => {
             any(validCol, strVal_1, null);
         }).toThrowError(SDB_FILTER_ERR_INVALID_TYPE);    

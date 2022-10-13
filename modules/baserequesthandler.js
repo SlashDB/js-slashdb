@@ -303,8 +303,7 @@ class BaseRequestHandler {
             throw TypeError(SDB_SPT_INVALID_PATH_EMPTY);
         }
         
-        endpoint = (endpoint + path).replaceAll('//','/');
-        return this.sdbClient.host + endpoint;
+        return this.sdbClient.host + endpoint + path;
     }
 
 }

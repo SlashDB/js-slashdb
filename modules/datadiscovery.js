@@ -160,8 +160,7 @@ class DataDiscoveryResource extends BaseRequestHandler {
             throw TypeError(SDB_DDR_INVALID_PATH_TYPE);
         }
 
-        endpoint = (endpoint + path).replaceAll('//','/');
-        return this.sdbClient.host + endpoint;
+        return this.sdbClient.host + endpoint + path;
     }
 }
 
