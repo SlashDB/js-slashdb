@@ -68,7 +68,7 @@ class SQLPassThruQuery extends BaseRequestHandler {
             throw ReferenceError(SDB_SPTQ_NO_CLIENTOBJ);
         }
         
-        let endpoint = this.queryPrefix + `${this.queryName}/`;
+        let endpoint = this.queryPrefix + `${this.queryName}`;
         
         // if no path is provided, the HTTP operation just request to execute the query w/o parameters
         if (!path) {

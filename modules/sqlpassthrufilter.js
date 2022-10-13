@@ -67,7 +67,7 @@ class SQLPassThruFilter extends BaseFilter {
 				throw TypeError(SDB_SPTF_INVALID_PARAM_NAME);
 			}
 
-			if (typeof(params[key]) !== 'number' && (typeof(params[key]) !== 'string' || params[key].trim().length < 1)) {
+			if (typeof(params[key]) !== 'number' && (typeof(params[key]) !== 'string')) {
 				throw TypeError(SDB_SPTF_INVALID_PARAM_VALUE);
 			}
 
@@ -75,8 +75,13 @@ class SQLPassThruFilter extends BaseFilter {
 				throw TypeError(SDB_SPTF_INVALID_PARAM_VALUE);
 			}
 
+			// handle empty string values
+			if (params[key].trim() === '') {
+				params[key] = '/';
+			}
 			this.queryParams[key] = params[key];
 			this.pathString += `/${key}/${params[key]}`;
+			this.pathString = this.pathString.replace('///','//');		// if multiple empty string values are given, '///' can appear - remove the extra '/'
 		}
 
 		return this.build();
@@ -125,8 +130,10 @@ class SQLPassThruFilter extends BaseFilter {
 		paramString = paramString.slice(0,paramString.length-1);	// chop trailing &
 		paramString += this._urlPlaceholderFn();
 
-		this.endpoint = paramString.length > 0 ? `${this.pathString}${columns}?${paramString}` : `${this.pathString}${columns}`;
-		
+		this.endpoint = paramString.length > 0 ? `/${this.pathString}${columns}?${paramString}` : `/${this.pathString}${columns}`;
+		if (this.endpoint.startsWith('//')) {
+			this.endpoint = this.endpoint.substring(1);
+		}
 		return this;
 	}
 }

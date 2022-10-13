@@ -43,7 +43,7 @@ describe('SQLPassThruFilter class tests', () => {
         expect(result).toHaveProperty('pathString');
         expect(result.pathString).toBe('');
         expect(result).toHaveProperty('endpoint');
-        expect(result.endpoint).toBe('');
+        expect(result.endpoint).toBe('/');
         expect(result).toHaveProperty('urlStringParams');
         expect(result.urlStringParams).toHaveProperty('count');
         expect(result.urlStringParams).toHaveProperty('xmlType');
@@ -80,7 +80,7 @@ describe('SQLPassThruFilter class tests', () => {
         expect(result).toHaveProperty('queryParams');
         expect(result.queryParams).toStrictEqual({});
         expect(result).toHaveProperty('endpoint');
-        expect(result.endpoint).toBe('');
+        expect(result.endpoint).toBe('/');
 
         // ERROR TESTS
         
@@ -108,17 +108,8 @@ describe('SQLPassThruFilter class tests', () => {
         }).toThrowError(SDB_SPTF_INVALID_PARAM_NAME);        
 
         expect(() => {
-            result = new SQLPassThruFilter({[validParam]: invalidVal_empty});
-        }).toThrowError(SDB_SPTF_INVALID_PARAM_VALUE);
-
-
-        expect(() => {
             result = new SQLPassThruFilter({[validParam]:invalidVal_type});
         }).toThrowError(SDB_SPTF_INVALID_PARAM_VALUE);
-
-        expect(() => {
-            result = new SQLPassThruFilter({[validParam]:invalidVal_empty});
-        }).toThrowError(SDB_SPTF_INVALID_PARAM_VALUE);        
 
         expect(() => {
             result = new SQLPassThruFilter({[validParam]:invalidVal_slash});
@@ -167,17 +158,8 @@ describe('SQLPassThruFilter class tests', () => {
         }).toThrowError(SDB_SPTF_INVALID_PARAM_NAME);        
 
         expect(() => {
-            result.addParams({[validParam]: invalidVal_empty});
-        }).toThrowError(SDB_SPTF_INVALID_PARAM_VALUE);
-
-
-        expect(() => {
             result.addParams({[validParam]:invalidVal_type});
         }).toThrowError(SDB_SPTF_INVALID_PARAM_VALUE);
-
-        expect(() => {
-            result.addParams({[validParam]:invalidVal_empty});
-        }).toThrowError(SDB_SPTF_INVALID_PARAM_VALUE);        
 
         expect(() => {
             result.addParams({[validParam]:invalidVal_slash});

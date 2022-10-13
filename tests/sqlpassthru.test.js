@@ -201,8 +201,8 @@ describe('SQLPassThruQuery() class tests', () => {
 
         fetchMock
             .get(`${MOCK_HOST}/query/invoices-by-year/year/2010`, invoices2010)
-            .get(`${MOCK_HOST}/query/InvalidQuery/`, 404 )
-            .get(`${MOCK_HOST}/query/ForbiddenQuery/`, (url, options) => {
+            .get(`${MOCK_HOST}/query/InvalidQuery`, 404 )
+            .get(`${MOCK_HOST}/query/ForbiddenQuery`, (url, options) => {
                 if (!options.headers.apiKey) {
                     return 403;
                 }
@@ -210,7 +210,7 @@ describe('SQLPassThruQuery() class tests', () => {
             });
 
         let testSPTQ = new SQLPassThruQuery('invoices-by-year',mockClient);
-        let r = await testSPTQ.get('/year/2010');
+        let r = await testSPTQ.get('year/2010');
         expect(r.data).toStrictEqual(invoices2010)
         expect(fetchMock).toHaveLastGot(`${MOCK_HOST}/query/invoices-by-year/year/2010`);
 
@@ -220,7 +220,7 @@ describe('SQLPassThruQuery() class tests', () => {
             await  testSPTQ.get();
         }
         catch(e) {
-            expect(fetchMock).toHaveLastGot(`${MOCK_HOST}/query/InvalidQuery/`);
+            expect(fetchMock).toHaveLastGot(`${MOCK_HOST}/query/InvalidQuery`);
             expect(e.message).toBe('404');
         }
 
@@ -231,7 +231,7 @@ describe('SQLPassThruQuery() class tests', () => {
             await  testSPTQ.get();
         }
         catch(e) {
-            expect(fetchMock).toHaveLastGot(`${MOCK_HOST}/query/ForbiddenQuery/`);
+            expect(fetchMock).toHaveLastGot(`${MOCK_HOST}/query/ForbiddenQuery`);
             expect(e.message).toBe('403');
             mockClient['apiKey'] = '1234';
         }
@@ -315,7 +315,7 @@ describe('SQLPassThruQuery() class tests', () => {
         }
 
         fetchMock
-            .post(`${MOCK_HOST}/query/add-new-customer/`, (url, options) => {
+            .post(`${MOCK_HOST}/query/add-new-customer`, (url, options) => {
                 let b = JSON.parse(options.body)
                 if (!options.headers.apiKey) {
                         return 403;
@@ -327,13 +327,13 @@ describe('SQLPassThruQuery() class tests', () => {
 
             return 201;
             })
-            .post(`${MOCK_HOST}/query/InvalidQuery/`, 404)
+            .post(`${MOCK_HOST}/query/InvalidQuery`, 404)
 
         // valid query using POST
         let testSPTQ = new SQLPassThruQuery('add-new-customer', mockClient);        
         let r = await testSPTQ.post(newCustomer);
         expect(r.res.status).toBe(201);
-        expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/query/add-new-customer/`);
+        expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/query/add-new-customer`);
 
         // non-existent query
         try {
@@ -341,7 +341,7 @@ describe('SQLPassThruQuery() class tests', () => {
             let r = await testSPTQ.post(newCustomer);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/query/InvalidQuery/`);
+            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/query/InvalidQuery`);
             expect(e.message).toBe('404');
         }
 
@@ -351,7 +351,7 @@ describe('SQLPassThruQuery() class tests', () => {
             await testSPTQ.post(newCustomer);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/query/add-new-customer/`);
+            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/query/add-new-customer`);
             expect(e.message).toBe('403');
             mockClient.sdbConfig.apKey = '1234';             
         }
@@ -362,7 +362,7 @@ describe('SQLPassThruQuery() class tests', () => {
             await testSPTQ.post(newCustomer);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/query/add-new-customer/`);
+            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/query/add-new-customer`);
             expect(e.message).toBe('400');
             newCustomer['nonExistentField'] = undefined;
         }
