@@ -1,6 +1,6 @@
 import { eq, any, between, gte, lte, not, and, chgSeparator } from '../modules/filterfunctions.js';
-import { SDB_FILTER_ERR_INVALID_COL_NAME, SDB_FILTER_ERR_INVALID_NUM_ARGS, SDB_FILTER_ERR_INVALID_TYPE, SDB_FILTER_ERR_EMPTY_STRING, 
-    SDB_FILTER_ERR_INVALID_COMPARE_TYPE, SDB_FILTER_ERR_INVALID_RANGE, SDB_FILTER_ERR_NO_COL_FOUND, SDB_SEPARATOR } from '../modules/filterfunctions.js'    
+import { SDB_FILTER_ERR_INVALID_COL_NAME, SDB_FILTER_ERR_INVALID_NUM_ARGS, SDB_FILTER_ERR_INVALID_TYPE, SDB_FILTER_ERR_INVALID_VALUE_EMPTY_STRING, 
+    SDB_FILTER_ERR_INVALID_VALUE_SLASH, SDB_FILTER_ERR_INVALID_COMPARE_TYPE, SDB_FILTER_ERR_INVALID_RANGE, SDB_FILTER_ERR_NO_COL_FOUND, SDB_SEPARATOR } from '../modules/filterfunctions.js'    
 
 
 beforeAll( () => {
@@ -15,6 +15,7 @@ describe('Composable functions unit tests', () => {
     const invalidCol_notstring = 1;
     const invalidCol_firstcharnum = '1columnName';
     const invalidCol_emptyStr = '';
+    const invalidCol_slash = 'column/slash';
 
     // value parameter values to test
     const strVal_1 = 'Helena';
@@ -23,6 +24,7 @@ describe('Composable functions unit tests', () => {
     const intVal_2 = 4;
     const invalidVal_type = [1];
     const invalidVal_empty = ' ';
+    const invalidVal_slash = 'value/slash';
     
     test('testing: eq()', () => {
    
@@ -64,6 +66,10 @@ describe('Composable functions unit tests', () => {
             eq(invalidCol_emptyStr, strVal_1);
         }).toThrowError(SDB_FILTER_ERR_INVALID_COL_NAME); 
 
+        expect(() => {
+            eq(invalidCol_slash, strVal_1);
+        }).toThrowError(SDB_FILTER_ERR_INVALID_COL_NAME);         
+
         // non string/number values in parameters
         expect(() => {
             eq(validCol, invalidVal_type);
@@ -75,8 +81,11 @@ describe('Composable functions unit tests', () => {
     
         expect(() => {
             eq(validCol, undefined);
-        }).toThrowError(SDB_FILTER_ERR_INVALID_TYPE);    
-    
+        }).toThrowError(SDB_FILTER_ERR_INVALID_TYPE);   
+        
+        expect(() => {
+            eq(validCol, invalidVal_slash);
+        }).toThrowError(SDB_FILTER_ERR_INVALID_VALUE_SLASH);         
     
     });
     
@@ -88,7 +97,6 @@ describe('Composable functions unit tests', () => {
         // valid inputs, strings/numbers can be mixed
         result = any(validCol, strVal_1, intVal_1, strVal_2);
         expect(result).toBe(`${validCol}/${strVal_1}${SDB_SEPARATOR}${intVal_1}${SDB_SEPARATOR}${strVal_2}`)
-    
     
         // ERROR TESTS
     
@@ -113,6 +121,10 @@ describe('Composable functions unit tests', () => {
 
         expect(() => {
             any(invalidCol_emptyStr, strVal_1, intVal_1, strVal_2);            
+        }).toThrowError(SDB_FILTER_ERR_INVALID_COL_NAME);   
+        
+        expect(() => {
+            any(invalidCol_slash, strVal_1, strVal_2);
         }).toThrowError(SDB_FILTER_ERR_INVALID_COL_NAME);         
 
         // non string/number values in parameters
@@ -120,14 +132,17 @@ describe('Composable functions unit tests', () => {
              any(validCol, strVal_1, invalidVal_type, intVal_1, strVal_2);
         }).toThrowError(SDB_FILTER_ERR_INVALID_TYPE);
     
-       
         expect(() => {
             any(validCol, strVal_1, null);
         }).toThrowError(SDB_FILTER_ERR_INVALID_TYPE);    
     
         expect(() => {
             any(validCol, strVal_1, undefined);
-        }).toThrowError(SDB_FILTER_ERR_INVALID_TYPE);    
+        }).toThrowError(SDB_FILTER_ERR_INVALID_TYPE);   
+        
+        expect(() => {
+            any(validCol, invalidVal_slash, strVal_2);
+        }).toThrowError(SDB_FILTER_ERR_INVALID_VALUE_SLASH);  
     
     
     });
@@ -184,6 +199,10 @@ describe('Composable functions unit tests', () => {
             between(invalidCol_firstcharnum, strVal_1, strVal_2);
         }).toThrowError(SDB_FILTER_ERR_INVALID_COL_NAME);  
 
+        expect(() => {
+            between(invalidCol_slash, strVal_1, strVal_2);
+        }).toThrowError(SDB_FILTER_ERR_INVALID_COL_NAME);         
+
         // null input values
            expect(() => {
             between(validCol, null, null);
@@ -207,14 +226,21 @@ describe('Composable functions unit tests', () => {
         // empty string value
         expect(() => {
             between(validCol, strVal_1, invalidVal_empty);
-        }).toThrowError(SDB_FILTER_ERR_EMPTY_STRING); 
+        }).toThrowError(SDB_FILTER_ERR_INVALID_VALUE_EMPTY_STRING); 
     
         // non string/number values in parameters
         expect(() => {
             between(validCol, invalidVal_type, invalidVal_type);
         }).toThrowError(SDB_FILTER_ERR_INVALID_TYPE); 
     
-    
+        expect(() => {
+            between(validCol, invalidVal_slash, strVal_2);
+        }).toThrowError(SDB_FILTER_ERR_INVALID_VALUE_SLASH);  
+
+        expect(() => {
+            between(validCol, strVal_1, invalidVal_slash);
+        }).toThrowError(SDB_FILTER_ERR_INVALID_VALUE_SLASH);          
+
     
     });
     
@@ -257,6 +283,9 @@ describe('Composable functions unit tests', () => {
             gte(invalidCol_firstcharnum, strVal_1);
         }).toThrowError(SDB_FILTER_ERR_INVALID_COL_NAME);  
 
+        expect(() => {
+            gte(invalidCol_slash, strVal_1);
+        }).toThrowError(SDB_FILTER_ERR_INVALID_COL_NAME); 
 
         // null input values
         expect(() => {
@@ -271,7 +300,11 @@ describe('Composable functions unit tests', () => {
         // empty string value
         expect(() => {
             gte(validCol, invalidVal_empty);
-        }).toThrowError(SDB_FILTER_ERR_EMPTY_STRING);
+        }).toThrowError(SDB_FILTER_ERR_INVALID_VALUE_EMPTY_STRING);
+
+        expect(() => {
+            between(validCol, invalidVal_slash);
+        }).toThrowError(SDB_FILTER_ERR_INVALID_VALUE_SLASH);         
     
     });
 
@@ -314,7 +347,10 @@ describe('Composable functions unit tests', () => {
             lte(invalidCol_firstcharnum, strVal_1);
         }).toThrowError(SDB_FILTER_ERR_INVALID_COL_NAME);  
 
-        
+        expect(() => {
+            lte(invalidCol_slash, strVal_1);
+        }).toThrowError(SDB_FILTER_ERR_INVALID_COL_NAME);         
+
         // null input values
         expect(() => {
             lte(validCol, null);
@@ -328,8 +364,12 @@ describe('Composable functions unit tests', () => {
         // empty string value
         expect(() => {
             lte(validCol, invalidVal_empty);
-        }).toThrowError(SDB_FILTER_ERR_EMPTY_STRING);
-    
+        }).toThrowError(SDB_FILTER_ERR_INVALID_VALUE_EMPTY_STRING);
+
+        expect(() => {
+            between(validCol, invalidVal_slash);
+        }).toThrowError(SDB_FILTER_ERR_INVALID_VALUE_SLASH);         
+        
     });    
 
 
@@ -407,10 +447,12 @@ describe('Composable functions unit tests', () => {
         const expected = 'Customer/FirstName/A*/Country/Brazil/City/Brasília,São Paulo/Invoice/InvoiceDate/2011-01-01../Customer/F*..J*/~BillingCountry/Brazil/InvoiceLine/Track';
 
         result = and(
-                    eq('Customer/FirstName','A*'),
+                    'Customer/',
+                    eq('FirstName','A*'),
                     eq('Country','Brazil'),
                     any('City','Brasília','São Paulo').replaceAll(SDB_SEPARATOR,','),
-                    gte('Invoice/InvoiceDate','2011-01-01'),
+                    'Invoice/',
+                    gte('InvoiceDate','2011-01-01'),
                     between('Customer','F*','J*'),
                     not(eq('BillingCountry','Brazil')),
                     'InvoiceLine/Track'

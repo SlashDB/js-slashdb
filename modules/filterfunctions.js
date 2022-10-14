@@ -22,10 +22,11 @@
 
 // *** expression builders - any/eq/between/gte/lte build expressions
 
-const SDB_FILTER_ERR_INVALID_COL_NAME = 'Invalid column name parameter: must be non-empty string/cannot contain spaces/cannot begin with a number';
+const SDB_FILTER_ERR_INVALID_COL_NAME = "Invalid column name parameter: must be non-empty string/cannot contain spaces/cannot begin with a number/cannot contain '/'";
 const SDB_FILTER_ERR_INVALID_NUM_ARGS = 'Invalid number of filter parameters';
 const SDB_FILTER_ERR_INVALID_TYPE = 'Invalid data type for value, must be string or number';
-const SDB_FILTER_ERR_EMPTY_STRING = 'string values cannot be empty';
+const SDB_FILTER_ERR_INVALID_VALUE_EMPTY_STRING = 'String values cannot be empty';
+const SDB_FILTER_ERR_INVALID_VALUE_SLASH = "String values cannot contain '/' (use __ or set placeholder query parameter for values that contain '/') ";
 const SDB_FILTER_ERR_INVALID_COMPARE_TYPE ='Range value data types must match';
 const SDB_FILTER_ERR_INVALID_RANGE = 'Invalid range values';
 const SDB_FILTER_ERR_NO_COL_FOUND = 'No column detected in parameter (string must contain at least one of: {col/}';
@@ -58,11 +59,16 @@ function chgSeparator(value) {
 function eq(col, value) {
 	if (arguments.length !== 2) 														{ throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS) }
 	if (typeof(col) !== 'string')														{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }
-	if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1 || col.trim().length < 1)		{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }
+	if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1 || col.trim().length < 1)	{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }
+	if (col.indexOf('/') !== -1) 														{ throw SyntaxError(SDB_FILTER_ERR_INVALID_COL_NAME); }
 
 	if (typeof(value) !== 'number' && typeof(value) !== 'string') {
 		throw TypeError(SDB_FILTER_ERR_INVALID_TYPE); 
 	}
+
+	if (typeof(value) === 'string' && value.indexOf('/') !== -1) {
+		throw SyntaxError(SDB_FILTER_ERR_INVALID_VALUE_SLASH);
+	}	
 	
 	return any(col, value);
 }
@@ -80,7 +86,8 @@ function eq(col, value) {
 function any(col, ...values) {
 	if (arguments.length < 2) 															{ throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS) }
 	if (typeof(col) !== 'string')														{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }
-	if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1 || col.trim().length < 1)		{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }
+	if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1 || col.trim().length < 1)	{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }
+	if (col.indexOf('/') !== -1) 														{ throw SyntaxError(SDB_FILTER_ERR_INVALID_COL_NAME); }
 
 	let s = `${col}/`;
 	for (let [i, v] of values.entries()) {
@@ -88,10 +95,14 @@ function any(col, ...values) {
 		if (typeof(v) !== 'number' && typeof(v) !== 'string') {
 			throw TypeError(SDB_FILTER_ERR_INVALID_TYPE + ` (parameter ${i+2})`);
 		}		
-		
+
+		if (typeof(v) === 'string' && v.indexOf('/') !== -1) {
+			throw SyntaxError(SDB_FILTER_ERR_INVALID_VALUE_SLASH);
+		}	
+			
 		/** uncomment to disable empty strings for values **/
 		// if (typeof(v) === 'string' && v.trim().length === 0) {
-		// 	throw TypeError(SDB_FILTER_ERR_EMPTY_STRING + ` (parameter ${i+2})`); 
+		// 	throw TypeError(SDB_FILTER_ERR_INVALID_VALUE_EMPTY_STRING + ` (parameter ${i+2})`); 
 		// }
 			
 		else {
@@ -131,8 +142,9 @@ function between(col, r1 = null, r2 = null) {
 
 	if (arguments.length < 2 || arguments.length > 3 ) 									{ throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS) }
 	if (typeof(col) !== 'string')														{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }
-	if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1 || col.trim().length < 1)		{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }	
-	
+	if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1 || col.trim().length < 1)	{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }	
+	if (col.indexOf('/') !== -1) 														{ throw SyntaxError(SDB_FILTER_ERR_INVALID_COL_NAME); }	
+
 	// if both values are null/undefined - error
 	if ( (r1 || r2) == null) {
 		throw ReferenceError(SDB_FILTER_ERR_INVALID_RANGE); 
@@ -147,14 +159,21 @@ function between(col, r1 = null, r2 = null) {
 	
 	// if either value is an empty string - error
 	if ( (typeof(r1) === 'string' && r1.trim().length < 1) || (typeof(r2) === 'string' && r2.trim().length < 1) ) {
-		throw TypeError(SDB_FILTER_ERR_EMPTY_STRING); 
+		throw TypeError(SDB_FILTER_ERR_INVALID_VALUE_EMPTY_STRING); 
 	}
+
+	// if values contain '/' - error
+	if (typeof(r1) === 'string' && r1.indexOf('/') !== -1 || typeof(r2) === 'string' && r2.indexOf('/') !== -1) {
+		throw SyntaxError(SDB_FILTER_ERR_INVALID_VALUE_SLASH);
+	}	
+
 
 	// null values are acceptable as inputs for range values, just need to be converted to empty strings
 	r1 = r1 == null ? '' : r1;
 	r2 = r2 == null ? '' : r2;
 
-	// now check that each range value, if defined, are valid data types for ranges
+	// now check that each range value, if defined, are valid data types for ranges - note that the only strings
+	// that can actually be used are date strings
 	if (typeof(r1) !== 'number' && typeof(r1) !== 'string') { 
 		throw TypeError(SDB_FILTER_ERR_INVALID_TYPE); 
 	}	
@@ -179,15 +198,20 @@ function between(col, r1 = null, r2 = null) {
 function gte(col, lb) {
 	if (arguments.length !== 2) 														{ throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS) }
 	if (typeof(col) !== 'string')														{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }
-	if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1 || col.trim().length < 1)		{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }	
+	if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1 || col.trim().length < 1)	{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }	
+	if (col.indexOf('/') !== -1) 														{ throw SyntaxError(SDB_FILTER_ERR_INVALID_COL_NAME); }	
 	
 	if (typeof(lb) !== 'number' && typeof(lb) !== 'string') {
 		throw TypeError(SDB_FILTER_ERR_INVALID_TYPE);
 	}
 	
 	if (typeof(lb) === 'string' && lb.trim().length < 1) { 
-		throw TypeError(SDB_FILTER_ERR_EMPTY_STRING);
+		throw TypeError(SDB_FILTER_ERR_INVALID_VALUE_EMPTY_STRING);
 	}
+
+	if (typeof(v) === 'string' && v.indexOf('/') !== -1) {
+		throw SyntaxError(SDB_FILTER_ERR_INVALID_VALUE_SLASH);
+	}	
 	
 	return between(col, lb);
 }
@@ -204,16 +228,21 @@ function gte(col, lb) {
 function lte(col, ub) {
 	if (arguments.length !== 2) 														{ throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS) }
 	if (typeof(col) !== 'string')														{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }
-	if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1 || col.trim().length < 1)		{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }	
+	if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1 || col.trim().length < 1)	{ throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME) }	
+	if (col.indexOf('/') !== -1) 														{ throw SyntaxError(SDB_FILTER_ERR_INVALID_COL_NAME); }	
 	
 	if (typeof(ub) !== 'number' && typeof(ub) !== 'string') {
 		throw TypeError(SDB_FILTER_ERR_INVALID_TYPE);
 	}
 	
 	if (typeof(ub) === 'string' && ub.trim().length < 1) { 
-		throw TypeError(SDB_FILTER_ERR_EMPTY_STRING);
+		throw TypeError(SDB_FILTER_ERR_INVALID_VALUE_EMPTY_STRING);
 	}
 	
+	if (typeof(v) === 'string' && v.indexOf('/') !== -1) {
+		throw SyntaxError(SDB_FILTER_ERR_INVALID_VALUE_SLASH);
+	}	
+		
 	return between(col, null, ub);
 }
 
@@ -262,7 +291,12 @@ function and(...colFilters) {
 			throw SyntaxError(SDB_FILTER_ERR_NO_COL_FOUND);
 		}
 
-		s += `${v}/`
+		if (v.endsWith('/')) {
+			s += v;
+		}
+		else {
+			s += `${v}/`;
+		}
 	}
 	return s.slice(0,-1)
 }
@@ -272,5 +306,5 @@ export { chgSeparator }
 export { SDB_SEPARATOR }
 
 // for testing only
-export { SDB_FILTER_ERR_INVALID_COL_NAME, SDB_FILTER_ERR_INVALID_NUM_ARGS, SDB_FILTER_ERR_INVALID_TYPE, SDB_FILTER_ERR_EMPTY_STRING, 
-    SDB_FILTER_ERR_INVALID_COMPARE_TYPE, SDB_FILTER_ERR_INVALID_RANGE, SDB_FILTER_ERR_NO_COL_FOUND }
+export { SDB_FILTER_ERR_INVALID_COL_NAME, SDB_FILTER_ERR_INVALID_NUM_ARGS, SDB_FILTER_ERR_INVALID_TYPE, SDB_FILTER_ERR_INVALID_VALUE_EMPTY_STRING, 
+    SDB_FILTER_ERR_INVALID_VALUE_SLASH, SDB_FILTER_ERR_INVALID_COMPARE_TYPE, SDB_FILTER_ERR_INVALID_RANGE, SDB_FILTER_ERR_NO_COL_FOUND }
