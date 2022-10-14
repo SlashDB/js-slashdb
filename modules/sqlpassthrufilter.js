@@ -76,7 +76,7 @@ class SQLPassThruFilter extends BaseFilter {
 			}
 
 			// handle empty string values
-			if (params[key].trim() === '') {
+			if (typeof(params[key]) === 'string' && params[key].trim() === '') {
 				params[key] = '/';
 			}
 			this.queryParams[key] = params[key];
