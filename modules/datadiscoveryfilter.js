@@ -60,13 +60,13 @@ class DataDiscoveryFilter extends BaseFilter {
 
 		this.urlStringParams = {
 			...this.urlStringParams,
-			stream: {default: false, value: false},
-			depth: undefined,
-			headers: {default: true, value: true},
-			csvNullStr: {default: false, value: false},
-			href: {default: true, value: true},
-			cardinality: undefined,
-			wantarray: {default: false, value: false},
+			stream: { default: false, value: false },
+			depth: { default: undefined, value: undefined },
+			headers: { default: true, value: true },
+			csvNullStr: { default: false, value: false },
+			href: { default: true, value: true },
+			cardinality: { default: undefined, value: undefined },
+			wantarray: { default: false, value: false },
 		}
 		
 		// the path as it is built up
@@ -156,7 +156,7 @@ class DataDiscoveryFilter extends BaseFilter {
 				throw TypeError(SDB_DDF_DEPTH_TYPE);
 			}
 		}
-		this.urlStringParams['depth'] = level !== false ? level : undefined;
+		this.urlStringParams['depth']['value'] = level !== false ? level : this.urlStringParams['depth']['default'];
 		return this.build();
 	}
 		
@@ -211,7 +211,7 @@ class DataDiscoveryFilter extends BaseFilter {
 	xsdCardinality(value = 'unbounded') {
 
 		if (value === false) {
-			value = undefined;
+			value =  this.urlStringParams['cardinality']['default'];
 		}
 		
 		else if (value !== 'unbounded') {
@@ -224,7 +224,7 @@ class DataDiscoveryFilter extends BaseFilter {
 			}
 		}
 		
-		this.urlStringParams['cardinality'] = value;
+		this.urlStringParams['cardinality']['value'] = value;
 		return this.build();
 	}	
 
@@ -253,11 +253,8 @@ class DataDiscoveryFilter extends BaseFilter {
 			  			paramString += `${p}=${this.urlStringParams[p]['value']}&` ;	
 			  	}
 			 }
-			else if (this.urlStringParams[p] !== undefined) {
-				paramString += `${p}=${this.urlStringParams[p]}&` ;
-			}
 		}
-		
+
 		paramString = paramString.slice(0,paramString.length-1);	// chop trailing &
 		paramString += this._setSeparator() + this._setWildcard() + this._urlPlaceholderFn();
 		

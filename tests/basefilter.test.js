@@ -42,10 +42,10 @@ describe('BaseFilter class tests', () => {
         result = new BaseFilter();
         
         result.sort(desc(validCol1), asc(validCol2)); // sort by columns
-        expect(result.urlStringParams['sort']).toBe(`-${validCol1},${validCol2}`);
+        expect(result.urlStringParams['sort']['value']).toBe(`-${validCol1},${validCol2}`);
         expect(result.endpoint).toBe(`?sort=-${validCol1},${validCol2}`);
         result.sort(false); // reset sort
-        expect(result.urlStringParams['sort']).toBe(undefined);       
+        expect(result.urlStringParams['sort']['value']).toBe(undefined);       
         expect(result.endpoint).toBe(''); 
 
         // ERROR CASES
@@ -135,10 +135,10 @@ describe('BaseFilter class tests', () => {
 
         result = new BaseFilter();
         result.limit(validValue); 
-        expect(result.urlStringParams['limit']).toBe(validValue);
+        expect(result.urlStringParams['limit']['value']).toBe(validValue);
         expect(result.endpoint).toBe(`?limit=${validValue}`);
         result.limit();
-        expect(result.urlStringParams['limit']).toBe(undefined);        
+        expect(result.urlStringParams['limit']['value']).toBe(undefined);        
         expect(result.endpoint).toBe('');
 
         // ERROR CASES
@@ -165,10 +165,10 @@ describe('BaseFilter class tests', () => {
 
         result = new BaseFilter();
         result.offset(validValue); 
-        expect(result.urlStringParams['offset']).toBe(validValue);
+        expect(result.urlStringParams['offset']['value']).toBe(validValue);
         expect(result.endpoint).toBe(`?offset=${validValue}`);        
         result.offset();
-        expect(result.urlStringParams['offset']).toBe(undefined);        
+        expect(result.urlStringParams['offset']['value']).toBe(undefined);        
         expect(result.endpoint).toBe('');
         // ERROR CASES
 

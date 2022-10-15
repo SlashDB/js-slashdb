@@ -16,12 +16,12 @@ class BaseFilter {
 	constructor(urlPlaceholder = '__') {
 		// will contain any query parameters that are set
 		this.urlStringParams = {
-			sort : undefined,
-			distinct : {default: false, value: false},
-			limit: undefined,
-			offset: undefined,
-			transpose : {default: false, value: false},
-			nil_visible: {default: false, value: false},
+			sort : { default: undefined, value: undefined },
+			distinct : { default: false, value: false },
+			limit: { default: undefined, value: undefined },
+			offset: { default: undefined, value: undefined },
+			transpose : { default: false, value: false },
+			nil_visible: { default: false, value: false },
 		};
 	
 		if (urlPlaceholder !== undefined) {
@@ -64,7 +64,7 @@ class BaseFilter {
 	* @returns this object	
 	*/ 
 	sort(...columns) {
-		this.urlStringParams['sort'] = this._columnArrayParser(...columns);
+		this.urlStringParams['sort']['value'] = this._columnArrayParser(...columns);
 		return this.build();
 	}
 
@@ -130,7 +130,7 @@ class BaseFilter {
 				throw TypeError(SDB_BF_LIMIT_TYPE);
 			}
 		}
-		this.urlStringParams['limit'] = numRows !== false ? numRows : undefined;
+		this.urlStringParams['limit']['value'] = numRows !== false ? numRows : this.urlStringParams['limit']['default'];
 		return this.build();
 	}
 
@@ -147,7 +147,7 @@ class BaseFilter {
 				throw TypeError(SDB_BF_OFFSET_TYPE);
 			}
 		}
-		this.urlStringParams['offset'] = numRows !== false ? numRows : undefined;
+		this.urlStringParams['offset']['value'] = numRows !== false ? numRows : this.urlStringParams['offset']['default'];
 		return this.build();
 	}
 
@@ -222,11 +222,8 @@ class BaseFilter {
 					paramString += `${p}=${this.urlStringParams[p]['value']}&` ;	
 				}
 	   		}
-			else if (this.urlStringParams[p] !== undefined) {
-				paramString += `${p}=${this.urlStringParams[p]}&` ;
-			}
 		}
-		
+
 		paramString = paramString.slice(0,paramString.length-1);	// chop trailing &
 		paramString += this._urlPlaceholderFn();
 

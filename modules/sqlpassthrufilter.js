@@ -29,8 +29,8 @@ class SQLPassThruFilter extends BaseFilter {
 
 		this.urlStringParams = {
 			...this.urlStringParams,
-			count: {default: false, value: false},
-			xmlType: undefined,
+			count: { default: false, value: false },
+			xmlType: { default: undefined, value: undefined },
 		};
 
 		this.build();
@@ -109,7 +109,7 @@ class SQLPassThruFilter extends BaseFilter {
 				throw TypeError(SDB_SPTF_INVALID_XMLTYPE);
 			}
 		}
-		this.urlStringParams['xmlType'] = val;
+		this.urlStringParams['xmlType']['value'] = val;
 		return this.build();
 	}
 
@@ -129,11 +129,8 @@ class SQLPassThruFilter extends BaseFilter {
 					paramString += `${p}=${this.urlStringParams[p]['value']}&` ;	
 				}
 	   		}
-			else if (this.urlStringParams[p] !== undefined) {
-				paramString += `${p}=${this.urlStringParams[p]}&` ;
-			}
 		}
-		
+
 		paramString = paramString.slice(0,paramString.length-1);	// chop trailing &
 		paramString += this._urlPlaceholderFn();
 
