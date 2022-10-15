@@ -548,15 +548,15 @@ describe('DataDiscoveryFilter class tests', () => {
         
         // set csvHeader
         result.csvHeader();
-        expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}?headers=true`);
+        expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
         
         // remove csvHeader
         result.csvHeader(false);
-        expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
+        expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}?headers=false`);
         
-        // should be ignored - only true/false allowed
+        // should be ignored, keeping the value last set - only true/false allowed
         result.csvHeader(1);
-        expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
+        expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}?headers=false`);
     });    
 
     test('testing: csvNullStr() method', () => {
@@ -588,15 +588,15 @@ describe('DataDiscoveryFilter class tests', () => {
         
         // set jsonHref
         result.jsonHref();
-        expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}?href=true`);
+        expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
         
         // remove jsonHref
         result.jsonHref(false);
-        expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
+        expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}?href=false`);
         
-        // should be ignored - only true/false allowed
+        // should be ignored, keeping the value last set - only true/false allowed - only true/false allowed
         result.jsonHref(1);
-        expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
+        expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}?href=false`);
     });       
 
     test('testing: xmlNilVisible() method', () => {

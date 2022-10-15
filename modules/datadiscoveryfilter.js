@@ -62,9 +62,9 @@ class DataDiscoveryFilter extends BaseFilter {
 			...this.urlStringParams,
 			stream: false,
 			depth: undefined,
-			headers: false,
+			headers: {default: true, value: true},
 			csvNullStr: false,
-			href: false,
+			href: {default: true, value: true},
 			cardinality: undefined,
 			wantarray: false,
 		}
@@ -177,7 +177,7 @@ class DataDiscoveryFilter extends BaseFilter {
 	* @returns {DataDiscoveryFilter} this object
 	*/ 	
 	csvHeader(toggle = true) {
-		this.urlStringParams['headers'] = toggle === true;
+		this.urlStringParams['headers']['value'] = toggle === true;
 		return this.build();
 	}
 
@@ -197,7 +197,7 @@ class DataDiscoveryFilter extends BaseFilter {
 	* @returns {DataDiscoveryFilter} this object
 	*/		
 	jsonHref(toggle = true) {
-		this.urlStringParams['href'] = toggle === true;
+		this.urlStringParams['href']['value'] = toggle === true;
 		return this.build();
 	}	
 
@@ -250,7 +250,16 @@ class DataDiscoveryFilter extends BaseFilter {
 
 		let paramString = '';
 		for (const p in this.urlStringParams) {
-			if (this.urlStringParams[p] !== undefined && this.urlStringParams[p] !== false) {
+
+			// the parameters that have default true values (headers, href) are stored as 
+			// objects with a default key/value pair and current value key/value pair, so must
+			// be handled a bit differently
+			if (typeof this.urlStringParams[p] === 'object' && this.urlStringParams[p] !== null ) {
+				  	if (this.urlStringParams[p]['default'] !== this.urlStringParams[p]['value']) {
+			  			paramString += `${p}=${this.urlStringParams[p]['value']}&` ;	
+			  	}
+			 }
+			else if (this.urlStringParams[p] !== undefined && this.urlStringParams[p] !== false) {
 				paramString += `${p}=${this.urlStringParams[p]}&` ;
 			}
 		}
