@@ -7,7 +7,7 @@ const testIf = (condition, ...args) =>
   condition ? test(...args) : test.skip(...args);
 
 
-  beforeAll( () => {
+beforeAll( () => {
     // disable console errors, warns
     jest.spyOn(console, 'error').mockImplementation(() => {});
     jest.spyOn(console, 'warn').mockImplementation(() => {});
