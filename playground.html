@@ -9,7 +9,52 @@
             box-shadow: 0 0 10px #000;
             border-radius: 10px;
         }
-        .outTxt { width: 80%; padding: 10px;}
+
+        #splitConfig {
+            display: flex;
+        }
+
+
+        .outTxt { width: 100%; padding: 10px;}
+
+        .config {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+        }
+
+        .params {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            width: 50%;
+            background: #F00;
+        }
+
+        .txtField {
+            padding: 5px 10px;
+        }
+        .config .txtField input { 
+            border-radius: 5px;
+            margin: 2px;
+            padding: 5px;
+        }
+
+        .config .txtField label {
+            display: block;
+            font-size: 0.8rem;
+            padding-left: 5px;
+        }
+
+        .config .tbl input { 
+            display: inline;
+        }
+        .config .tbl label { 
+            display: inline;
+            margin-right: 5px;
+        }
+
+
     </style>
 <script type="module">
     import { SlashDBClient } from './modules/slashdbclient.js';
@@ -17,11 +62,11 @@
     import { SQLPassThruQuery } from './modules/sqlpassthru.js';
     import { DataDiscoveryFilter } from './modules/datadiscoveryfilter.js';
     import { SQLPassThruFilter } from './modules/sqlpassthrufilter.js';
-    import { eq, any, between, gte, lte, not, and } from './modules/filterfunctions.js';
+    import { eq, any, between, gte, lte, not, and, chgSeparator } from './modules/filterfunctions.js';
     import { asc, desc } from './modules/basefilter.js';
 
 
-    // make methods, modules, available to console for debugging
+    // make methods, modules, available to console for testing
     window.DataDiscoveryFilter = DataDiscoveryFilter
     window.SlashDBClient = SlashDBClient
     window.DataDiscoveryResource = DataDiscoveryResource
@@ -37,77 +82,228 @@
     window.desc = desc
     window.asc = asc
 
-    var host;
+    var host = 'http://192.168.1.101:8000';
     var user;
     var password;
     var apiKey;
     var database;
     var query;
+    var resource = 'Customer';
+    var column1 = 'FirstName';
+    var column2 = 'LastName';
+    var column3 = 'City';
+    var value1 = 'Dan';
+    var value2 = 'Miller';
+    var value3 = 'Frank';
+    var value4 = 'Harris';
+    var value5 = 'Houston';
 
-    export function exec() {
+
+    function exec() {
         host = document.forms.config.host.value;
         user = document.forms.config.user.value;
         password = document.forms.config.password.value;
         apiKey = document.forms.config.apiKey.value;
         database = document.forms.config.database.value;
         query = document.forms.config.query.value;
-        sdbLoginDemo();
-        sdbAPIDemo();        
+        resource = document.forms.config.resource.value;
+        column1 = document.forms.config.column1.value;
+        column2 = document.forms.config.column2.value;
+        value1 =  document.forms.config.value1.value;
+        value2 =  document.forms.config.value2.value;
+        //sdbLoginDemo();
+        sdbAPIDemo();
+        ddDemo();        
+        filterDemo();        
     }
 
-    window.exec = exec;
+   window.exec = exec;
 
     const sdbLoginDemo = async () => {
+        document.querySelector('#clientTxt').style.color = '#000';        
         let outTxt = '';
-        const sdbClient = new SlashDBClient('http://192.168.1.101:8000');
+        try {
+        
+            const sdbClient = new SlashDBClient(host);
 
-        outTxt += `* SlashDBClient() - Client created, logging in user ${user}...\n`
-        document.querySelector('#clientTxt').innerHTML = outTxt;
-        let status = await sdbClient.login(user,password);
-        outTxt += `* login() - Logged in status: ${status}`;
-        document.querySelector('#clientTxt').innerHTML = outTxt;
+            outTxt += `* SlashDBClient() - Client created for ${host}, logging in user ${user}...\n`
+            document.querySelector('#clientTxt').innerHTML = outTxt;
+            let status = await sdbClient.login(user,password);
+            outTxt += `* login() - Logged in status: ${status}`;
+            document.querySelector('#clientTxt').innerHTML = outTxt;
+        }
+        catch(e) {
+            document.querySelector('#clientTxt').style.color = '#F00';
+            console.log(e);
+            outTxt += `Error ${e.message} - see console for details`;
+            document.querySelector('#clientTxt').innerHTML = outTxt;
+        }
     }
      
 
     const sdbAPIDemo = async () => {
+        document.querySelector('#apiTxt').style.color = '#000';
         let outTxt = '';
-        const sdbClient = new SlashDBClient(host,user,apiKey);
-        outTxt += `* SlashDBClient() - Client created, logging in user ${user} using API key...\n`
-        document.querySelector('#apiTxt').innerHTML = outTxt;
-        let status = await sdbClient.isAuthenticated();
-        outTxt += `* isAuthenticated() - Logged in status: ${status}\n`;
-        document.querySelector('#apiTxt').innerHTML = outTxt;
-        let version = await sdbClient.getVersion();      
-        outTxt += `* getVersion() - SlashDB version: ${version}\n`;        
-        document.querySelector('#apiTxt').innerHTML = outTxt;        
-        let settings = JSON.stringify(await sdbClient.getSettings()).substr(0,80) + '...';
-        outTxt += `* getSettings() - SlashDB settings: ${settings}\n`;        
-        document.querySelector('#apiTxt').innerHTML = outTxt;        
-        let userDetails = JSON.stringify(await sdbClient.getUser(user)).substr(0,80) + '...';
-        outTxt += `* getUser() - User details: ${userDetails}\n`;        
-        document.querySelector('#apiTxt').innerHTML = outTxt;        
-        let dbDef = JSON.stringify(await sdbClient.getDbDef(database)).substr(0,80) + '...';
-        outTxt += `* getDbDef() - ${database} database definition: ${dbDef}\n`;        
-        document.querySelector('#apiTxt').innerHTML = outTxt;  
-        let dbReflect = JSON.stringify(await sdbClient.getReflectStatus(database)).substr(0,80) + '...';
-        outTxt += `* getReflectStatus() - ${database} database reflect status: ${dbReflect}\n`;        
-        document.querySelector('#apiTxt').innerHTML = outTxt;    
-        let queryDef = JSON.stringify(await sdbClient.getQueryDef(query)).substr(0,80) + '...';
-        outTxt += `* getQueryDef() - ${query} query definition: ${queryDef}\n`;        
-        document.querySelector('#apiTxt').innerHTML = outTxt;     
-        let sqlPassThruObj = JSON.stringify(await sdbClient.getQueries(database)).substr(0,80) + '...';
-        outTxt += `* getQueries() - ${database} DB queries as SQLPassThru objects: ${sqlPassThruObj}\n`;        
-        document.querySelector('#apiTxt').innerHTML = outTxt; 
-        let unloadDb = JSON.stringify(await sdbClient.unloadModel(database)).substr(0,80) + '...';
-        outTxt += `* unloadModel() - Disconnect ${database} database: ${unloadDb}\n`;        
-        document.querySelector('#apiTxt').innerHTML = outTxt;          
-        let loadDb = JSON.stringify(await sdbClient.loadModel(database)).substr(0,80) + '...';
-        outTxt += `* loadModel() - Connect ${database} database: ${loadDb}\n`;        
-        document.querySelector('#apiTxt').innerHTML = outTxt;           
-        
-    }
+        try {
        
+            const sdbClient = new SlashDBClient(host,user,apiKey);
+            outTxt += `* SlashDBClient() - Client created for ${host}, logging in user '${user}' using API key...\n`
+            document.querySelector('#apiTxt').innerHTML = outTxt;
+            let status = await sdbClient.isAuthenticated();
+            outTxt += `* isAuthenticated() - Logged in status: ${status}\n`;
+            document.querySelector('#apiTxt').innerHTML = outTxt;
+            let version = await sdbClient.getVersion();      
+            outTxt += `* getVersion() - SlashDB version: ${version}\n`;        
+            document.querySelector('#apiTxt').innerHTML = outTxt;        
+            let settings = JSON.stringify(await sdbClient.getSettings()).substr(0,80) + '...';
+            outTxt += `* getSettings() - SlashDB settings: ${settings}\n`;        
+            document.querySelector('#apiTxt').innerHTML = outTxt;        
+            let userDetails = JSON.stringify(await sdbClient.getUser(user)).substr(0,80) + '...';
+            outTxt += `* getUser('${user}') - User details: ${userDetails}\n`;        
+            document.querySelector('#apiTxt').innerHTML = outTxt;        
+            let dbDef = JSON.stringify(await sdbClient.getDbDef(database)).substr(0,80) + '...';
+            outTxt += `* getDbDef('${database}') - database definition: ${dbDef}\n`;        
+            document.querySelector('#apiTxt').innerHTML = outTxt;  
+            let dbReflect = JSON.stringify(await sdbClient.getReflectStatus(database)).substr(0,80) + '...';
+            outTxt += `* getReflectStatus('${database}') - database reflect status: ${dbReflect}\n`;        
+            document.querySelector('#apiTxt').innerHTML = outTxt;    
+            let queryDef = JSON.stringify(await sdbClient.getQueryDef(query)).substr(0,80) + '...';
+            outTxt += `* getQueryDef('${query}') - query definition: ${queryDef}\n`;        
+            document.querySelector('#apiTxt').innerHTML = outTxt;     
+            let sqlPassThruObj = JSON.stringify(await sdbClient.getQueries(database)).substr(0,80) + '...';
+            outTxt += `* getQueries('${database}') - DB queries as SQLPassThru objects: ${sqlPassThruObj}\n`;        
+            document.querySelector('#apiTxt').innerHTML = outTxt; 
+            let unloadDb = JSON.stringify(await sdbClient.unloadModel(database)).substr(0,80) + '...';
+            outTxt += `* unloadModel('${database}') - Disconnect database: ${unloadDb}\n`;        
+            document.querySelector('#apiTxt').innerHTML = outTxt;          
+            let loadDb = JSON.stringify(await sdbClient.loadModel(database)).substr(0,80) + '...';
+            outTxt += `* loadModel('${database}') - Connect database: ${loadDb}\n`;        
+            document.querySelector('#apiTxt').innerHTML = outTxt;      
+        }
+        catch(e) {
+            document.querySelector('#apiTxt').style.color = '#F00';
+            outTxt += `Error ${e.message} - see console for details`;
+            document.querySelector('#apiTxt').innerHTML = outTxt;
+        }        
+    }
 
+    const ddDemo = async () => {
+        document.querySelector('#ddTxt').style.color = '#000';
+        let outTxt = '';
+        try {        
+            const sdbClient = new SlashDBClient(host,user,apiKey);
+            outTxt += `* sdbClient = SlashDBClient('${host}','${user}', <apiKey>) - Client created, logging in user using <apiKey>...\n`;
+            document.querySelector('#ddTxt').innerHTML = outTxt;
+
+            const db = new DataDiscoveryDatabase(sdbClient, database);
+            outTxt += `* db = DataDiscoveryDatabase(sdbClient, '${database}') - Database selected\n`;        
+            document.querySelector('#ddTxt').innerHTML = outTxt;
+            const ddResource = new DataDiscoveryResource(db, resource);
+            outTxt += `* ddResource = DataDiscoveryResource('${resource}') - REST call handler for resource created\n`;
+            document.querySelector('#ddTxt').innerHTML = outTxt;                
+
+            let ddf1 = new DataDiscoveryFilter(eq(column1,value1)).cols(column1,column2);
+            outTxt += `\n* ddf1 = DataDiscoveryFilter( eq('${column1}', '${value1}') ).cols('${column1}','${column2}') - filter to retrieve ${column1},${column2} of records where field '${column1}' matches value '${value1}' \n`;        
+            document.querySelector('#ddTxt').innerHTML = outTxt;       
+            let r = JSON.stringify((await ddResource.get(ddf1)).data).substr(0,80) + '...';    
+            outTxt += `* DataDiscoveryResource.get(ddf1) - HTTP GET request with filter (JSON): ${r}\n`; 
+            document.querySelector('#ddTxt').innerHTML = outTxt;        
+            r = JSON.stringify((await ddResource.accept('csv').get(ddf1)).data).substr(0,80) + '...';    
+            outTxt += `* DataDiscoveryResource.accept('csv').get(ddf1) - HTTP GET request with filter (CSV): ${r}\n`; 
+            document.querySelector('#ddTxt').innerHTML = outTxt;        
+
+            let ddf2 = new DataDiscoveryFilter( any(column1,value1,value2)).cols(column2).sort(column2);
+            outTxt += `\n* ddf2 = DataDiscoveryFilter( any('${column1}', '${value1}', '${value2}') ).cols('${column2}).sort('${column2}') - filter to retrieve ${column2} of records sorted by '${column2}' where field '${column1}' matches either '${value1}' or '${value2}'\n`;        
+            document.querySelector('#ddTxt').innerHTML = outTxt;                
+            r = JSON.stringify((await ddResource.accept('json').get(ddf2)).data).substr(0,80) + '...';    
+            outTxt += `* DataDiscoveryResource.get(ddf2) - HTTP GET request with filter (JSON): ${r}\n`; 
+            document.querySelector('#ddTxt').innerHTML = outTxt;            
+
+            let ddf3 = new DataDiscoveryFilter( any(column1,value1,value2)).cols(column2).limit(2);
+            outTxt += `\n* ddf3 = DataDiscoveryFilter( any('${column1}', '${value1}', '${value2}') ).cols('${column2}).limit(2) - filter to retrieve 2 ${column2} of records where field '${column1}' matches either '${value1}' or '${value2}'\n`;        
+            document.querySelector('#ddTxt').innerHTML = outTxt;                
+            r = JSON.stringify((await ddResource.get(ddf3)).data).substr(0,80) + '...';    
+            outTxt += `* DataDiscoveryResource.get(ddf2) - HTTP GET request with filter (JSON): ${r}\n`; 
+            document.querySelector('#ddTxt').innerHTML = outTxt;            
+
+            
+        }
+        catch(e) {
+            document.querySelector('#ddTxt').style.color = '#F00';
+            outTxt += `Error ${e.message} - see console for details`;
+            document.querySelector('#ddTxt').innerHTML = outTxt;
+        }           
+        // q = new DataDiscoveryFilter(eq("Country","Canada")).addFilter(and(eq("ZIP","78501"),any("Name","A","B","C"))).join("Invoice").addFilter(eq("Country","USA")).addFilter(eq("State","Texas"))
+        // let status = await sdbClient.isAuthenticated();
+        // outTxt += `* isAuthenticated() - Logged in status: ${status}\n`;
+        // document.querySelector('#ddTxt').innerHTML = outTxt;
+        // let version = await sdbClient.getVersion();      
+        // outTxt += `* getVersion() - SlashDB version: ${version}\n`;        
+        // document.querySelector('#ddTxt').innerHTML = outTxt;        
+        // let settings = JSON.stringify(await sdbClient.getSettings()).substr(0,80) + '...';
+        // outTxt += `* getSettings() - SlashDB settings: ${settings}\n`;        
+        // document.querySelector('#ddTxt').innerHTML = outTxt;        
+        // let userDetails = JSON.stringify(await sdbClient.getUser(user)).substr(0,80) + '...';
+        // outTxt += `* getUser() - User details: ${userDetails}\n`;        
+        // document.querySelector('#ddTxt').innerHTML = outTxt;        
+        // let dbDef = JSON.stringify(await sdbClient.getDbDef(database)).substr(0,80) + '...';
+        // outTxt += `* getDbDef() - ${database} database definition: ${dbDef}\n`;        
+        // document.querySelector('#ddTxt').innerHTML = outTxt;  
+        // let dbReflect = JSON.stringify(await sdbClient.getReflectStatus(database)).substr(0,80) + '...';
+        // outTxt += `* getReflectStatus() - ${database} database reflect status: ${dbReflect}\n`;        
+        // document.querySelector('#ddTxt').innerHTML = outTxt;    
+        // let queryDef = JSON.stringify(await sdbClient.getQueryDef(query)).substr(0,80) + '...';
+        // outTxt += `* getQueryDef() - ${query} query definition: ${queryDef}\n`;        
+        // document.querySelector('#ddTxt').innerHTML = outTxt;     
+        // let sqlPassThruObj = JSON.stringify(await sdbClient.getQueries(database)).substr(0,80) + '...';
+        // outTxt += `* getQueries() - ${database} DB queries as SQLPassThru objects: ${sqlPassThruObj}\n`;        
+        // document.querySelector('#ddTxt').innerHTML = outTxt; 
+        // let unloadDb = JSON.stringify(await sdbClient.unloadModel(database)).substr(0,80) + '...';
+        // outTxt += `* unloadModel() - Disconnect ${database} database: ${unloadDb}\n`;        
+        // document.querySelector('#ddTxt').innerHTML = outTxt;          
+        // let loadDb = JSON.stringify(await sdbClient.loadModel(database)).substr(0,80) + '...';
+        // outTxt += `* loadModel() - Connect ${database} database: ${loadDb}\n`;        
+        // document.querySelector('#ddTxt').innerHTML = outTxt;
+        
+        
+    }    
+
+    const filterDemo = async () => {
+        document.querySelector('#apiTxt').style.color = '#000';        
+        let outTxt = '';
+        chgSeparator(',')
+        try {
+            let f = eq(column1,value1)
+            outTxt += `* eq() - filter result: ${f}\n`;        
+            document.querySelector('#filterTxt').innerHTML = outTxt;           
+            f = any(column1,value1,value2)
+            outTxt += `* any() - filter result: ${f}\n`;        
+            document.querySelector('#filterTxt').innerHTML = outTxt;   
+            f = between(column1,value1,value3)
+            outTxt += `* between() - filter result: ${f}\n`;        
+            document.querySelector('#filterTxt').innerHTML = outTxt;                  
+            f = lte(column1,value1)
+            outTxt += `* lte() - filter result: ${f}\n`;        
+            document.querySelector('#filterTxt').innerHTML = outTxt;           
+            f = gte(column1,value1)
+            outTxt += `* gte() - filter result: ${f}\n`;        
+            document.querySelector('#filterTxt').innerHTML = outTxt;           
+            f = and(eq(column1,value1),any(column2,value2,value4));
+            outTxt += `* and( eq(), any() ) - filter result: ${f}\n`;        
+            document.querySelector('#filterTxt').innerHTML = outTxt; 
+            f = not(eq(column1,value1));
+            outTxt += `* not( eq() ) - filter result: ${f}\n`;        
+            document.querySelector('#filterTxt').innerHTML = outTxt;         
+            f = and( not(eq(column1,value1)), any(column2,value2,value4), lte(column3,value5));
+            outTxt += `* and ( not(eq()), any(), lte() ) - filter result: ${f}\n`;        
+            document.querySelector('#filterTxt').innerHTML = outTxt;         
+        }      
+        catch(e) {
+                document.querySelector('#filterTxt').style.color = '#F00';
+                outTxt += `Error ${e.message} - see console for details`;
+                document.querySelector('#filterTxt').innerHTML = outTxt;
+        }     
+    }
 
     // let sqf1 = new SQLPassThruQuery('myquery');
     // console.log(sqf1); 
@@ -232,25 +428,132 @@
 
     </script>
 
-    <div id="clientDesc" class="codeBlock">
-        Connection Config
-        <form onsubmit="return false" name="config">
-            <label>Host</label>
-            <input name="host" type="text" value="http://192.168.1.101:8000">
-            <label>Username</label>
-            <input name="user" type="text" value="admin">
-            <label>Password</label>
-            <input name="password" type="password" value="">
-            <label>API Key</label>
-            <input name="apiKey" type="password" value="">
-            <label>Database</label>
-            <input name="database" type="text" value="Chinook">            
-            <label>Query</label>
-            <input name="query" type="text" value="add-new-customer">            
+    <div id="splitConfig">
+        <div class="codeBlock"  style="width: 50%">
+            Connection Config
+            <form onsubmit="return false" name="config">
+            <div class="config"> 
+                <div class="txtField">
+                    <label>Host</label>
+                    <input name="host" type="text" value="http://192.168.1.101:8000">
+                </div>
+                <div class="txtField">
+                    <label>Username</label>
+                    <input name="user" type="text" value="admin">
+                </div>
+                <div class="txtField">
+                    <label>Password</label>
+                    <input name="password" type="password" value="*****">
+                </div>                
+                <div class="txtField">
+                    <label>API Key</label>
+                    <input name="apiKey" type="password" value="gez0bk949rhwpcjdxqqsn8w9g4iec709">
+                </div>
+            </div>
+            <div class="config">
+                <div class="txtField">
+                    <label>Database</label>
+                    <input name="database" type="text" value="Chinook">            
+                </div>
+                <div class="txtField">
+                    <label>Resource/Table</label>
+                    <input name="resource" type="text" value="Customer">            
+                </div>     
+                <button onClick="exec()">Run demo</button>            
+            </div> 
+               <!-- 
+    
+                <br />        
+                <label>Field1</label>
+                <input name="column1" type="text" value="FirstName">            
+                <label>Value1</label>
+                <input name="value1" type="text" value="D*">            
+                <label>Field2</label>
+                <input name="column2" type="text" value="LastName">            
+                <label>Value2</label>
+                <input name="value2" type="text" value="M*">              
+                <br />
+                <label>Query</label>
+                <input name="query" type="text" value="add-new-customer">         -->
+                
 
-            <button onClick="exec()">Run demo</button>
-        </form>
+
+                    <!-- <button onClick="exec()">Run demo</button> -->
+                <!-- </div> -->
+            
+        </div>
+        <div class="codeBlock"  style="width: 50%">
+            Data Discovery Config
+            <div class="config">
+                <div class="txtField tbl">
+                    <label>Field1</label>
+                    <input name="column1" type="text" value="FirstName"><br />
+                    <label>Value</label>            
+                    <input name="value1" type="text" value="D*">                                
+                </div>                
+                <div class="txtField tbl">
+                    <label>Field2</label>
+                    <input name="column2" type="text" value="LastName"><br />
+                    <label>Value</label>  
+                    <input name="value2" type="text" value="M*">                                   
+                </div>         
+            </div>
+            <br/>SQL Pass-Thru Config
+            <div class="config">
+                <div class="txtField tbl">
+                    <label>Query Name</label>
+                    <input name="query" type="text" value="add-new-customer">                              
+                </div>                
+                <div class="txtField tbl">
+                    <label>Param1</label>
+                    <input name="param1" type="text" value="Year"><br />
+                    <label>Value</label>  
+                    <input name="paramValue1" type="text" value="2000">                                   
+                </div>         
+            </div>            
+            </form> 
+        </div>
     </div>
+
+    <div id="ddDesc" class="codeBlock">
+        Data Discovery methods
+        <pre>
+        const sdbClient = new SlashDBClient('http://hostname:port', user, apiKey);
+        const db = new DataDiscoveryDatabase(sdbClient, databaseName);
+        const resource = new DataDiscoveryResource(db, resourceName);
+
+        let ddf1 = new DataDiscoveryFilter( <a href="#filters">eq(column1,value1)</a> ).cols(column1,column2); // returns column1,column2 of record set
+        let records = resource.get(ddf1);                                               // returns JSON data by default
+        records = resource.accept('csv').get(ddf1);                                     // set accept header (can be CSV, XML, JSON)
+
+        let ddf2 = new DataDiscoveryFilter( <a href="#filters">any(column1,value1,value2)</a> ).cols(column2).sort(column2);     // set to sort by column2
+        records = resource.accept('json).get(ddf2);                                                       // set accept header back
+
+        let ddf3 = new DataDiscoveryFilter( <a href="#filters">any(column1,value1,value2)</a> ).cols(column2).limit(2);          // set to return 2 records
+        records = resource.get(ddf3);                                                       
+        </pre>
+        <textarea id="ddTxt" style="height: 16rem" class="outTxt">Click Run Demo button...</textarea>
+    </div>  
+
+    <div id="ddDesc" class="codeBlock">
+        SQL Pass-Thru methods
+        <pre>
+        const sdbClient = new SlashDBClient('http://hostname:port', user, apiKey);
+        const db = new DataDiscoveryDatabase(sdbClient, databaseName);
+        const resource = new DataDiscoveryResource(db, resourceName);
+
+        let ddf1 = new DataDiscoveryFilter( <a href="#filters">eq(column1,value1)</a> ).cols(column1,column2); // returns column1,column2 of record set
+        let records = resource.get(ddf1);                                               // returns JSON data by default
+        records = resource.accept('csv').get(ddf1);                                     // set accept header (can be CSV, XML, JSON)
+
+        let ddf2 = new DataDiscoveryFilter( <a href="#filters">any(column1,value1,value2)</a> ).cols(column2).sort(column2);     // set to sort by column2
+        records = resource.accept('json).get(ddf2);                                                       // set accept header back
+
+        let ddf3 = new DataDiscoveryFilter( <a href="#filters">any(column1,value1,value2)</a> ).cols(column2).limit(2);          // set to return 2 records
+        records = resource.get(ddf3);                                                       
+        </pre>
+        <textarea id="ddTxt" style="height: 16rem" class="outTxt">Click Run Demo button...</textarea>
+    </div>  
 
 
     <div id="clientDesc" class="codeBlock">
@@ -259,11 +562,11 @@
         const sdbClient = new SlashDBClient('http://hostname:port');
         let status = await sdbClient.login(username,password);
         </pre>
-        <textarea id="clientTxt" class="outTxt">Click Run Demo button...</textarea>
+        <textarea id="clientTxt" class="outTxt" spellcheck="false">Click Run Demo button...</textarea>
     </div>
 
     <div id="apiDesc" class="codeBlock">
-        SlashDBClient API method list
+        SlashDBClient API methods
         <pre>
         const sdbClient = new SlashDBClient('http://hostname:port', user, apiKey);
         let status = await sdbClient.isAuthenticated();
@@ -277,8 +580,32 @@
         let unloadDB = sdbClient.unloadModel(database);
         let loadDB = sdbClient.loadModel(database);        
         </pre>
-        <textarea id="apiTxt" style="height: 14rem" class="outTxt">Click Run Demo button...</textarea>
-     
+        <textarea id="apiTxt" style="height: 14rem" class="outTxt" spellcheck="false">Click Run Demo button...</textarea>
     </div>    
+
+    <a name="filters"></a>
+    <div id="filterDesc" class="codeBlock">
+        Filter functions
+        <pre>
+        // Filter expressions
+        f = eq(fieldName, value);                          // equality/match filter 
+        f = any(fieldName, value1, value2...valueN);       // multi-value match filter 
+        f = between(fieldName, lowerValue, upperValue);    // range filter 
+        f = lte(fieldName, upperValue);                    // less-than-equal filter             
+        f = gte(fieldName, lowerValue);                    // greater-than-equal filter             
+        
+        // Expression modifiers
+        f = and(expr1, expr2...exprN);                     // concatenation - join multiple filters in form of strings or filter expressions
+        f = not(expr);                                     // negation - negate a filter in form of string or filter expression
+        
+        f = and ( not( eq(fieldName, value) ),             // combining filters
+                any(fieldName, value1, value2), 
+                lte(fieldName, upperValue) 
+            ); 
+    </pre>
+        <textarea id="filterTxt" style="height: 14rem" class="outTxt" spellcheck="false">Click Run Demo button...</textarea>
+    </div>        
+    
+    
 </body>
 </html>
