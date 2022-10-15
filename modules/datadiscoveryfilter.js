@@ -60,13 +60,13 @@ class DataDiscoveryFilter extends BaseFilter {
 
 		this.urlStringParams = {
 			...this.urlStringParams,
-			stream: false,
+			stream: {default: false, value: false},
 			depth: undefined,
 			headers: {default: true, value: true},
-			csvNullStr: false,
+			csvNullStr: {default: false, value: false},
 			href: {default: true, value: true},
 			cardinality: undefined,
-			wantarray: false,
+			wantarray: {default: false, value: false},
 		}
 		
 		// the path as it is built up
@@ -139,7 +139,7 @@ class DataDiscoveryFilter extends BaseFilter {
 	* @returns {DataDiscoveryFilter} this object
 	*/ 		 	
 	stream(toggle = true) {
-		this.urlStringParams['stream'] = toggle === true;
+		this.urlStringParams['stream']['value'] = toggle === true;
 		return this.build();
 	}
 
@@ -167,7 +167,7 @@ class DataDiscoveryFilter extends BaseFilter {
 	* @returns {DataDiscoveryFilter} this object
 	*/ 	
 	wantarray(toggle = true) {
-		this.urlStringParams['wantarray'] = toggle === true;
+		this.urlStringParams['wantarray']['value'] = toggle === true;
 		return this.build();
 	}
 
@@ -187,7 +187,7 @@ class DataDiscoveryFilter extends BaseFilter {
 	* @returns {DataDiscoveryFilter} this object
 	*/	
 	csvNullStr(toggle = true) {
-		this.urlStringParams['csvNullStr'] = toggle === true;
+		this.urlStringParams['csvNullStr']['value'] = toggle === true;
 		return this.build();
 	}
 
@@ -211,7 +211,7 @@ class DataDiscoveryFilter extends BaseFilter {
 	xsdCardinality(value = 'unbounded') {
 
 		if (value === false) {
-			this.urlStringParams['cardinality'] = undefined;
+			value = undefined;
 		}
 		
 		else if (value !== 'unbounded') {
@@ -222,8 +222,6 @@ class DataDiscoveryFilter extends BaseFilter {
 			else if ( !Number.isInteger(value) || value < 0) {
 				throw TypeError(SDB_DDF_XSDCARD_TYPE);
 			}
-
-
 		}
 		
 		this.urlStringParams['cardinality'] = value;
@@ -250,19 +248,16 @@ class DataDiscoveryFilter extends BaseFilter {
 
 		let paramString = '';
 		for (const p in this.urlStringParams) {
-
-			// the parameters that have default true values (headers, href) are stored as 
-			// objects with a default key/value pair and current value key/value pair, so must
-			// be handled a bit differently
 			if (typeof this.urlStringParams[p] === 'object' && this.urlStringParams[p] !== null ) {
 				  	if (this.urlStringParams[p]['default'] !== this.urlStringParams[p]['value']) {
 			  			paramString += `${p}=${this.urlStringParams[p]['value']}&` ;	
 			  	}
 			 }
-			else if (this.urlStringParams[p] !== undefined && this.urlStringParams[p] !== false) {
+			else if (this.urlStringParams[p] !== undefined) {
 				paramString += `${p}=${this.urlStringParams[p]}&` ;
 			}
 		}
+		
 		paramString = paramString.slice(0,paramString.length-1);	// chop trailing &
 		paramString += this._setSeparator() + this._setWildcard() + this._urlPlaceholderFn();
 		

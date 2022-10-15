@@ -29,7 +29,7 @@ class SQLPassThruFilter extends BaseFilter {
 
 		this.urlStringParams = {
 			...this.urlStringParams,
-			count: false,
+			count: {default: false, value: false},
 			xmlType: undefined,
 		};
 
@@ -93,7 +93,7 @@ class SQLPassThruFilter extends BaseFilter {
 	* @returns {SQLPassThruFilter} this object	
 	*/ 		
 	count(toggle = true) {
-		this.urlStringParams['count'] = toggle === true;
+		this.urlStringParams['count']['value'] = toggle === true;
 		return this.build();
 	}
 
@@ -123,10 +123,17 @@ class SQLPassThruFilter extends BaseFilter {
 
 		let paramString = '';
 		for (const p in this.urlStringParams) {
-			if (this.urlStringParams[p] !== undefined && this.urlStringParams[p] !== false) {
+
+			if (typeof this.urlStringParams[p] === 'object' && this.urlStringParams[p] !== null ) {
+				if (this.urlStringParams[p]['default'] !== this.urlStringParams[p]['value']) {
+					paramString += `${p}=${this.urlStringParams[p]['value']}&` ;	
+				}
+	   		}
+			else if (this.urlStringParams[p] !== undefined) {
 				paramString += `${p}=${this.urlStringParams[p]}&` ;
 			}
 		}
+		
 		paramString = paramString.slice(0,paramString.length-1);	// chop trailing &
 		paramString += this._urlPlaceholderFn();
 

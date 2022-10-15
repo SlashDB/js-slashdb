@@ -193,16 +193,16 @@ describe('BaseFilter class tests', () => {
         
         // set distinct
         result.distinct();
-        expect(result.urlStringParams['distinct']).toBe(true);
+        expect(result.urlStringParams['distinct']['value']).toBe(true);
         expect(result.endpoint).toBe(`?distinct=true`);        
         
         // remove distinct
         result.distinct(false);
-        expect(result.urlStringParams['distinct']).toBe(false);
+        expect(result.urlStringParams['distinct']['value']).toBe(false);
         expect(result.endpoint).toBe('');        
         // should be ignored - only true/false allowed
         result.distinct(1);
-        expect(result.urlStringParams['distinct']).toBe(false);
+        expect(result.urlStringParams['distinct']['value']).toBe(false);
         expect(result.endpoint).toBe('');
     });
 
@@ -214,16 +214,16 @@ describe('BaseFilter class tests', () => {
         
         // set transpose
         result.transpose();
-        expect(result.urlStringParams['transpose']).toBe(true);
+        expect(result.urlStringParams['transpose']['value']).toBe(true);
         expect(result.endpoint).toBe(`?transpose=true`);        
         
         // remove transpose
         result.transpose(false);
-        expect(result.urlStringParams['transpose']).toBe(false);
+        expect(result.urlStringParams['transpose']['value']).toBe(false);
         expect(result.endpoint).toBe('');        
         // should be ignored - only true/false allowed
         result.transpose(1);
-        expect(result.urlStringParams['transpose']).toBe(false);
+        expect(result.urlStringParams['transpose']['value']).toBe(false);
         expect(result.endpoint).toBe('');
     });    
 
@@ -235,16 +235,16 @@ describe('BaseFilter class tests', () => {
         
         // set xmlNilVisible
         result.xmlNilVisible();
-        expect(result.urlStringParams['nil_visible']).toBe(true);
+        expect(result.urlStringParams['nil_visible']['value']).toBe(true);
         expect(result.endpoint).toBe(`?nil_visible=true`);        
         
         // remove xmlNilVisible
         result.xmlNilVisible(false);
-        expect(result.urlStringParams['nil_visible']).toBe(false);
+        expect(result.urlStringParams['nil_visible']['value']).toBe(false);
         expect(result.endpoint).toBe('');        
         // should be ignored - only true/false allowed
         result.xmlNilVisible(1);
-        expect(result.urlStringParams['nil_visible']).toBe(false);
+        expect(result.urlStringParams['nil_visible']['value']).toBe(false);
         expect(result.endpoint).toBe('');
     });   
 

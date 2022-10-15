@@ -17,11 +17,11 @@ class BaseFilter {
 		// will contain any query parameters that are set
 		this.urlStringParams = {
 			sort : undefined,
-			distinct : false,
+			distinct : {default: false, value: false},
 			limit: undefined,
 			offset: undefined,
-			transpose : false,
-			nil_visible: false,
+			transpose : {default: false, value: false},
+			nil_visible: {default: false, value: false},
 		};
 	
 		if (urlPlaceholder !== undefined) {
@@ -113,7 +113,7 @@ class BaseFilter {
 	* @returns this object
 	*/ 
 	distinct(toggle = true) {
-		this.urlStringParams['distinct'] = toggle === true;
+		this.urlStringParams['distinct']['value'] = toggle === true;
 		return this.build();
 	}
 
@@ -157,7 +157,7 @@ class BaseFilter {
 	* @returns this object	
 	*/ 	
 	transpose(toggle = true) {
-		this.urlStringParams['transpose'] = toggle === true;
+		this.urlStringParams['transpose']['value'] = toggle === true;
 		return this.build();
 	}
 
@@ -167,7 +167,7 @@ class BaseFilter {
 	* @returns this object	
 	*/ 	
 	xmlNilVisible(toggle = true) {
-		this.urlStringParams['nil_visible'] = toggle === true;
+		this.urlStringParams['nil_visible']['value'] = toggle === true;
 		return this.build();
 	}	
 
@@ -216,10 +216,17 @@ class BaseFilter {
 
 		let paramString = '';
 		for (const p in this.urlStringParams) {
-			if (this.urlStringParams[p] !== undefined && this.urlStringParams[p] !== false) {
+
+			if (typeof this.urlStringParams[p] === 'object' && this.urlStringParams[p] !== null ) {
+				if (this.urlStringParams[p]['default'] !== this.urlStringParams[p]['value']) {
+					paramString += `${p}=${this.urlStringParams[p]['value']}&` ;	
+				}
+	   		}
+			else if (this.urlStringParams[p] !== undefined) {
 				paramString += `${p}=${this.urlStringParams[p]}&` ;
 			}
 		}
+		
 		paramString = paramString.slice(0,paramString.length-1);	// chop trailing &
 		paramString += this._urlPlaceholderFn();
 
