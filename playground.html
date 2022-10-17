@@ -21,6 +21,7 @@
             display: flex;
             flex-direction: row;
             justify-content: flex-start;
+
         }
 
         .params {
@@ -50,7 +51,7 @@
             display: inline;
         }
         .config .tbl label { 
-            display: inline;
+            display: block;
             margin-right: 5px;
         }
 
@@ -89,15 +90,18 @@
     var database;
     var query;
     var resource = 'Customer';
+    var relatedResource = 'Invoice';
     var column1 = 'FirstName';
     var column2 = 'LastName';
-    var column3 = 'City';
+    var column3 = 'Email';
+    var column4 = "BillingCountry";
     var value1 = 'Dan';
     var value2 = 'Miller';
     var value3 = 'Frank';
     var value4 = 'Harris';
     var value5 = 'Houston';
-
+    var param1;
+    var paramValue1;
 
     function exec() {
         host = document.forms.config.host.value;
@@ -107,13 +111,25 @@
         database = document.forms.config.database.value;
         query = document.forms.config.query.value;
         resource = document.forms.config.resource.value;
+        relatedResource = document.forms.config.resource2.value;
+        
         column1 = document.forms.config.column1.value;
         column2 = document.forms.config.column2.value;
+        column3 = document.forms.config.column3.value;      
+        column4 = document.forms.config.column4.value;      
+
         value1 =  document.forms.config.value1.value;
         value2 =  document.forms.config.value2.value;
+        value2 =  document.forms.config.value2.value;
+        value3 =  document.forms.config.value3.value;
+
+        param1 = document.forms.config.param1.value;
+        paramValue1 = document.forms.config.paramValue1.value;
+
         //sdbLoginDemo();
         sdbAPIDemo();
         ddDemo();        
+        sptDemo();            
         filterDemo();        
     }
 
@@ -146,43 +162,63 @@
         let outTxt = '';
         try {
        
+            outTxt += `* const sdbClient = new SlashDBClient() - creating client for ${host}, logging in user '${user}' using API key...\n`
             const sdbClient = new SlashDBClient(host,user,apiKey);
-            outTxt += `* SlashDBClient() - Client created for ${host}, logging in user '${user}' using API key...\n`
             document.querySelector('#apiTxt').innerHTML = outTxt;
+            outTxt += `* sdbClient.isAuthenticated() - Logged in status: `;
             let status = await sdbClient.isAuthenticated();
-            outTxt += `* isAuthenticated() - Logged in status: ${status}\n`;
+            outTxt += `${status}\n`;
             document.querySelector('#apiTxt').innerHTML = outTxt;
+
+            outTxt += `* sdbClient.getVersion() - SlashDB version: `;
             let version = await sdbClient.getVersion();      
-            outTxt += `* getVersion() - SlashDB version: ${version}\n`;        
+            outTxt += `${version}\n`; 
             document.querySelector('#apiTxt').innerHTML = outTxt;        
+
+            outTxt += `* sdbClient.getSettings() - SlashDB settings: `;
             let settings = JSON.stringify(await sdbClient.getSettings()).substr(0,80) + '...';
-            outTxt += `* getSettings() - SlashDB settings: ${settings}\n`;        
+            outTxt += `${settings}\n`;        
             document.querySelector('#apiTxt').innerHTML = outTxt;        
+
+            outTxt += `* sdbClient.getUser('${user}') - User details: `;
             let userDetails = JSON.stringify(await sdbClient.getUser(user)).substr(0,80) + '...';
-            outTxt += `* getUser('${user}') - User details: ${userDetails}\n`;        
+            outTxt += `${userDetails}\n`;                    
             document.querySelector('#apiTxt').innerHTML = outTxt;        
+
+            outTxt += `* sdbClient.getDbDef('${database}') - database definition: `;
             let dbDef = JSON.stringify(await sdbClient.getDbDef(database)).substr(0,80) + '...';
-            outTxt += `* getDbDef('${database}') - database definition: ${dbDef}\n`;        
+            outTxt += `${dbDef}\n`;        
             document.querySelector('#apiTxt').innerHTML = outTxt;  
+            
+            outTxt += `* sdbClient.getReflectStatus('${database}') - database reflect status: `;
             let dbReflect = JSON.stringify(await sdbClient.getReflectStatus(database)).substr(0,80) + '...';
-            outTxt += `* getReflectStatus('${database}') - database reflect status: ${dbReflect}\n`;        
+            outTxt += `${dbReflect}\n`;        
             document.querySelector('#apiTxt').innerHTML = outTxt;    
+
+            outTxt += `* sdbClient.getQueryDef('${query}') - query definition: `;
             let queryDef = JSON.stringify(await sdbClient.getQueryDef(query)).substr(0,80) + '...';
-            outTxt += `* getQueryDef('${query}') - query definition: ${queryDef}\n`;        
+            outTxt += `${queryDef}\n`;        
             document.querySelector('#apiTxt').innerHTML = outTxt;     
+
+            outTxt += `* sdbClient.getQueries('${database}') - DB queries as SQLPassThru objects: `;
             let sqlPassThruObj = JSON.stringify(await sdbClient.getQueries(database)).substr(0,80) + '...';
-            outTxt += `* getQueries('${database}') - DB queries as SQLPassThru objects: ${sqlPassThruObj}\n`;        
+            outTxt += `${sqlPassThruObj}\n`;        
             document.querySelector('#apiTxt').innerHTML = outTxt; 
-            let unloadDb = JSON.stringify(await sdbClient.unloadModel(database)).substr(0,80) + '...';
-            outTxt += `* unloadModel('${database}') - Disconnect database: ${unloadDb}\n`;        
-            document.querySelector('#apiTxt').innerHTML = outTxt;          
+
+            // disabled this so it doesn't interfere with other operations
+            // outTxt += `* sdbClient.unloadModel('${database}') - Disconnect database: `;
+            // let unloadDb = JSON.stringify(await sdbClient.unloadModel(database)).substr(0,80) + '...';
+            // outTxt += `${unloadDb}\n`;        
+            // document.querySelector('#apiTxt').innerHTML = outTxt;          
+            
+            outTxt += `* sdbClient.loadModel('${database}') - Connect database: `;        
             let loadDb = JSON.stringify(await sdbClient.loadModel(database)).substr(0,80) + '...';
-            outTxt += `* loadModel('${database}') - Connect database: ${loadDb}\n`;        
+            outTxt += `${loadDb}\n`;            
             document.querySelector('#apiTxt').innerHTML = outTxt;      
         }
         catch(e) {
             document.querySelector('#apiTxt').style.color = '#F00';
-            outTxt += `Error ${e.message} - see console for details`;
+            outTxt += `\n^^^^ Error ${e.message} - see console for details`;
             document.querySelector('#apiTxt').innerHTML = outTxt;
         }        
     }
@@ -191,81 +227,148 @@
         document.querySelector('#ddTxt').style.color = '#000';
         let outTxt = '';
         try {        
+
+            outTxt += `* sdbClient = new SlashDBClient('${host}','${user}', <apiKey>) - creating client, logging in user using <apiKey>...\n`;
             const sdbClient = new SlashDBClient(host,user,apiKey);
-            outTxt += `* sdbClient = SlashDBClient('${host}','${user}', <apiKey>) - Client created, logging in user using <apiKey>...\n`;
             document.querySelector('#ddTxt').innerHTML = outTxt;
 
+            outTxt += `* db = new DataDiscoveryDatabase(sdbClient, '${database}') - selecting database\n`;                    
             const db = new DataDiscoveryDatabase(sdbClient, database);
-            outTxt += `* db = DataDiscoveryDatabase(sdbClient, '${database}') - Database selected\n`;        
             document.querySelector('#ddTxt').innerHTML = outTxt;
+            outTxt += `* ddResource = new DataDiscoveryResource('${resource}') - creating REST call handler for resource\n`;
             const ddResource = new DataDiscoveryResource(db, resource);
-            outTxt += `* ddResource = DataDiscoveryResource('${resource}') - REST call handler for resource created\n`;
             document.querySelector('#ddTxt').innerHTML = outTxt;                
 
+            outTxt += `\n* ddf1 = new DataDiscoveryFilter( eq('${column1}', '${value1}') ).cols('${column1}','${column2}') - filter to retrieve '${column1},${column2}' of records where field '${column1}' matches value '${value1}' \n`;        
             let ddf1 = new DataDiscoveryFilter(eq(column1,value1)).cols(column1,column2);
-            outTxt += `\n* ddf1 = DataDiscoveryFilter( eq('${column1}', '${value1}') ).cols('${column1}','${column2}') - filter to retrieve ${column1},${column2} of records where field '${column1}' matches value '${value1}' \n`;        
             document.querySelector('#ddTxt').innerHTML = outTxt;       
+            outTxt += `* ddResource.get(ddf1) - HTTP GET request with filter (JSON): `; 
             let r = JSON.stringify((await ddResource.get(ddf1)).data).substr(0,80) + '...';    
-            outTxt += `* DataDiscoveryResource.get(ddf1) - HTTP GET request with filter (JSON): ${r}\n`; 
+            outTxt +=  `${r}\n`;
             document.querySelector('#ddTxt').innerHTML = outTxt;        
+            outTxt += `* ddResource.accept('csv').get(ddf1) - HTTP GET request with filter (CSV): `
             r = JSON.stringify((await ddResource.accept('csv').get(ddf1)).data).substr(0,80) + '...';    
-            outTxt += `* DataDiscoveryResource.accept('csv').get(ddf1) - HTTP GET request with filter (CSV): ${r}\n`; 
+            outTxt += `${r}\n`; 
             document.querySelector('#ddTxt').innerHTML = outTxt;        
 
+            outTxt += `\n* ddf2 = new DataDiscoveryFilter( any('${column1}', '${value1}', '${value2}') ).cols('${column2}).sort('${column2}') - filter to retrieve '${column2}' of records sorted by '${column2}' where field '${column1}' matches either '${value1}' or '${value2}'\n`;        
             let ddf2 = new DataDiscoveryFilter( any(column1,value1,value2)).cols(column2).sort(column2);
-            outTxt += `\n* ddf2 = DataDiscoveryFilter( any('${column1}', '${value1}', '${value2}') ).cols('${column2}).sort('${column2}') - filter to retrieve ${column2} of records sorted by '${column2}' where field '${column1}' matches either '${value1}' or '${value2}'\n`;        
             document.querySelector('#ddTxt').innerHTML = outTxt;                
+            outTxt += `* ddResource.get(ddf2) - HTTP GET request with filter (JSON): `;
             r = JSON.stringify((await ddResource.accept('json').get(ddf2)).data).substr(0,80) + '...';    
-            outTxt += `* DataDiscoveryResource.get(ddf2) - HTTP GET request with filter (JSON): ${r}\n`; 
+            outTxt += `${r}\n`; 
             document.querySelector('#ddTxt').innerHTML = outTxt;            
 
+            outTxt += `\n* ddf3 = new DataDiscoveryFilter( any('${column1}', '${value1}', '${value2}') ).cols('${column2}).limit(2) - filter to retrieve 2 '${column2}' of records where field '${column1}' matches either '${value1}' or '${value2}'\n`;        
             let ddf3 = new DataDiscoveryFilter( any(column1,value1,value2)).cols(column2).limit(2);
-            outTxt += `\n* ddf3 = DataDiscoveryFilter( any('${column1}', '${value1}', '${value2}') ).cols('${column2}).limit(2) - filter to retrieve 2 ${column2} of records where field '${column1}' matches either '${value1}' or '${value2}'\n`;        
             document.querySelector('#ddTxt').innerHTML = outTxt;                
-            r = JSON.stringify((await ddResource.get(ddf3)).data).substr(0,80) + '...';    
-            outTxt += `* DataDiscoveryResource.get(ddf2) - HTTP GET request with filter (JSON): ${r}\n`; 
-            document.querySelector('#ddTxt').innerHTML = outTxt;            
-
+            outTxt += `* ddResource.get(ddf3) - HTTP GET request with filter (JSON): `;
+            r = JSON.stringify((await ddResource.get(ddf3)).data).substr(0,80) + '...';
+            outTxt += `${r}\n`;                 
+            document.querySelector('#ddTxt').innerHTML = outTxt;     
             
+            outTxt += `\n* ddf4 = new DataDiscoveryFilter( any('${column1}', '${value1}', '${value2}') ).join('${relatedResource}').cols('${column4}'') - filter to retrieve related resource '${relatedResource}/${column4}'' of records where field '${column1}' matches either '${value1}' or '${value2}'\n`;        
+            let ddf4 = new DataDiscoveryFilter( any(column1,value1,value2)).join(relatedResource).cols(column4);
+            document.querySelector('#ddTxt').innerHTML = outTxt;                
+            outTxt += `* ddResource.get(ddf4) - HTTP GET request with filter (JSON): `;
+            r = JSON.stringify((await ddResource.get(ddf4)).data).substr(0,80) + '...';
+            outTxt += `${r}\n`;                 
+            document.querySelector('#ddTxt').innerHTML = outTxt;               
+
+            outTxt += `\n*** The following commands may fail, depending on the database you're using.  They should work using the sample Chinook database included with SlashDB and the default config parameters ***\n`;
+            document.querySelector('#ddTxt').innerHTML = outTxt;    
+            try {
+                outTxt += `\n* ddResource.post({${column1}: 'TestValue_created', ${column2}: 'TestValue_created', ${column3}: 'TestValue_created'}) - HTTP POST to create record with value 'TestValue_created' in '${column1}','${column2}','${column3}': `; 
+                r = JSON.stringify((await ddResource.post({[column1]: 'TestValue_created', [column2]: 'TestValue_created', [column3]: 'TestValue_created'})).data).substr(0,80) + '...';    
+                outTxt += `${r}\n`; 
+                document.querySelector('#ddTxt').innerHTML = outTxt;            
+            }
+            catch(e) {
+                if (e.message.startsWith('4')) {
+                    document.querySelector('#ddTxt').style.color = '#F00';                    
+                    outTxt += `\n^^^^ Client error ${e.message} - see console for details`;
+                    document.querySelector('#ddTxt').innerHTML = outTxt;
+                }
+                else {
+                    throw Error(e);
+                }
+            }
+
+            try {
+                outTxt += `\n* ddResource.put( eq(${column1},'TestValue_created') {${column1}: 'TestValue_updated', ${column2}: 'TestValue_updated', ${column3}: 'TestValue_updated'}) - HTTP PUT to update records with value 'TestValue_created' in '${column1}': `; 
+                r = await ddResource.put( eq(column1,'TestValue_created'), {[column1]: 'TestValue_updated', [column2]: 'TestValue_updated', [column3]: 'TestValue_updated'});
+                outTxt += `Updated (status ${r.res.status})\n`; 
+                document.querySelector('#ddTxt').innerHTML = outTxt;            
+            }
+            catch(e) {
+                if (e.message.startsWith('4')) {
+                    document.querySelector('#ddTxt').style.color = '#F00';                    
+                    outTxt += `\n^^^^ Client error ${e.message} - see console for details`;
+                    document.querySelector('#ddTxt').innerHTML = outTxt;
+                }
+                else {
+                    throw Error(e);
+                }
+            }
+
+            try {
+                outTxt += `\n* ddResource.delete( eq(${column1},'TestValue_updated') ) - HTTP DELETE to remove records with value 'TestValue_updated' in '${column1}': `; 
+                r = await ddResource.delete( eq(column1,'TestValue_updated') );
+                outTxt += `Deleted (status ${r.res.status})\n`; 
+                document.querySelector('#ddTxt').innerHTML = outTxt;            
+            }
+            catch(e) {
+                if (e.message.startsWith('4')) {
+                    document.querySelector('#ddTxt').style.color = '#F00';                    
+                    outTxt += `\n^^^^ Client error ${e.message} - see console for details`;
+                    document.querySelector('#ddTxt').innerHTML = outTxt;
+                }
+                else {
+                    throw Error(e);
+                }
+            }
+
+
         }
         catch(e) {
             document.querySelector('#ddTxt').style.color = '#F00';
-            outTxt += `Error ${e.message} - see console for details`;
+            outTxt += `\n^^^^ Error ${e.message} - see console for details`;
             document.querySelector('#ddTxt').innerHTML = outTxt;
         }           
-        // q = new DataDiscoveryFilter(eq("Country","Canada")).addFilter(and(eq("ZIP","78501"),any("Name","A","B","C"))).join("Invoice").addFilter(eq("Country","USA")).addFilter(eq("State","Texas"))
-        // let status = await sdbClient.isAuthenticated();
-        // outTxt += `* isAuthenticated() - Logged in status: ${status}\n`;
-        // document.querySelector('#ddTxt').innerHTML = outTxt;
-        // let version = await sdbClient.getVersion();      
-        // outTxt += `* getVersion() - SlashDB version: ${version}\n`;        
-        // document.querySelector('#ddTxt').innerHTML = outTxt;        
-        // let settings = JSON.stringify(await sdbClient.getSettings()).substr(0,80) + '...';
-        // outTxt += `* getSettings() - SlashDB settings: ${settings}\n`;        
-        // document.querySelector('#ddTxt').innerHTML = outTxt;        
-        // let userDetails = JSON.stringify(await sdbClient.getUser(user)).substr(0,80) + '...';
-        // outTxt += `* getUser() - User details: ${userDetails}\n`;        
-        // document.querySelector('#ddTxt').innerHTML = outTxt;        
-        // let dbDef = JSON.stringify(await sdbClient.getDbDef(database)).substr(0,80) + '...';
-        // outTxt += `* getDbDef() - ${database} database definition: ${dbDef}\n`;        
-        // document.querySelector('#ddTxt').innerHTML = outTxt;  
-        // let dbReflect = JSON.stringify(await sdbClient.getReflectStatus(database)).substr(0,80) + '...';
-        // outTxt += `* getReflectStatus() - ${database} database reflect status: ${dbReflect}\n`;        
-        // document.querySelector('#ddTxt').innerHTML = outTxt;    
-        // let queryDef = JSON.stringify(await sdbClient.getQueryDef(query)).substr(0,80) + '...';
-        // outTxt += `* getQueryDef() - ${query} query definition: ${queryDef}\n`;        
-        // document.querySelector('#ddTxt').innerHTML = outTxt;     
-        // let sqlPassThruObj = JSON.stringify(await sdbClient.getQueries(database)).substr(0,80) + '...';
-        // outTxt += `* getQueries() - ${database} DB queries as SQLPassThru objects: ${sqlPassThruObj}\n`;        
-        // document.querySelector('#ddTxt').innerHTML = outTxt; 
-        // let unloadDb = JSON.stringify(await sdbClient.unloadModel(database)).substr(0,80) + '...';
-        // outTxt += `* unloadModel() - Disconnect ${database} database: ${unloadDb}\n`;        
-        // document.querySelector('#ddTxt').innerHTML = outTxt;          
-        // let loadDb = JSON.stringify(await sdbClient.loadModel(database)).substr(0,80) + '...';
-        // outTxt += `* loadModel() - Connect ${database} database: ${loadDb}\n`;        
-        // document.querySelector('#ddTxt').innerHTML = outTxt;
-        
-        
+    }    
+
+
+    const sptDemo = async () => {
+        document.querySelector('#sptTxt').style.color = '#000';
+        let outTxt = '';
+        try {        
+
+            outTxt += `* sdbClient = new SlashDBClient('${host}','${user}', <apiKey>) - creating client, logging in user using <apiKey>...\n`;
+            const sdbClient = new SlashDBClient(host,user,apiKey);
+            document.querySelector('#sptTxt').innerHTML = outTxt;
+
+            outTxt += `* sptQuery1 = new SQLPassThruQuery('${query}', sdbClient) - creating REST call handler for query\n`;
+            const sptQuery1 = new SQLPassThruQuery(query, sdbClient);
+            document.querySelector('#sptTxt').innerHTML = outTxt;                
+
+            outTxt += `\n* sptf1 = new SQLPassThruFilter( {${param1}: ${paramValue1}} ) - set '${param1}' parameter for query with value '${paramValue1}'\n`;        
+            let sptf1 = new SQLPassThruFilter( {[param1]: paramValue1} );
+            document.querySelector('#sptTxt').innerHTML = outTxt;       
+            outTxt += `* sptQuery1.get(sptf1) - execute query using HTTP GET (JSON): `; 
+            let r = JSON.stringify((await sptQuery1.get(sptf1)).data).substr(0,80) + '...';    
+            outTxt +=  `${r}\n`;
+            document.querySelector('#sptTxt').innerHTML = outTxt;        
+            outTxt += `* sptQuery1.accept('csv').get(sptf1) - execute query using HTTP GET (CSV): `
+            r = JSON.stringify((await sptQuery1.accept('csv').get(sptf1)).data).substr(0,80) + '...';    
+            outTxt += `${r}\n`; 
+            document.querySelector('#sptTxt').innerHTML = outTxt;       
+            
+        }
+        catch(e) {
+            document.querySelector('#sptTxt').style.color = '#F00';
+            outTxt += `\n^^^^ Error ${e.message} - see console for details`;
+            document.querySelector('#sptTxt').innerHTML = outTxt;
+        }           
     }    
 
     const filterDemo = async () => {
@@ -458,57 +561,57 @@
                 <div class="txtField">
                     <label>Resource/Table</label>
                     <input name="resource" type="text" value="Customer">            
-                </div>     
+                </div>  
+                <div class="txtField">
+                    <label>Related Resource/Table</label>
+                    <input name="resource2" type="text" value="Invoice">            
+                </div>                     
                 <button onClick="exec()">Run demo</button>            
+                <input type="reset">Reset parameters</input> 
             </div> 
-               <!-- 
-    
-                <br />        
-                <label>Field1</label>
-                <input name="column1" type="text" value="FirstName">            
-                <label>Value1</label>
-                <input name="value1" type="text" value="D*">            
-                <label>Field2</label>
-                <input name="column2" type="text" value="LastName">            
-                <label>Value2</label>
-                <input name="value2" type="text" value="M*">              
-                <br />
-                <label>Query</label>
-                <input name="query" type="text" value="add-new-customer">         -->
-                
-
-
-                    <!-- <button onClick="exec()">Run demo</button> -->
-                <!-- </div> -->
-            
         </div>
         <div class="codeBlock"  style="width: 50%">
             Data Discovery Config
             <div class="config">
                 <div class="txtField tbl">
-                    <label>Field1</label>
+                    <label>Resource/Table Field1</label>
                     <input name="column1" type="text" value="FirstName"><br />
                     <label>Value</label>            
                     <input name="value1" type="text" value="D*">                                
                 </div>                
                 <div class="txtField tbl">
-                    <label>Field2</label>
+                    <label>Resource/Table Field2</label>
                     <input name="column2" type="text" value="LastName"><br />
                     <label>Value</label>  
                     <input name="value2" type="text" value="M*">                                   
                 </div>         
+                <div class="txtField tbl">
+                    <label>Resource/Table Field3</label>
+                    <input name="column3" type="text" value="Email"><br />
+                    <label>Value</label>  
+                    <input name="value3" type="text" value="a@b.com">                                   
+                </div>   
+                <div class="config">
+                    <div class="txtField tbl">
+                        <label>Related Resource/Table Field1</label>
+                        <input name="column4" type="text" value="BillingCountry"><br />
+                        <label>Value</label>  
+                        <input name="value4" type="text" value="">                     
+                    </div>                  
+                </div>                
             </div>
+
             <br/>SQL Pass-Thru Config
             <div class="config">
                 <div class="txtField tbl">
                     <label>Query Name</label>
-                    <input name="query" type="text" value="add-new-customer">                              
+                    <input name="query" type="text" value="invoices-by-year">                              
                 </div>                
                 <div class="txtField tbl">
                     <label>Param1</label>
-                    <input name="param1" type="text" value="Year"><br />
+                    <input name="param1" type="text" value="year"><br />
                     <label>Value</label>  
-                    <input name="paramValue1" type="text" value="2000">                                   
+                    <input name="paramValue1" type="text" value="2012">                                   
                 </div>         
             </div>            
             </form> 
@@ -516,43 +619,45 @@
     </div>
 
     <div id="ddDesc" class="codeBlock">
-        Data Discovery methods
+        Data Discovery Demo - for all methods, see documentation
         <pre>
-        const sdbClient = new SlashDBClient('http://hostname:port', user, apiKey);
-        const db = new DataDiscoveryDatabase(sdbClient, databaseName);
-        const resource = new DataDiscoveryResource(db, resourceName);
+        const sdbClient = new SlashDBClient('http://hostname:port', user, apiKey);            // create a new SlashDB client
+        const db = new DataDiscoveryDatabase(sdbClient, databaseName);                        // configure client to use a database databaseName
+        const resource = new DataDiscoveryResource(db, resourceName);                         // select a resource resourceName in the database for transactions
 
-        let ddf1 = new DataDiscoveryFilter( <a href="#filters">eq(column1,value1)</a> ).cols(column1,column2); // returns column1,column2 of record set
-        let records = resource.get(ddf1);                                               // returns JSON data by default
-        records = resource.accept('csv').get(ddf1);                                     // set accept header (can be CSV, XML, JSON)
+        let ddf1 = new DataDiscoveryFilter( <a href="#filters">eq(column1,value1)</a> ).cols(column1,column2);      // returns column1,column2 of record set
+        let records = resource.get(ddf1);                                                    // returns JSON data by default
+        records = resource.accept('csv').get(ddf1);                                          // set accept header (can be CSV, XML, JSON)
 
         let ddf2 = new DataDiscoveryFilter( <a href="#filters">any(column1,value1,value2)</a> ).cols(column2).sort(column2);     // set to sort by column2
         records = resource.accept('json).get(ddf2);                                                       // set accept header back
 
         let ddf3 = new DataDiscoveryFilter( <a href="#filters">any(column1,value1,value2)</a> ).cols(column2).limit(2);          // set to return 2 records
-        records = resource.get(ddf3);                                                       
+        records = resource.get(ddf3);       
+        
+        let ddf4 = new DataDiscoveryFilter( <a href="#filters">any(column1,value1,value2)</a> ).join(relatedResource);          // retrieve records from relatedResource filtered by values in first resource
+        records = resource.get(ddf4);   
+        
+        let res = resource.post( {key1:value1...keyN:valueN} );           // create a new record in resource with key:value data values 
+
+        res = resource.put(ddf1, {key1: value1...keyN:valueN} );     // update all records in resource that match ddf1 filter with key:value data values
+
+        res = resource.delete(ddf1) ;                                // delete all records in resource that match ddf1 filter
         </pre>
-        <textarea id="ddTxt" style="height: 16rem" class="outTxt">Click Run Demo button...</textarea>
+        <textarea id="ddTxt" style="height: 30rem" class="outTxt">Click Run Demo button...</textarea>
     </div>  
 
-    <div id="ddDesc" class="codeBlock">
-        SQL Pass-Thru methods
+    <div id="sptDesc" class="codeBlock">
+        SQL Pass-Thru Demo - for all methods, see documentation
         <pre>
-        const sdbClient = new SlashDBClient('http://hostname:port', user, apiKey);
-        const db = new DataDiscoveryDatabase(sdbClient, databaseName);
-        const resource = new DataDiscoveryResource(db, resourceName);
+        const sdbClient = new SlashDBClient('http://hostname:port', user, apiKey);          // create a new SlashDB client
+        const sptQuery = new SQLPassThruQuery(queryName, sdbClient)                         // select a query queryName for transactions
 
-        let ddf1 = new DataDiscoveryFilter( <a href="#filters">eq(column1,value1)</a> ).cols(column1,column2); // returns column1,column2 of record set
-        let records = resource.get(ddf1);                                               // returns JSON data by default
-        records = resource.accept('csv').get(ddf1);                                     // set accept header (can be CSV, XML, JSON)
-
-        let ddf2 = new DataDiscoveryFilter( <a href="#filters">any(column1,value1,value2)</a> ).cols(column2).sort(column2);     // set to sort by column2
-        records = resource.accept('json).get(ddf2);                                                       // set accept header back
-
-        let ddf3 = new DataDiscoveryFilter( <a href="#filters">any(column1,value1,value2)</a> ).cols(column2).limit(2);          // set to return 2 records
-        records = resource.get(ddf3);                                                       
+        let sptf = new SQLPassThruFilter( {key : value} ) - set sptQuery parameters using key:value pairs
+        let records = sptQuery.get(sptf) - execute query using HTTP GET                     // returns JSON by default
+        records = sptQuery.accept('csv').get(sptf1)                                         // retrieve as CSV
         </pre>
-        <textarea id="ddTxt" style="height: 16rem" class="outTxt">Click Run Demo button...</textarea>
+        <textarea id="sptTxt" style="height: 8rem" class="outTxt">Click Run Demo button...</textarea>
     </div>  
 
 
@@ -577,7 +682,7 @@
         let dbReflectStatus = await sdbClient.getDbReflectStatus(database);     // leave parameter empty for all databases
         let queryDef = await sdbClient.getQueryDef(query);                      // leave parameter empty for all queries
         let sqlPassThruObjects = sdbClient.getQueries(database);                // leave parameter empty for queries in all databases
-        let unloadDB = sdbClient.unloadModel(database);
+        let unloadDB = sdbClient.unloadModel(database);                         // disabled in this demo so that it doesn't interfere with other operations
         let loadDB = sdbClient.loadModel(database);        
         </pre>
         <textarea id="apiTxt" style="height: 14rem" class="outTxt" spellcheck="false">Click Run Demo button...</textarea>
