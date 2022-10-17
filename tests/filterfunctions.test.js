@@ -171,7 +171,39 @@ describe('Composable functions unit tests', () => {
         result = between(validCol, undefined, strVal_2);
         expect(result).toBe(`${validCol}/..${strVal_2}`);
     
-    
+        // valid input 0, upper bound only - null lower bound
+        result = between(validCol, null, 0);
+        expect(result).toBe(`${validCol}/..0`);
+
+        // valid input 0, lower bound only - null upper bound
+        result = between(validCol, 0, null);
+        expect(result).toBe(`${validCol}/0..`);
+
+        // valid input 0, upper bound only - undefined lower bound
+        result = between(validCol, undefined, 0);
+        expect(result).toBe(`${validCol}/..0`);
+
+        // valid input -100, lower bound only - undefined upper bound
+        result = between(validCol, -100, undefined);
+        expect(result).toBe(`${validCol}/-100..`);        
+
+        // valid input -100, upper bound only - null lower bound
+        result = between(validCol, null, -100);
+        expect(result).toBe(`${validCol}/..-100`);
+
+        // valid input -100, lower bound only - null upper bound
+        result = between(validCol, -100, null);
+        expect(result).toBe(`${validCol}/-100..`);
+
+        // valid input -100, upper bound only - undefined lower bound
+        result = between(validCol, undefined, -100);
+        expect(result).toBe(`${validCol}/..-100`);
+
+        // valid input -100, lower bound only - undefined upper bound
+        result = between(validCol, -100, undefined);
+        expect(result).toBe(`${validCol}/-100..`);           
+
+        
         // ERROR TESTS
     
         // too few args
@@ -256,6 +288,12 @@ describe('Composable functions unit tests', () => {
         result = gte(validCol, intVal_1);
         expect(result).toBe(`${validCol}/${intVal_1}..`);
     
+        result = gte(validCol, 0);
+        expect(result).toBe(`${validCol}/0..`);
+
+        result = gte(validCol, -100);
+        expect(result).toBe(`${validCol}/-100..`);        
+
         // ERROR TESTS
     
         // too few args
@@ -320,6 +358,13 @@ describe('Composable functions unit tests', () => {
         result = lte(validCol, intVal_1);
         expect(result).toBe(`${validCol}/..${intVal_1}`);
     
+        result = lte(validCol, 0);
+        expect(result).toBe(`${validCol}/..0`);
+
+        result = lte(validCol, -100);
+        expect(result).toBe(`${validCol}/..-100`);        
+
+
         // ERROR TESTS
     
         // too few args

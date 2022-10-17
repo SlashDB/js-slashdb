@@ -146,12 +146,12 @@ function between(col, r1 = null, r2 = null) {
 	if (col.indexOf('/') !== -1) 														{ throw SyntaxError(SDB_FILTER_ERR_INVALID_COL_NAME); }	
 
 	// if both values are null/undefined - error
-	if ( (r1 || r2) == null) {
+	if ( (r1 === null || r1 === undefined) && (r2 === null || r2 === undefined) ) {
 		throw ReferenceError(SDB_FILTER_ERR_INVALID_RANGE); 
 	}
 	
 	// if both values are present but are of different types - error
-	if ( (r1 && r2) != null ) {
+	if ((r1 !== null && r1 !== undefined) && (r2 !== null && r2 !== undefined) ) {
 		if ( typeof(r1) !== typeof(r2) ) {
 			throw TypeError(SDB_FILTER_ERR_INVALID_COMPARE_TYPE); 
 		}
