@@ -139,7 +139,9 @@ class DataDiscoveryFilter extends BaseFilter {
 	* @returns {DataDiscoveryFilter} this object
 	*/ 		 	
 	stream(toggle = true) {
-		this.urlStringParams['stream']['value'] = toggle === true;
+		if (toggle === true || toggle === false) {
+			this.urlStringParams['stream']['value'] = toggle === true;
+		}
 		return this.build();
 	}
 
@@ -167,7 +169,9 @@ class DataDiscoveryFilter extends BaseFilter {
 	* @returns {DataDiscoveryFilter} this object
 	*/ 	
 	wantarray(toggle = true) {
-		this.urlStringParams['wantarray']['value'] = toggle === true;
+		if (toggle === true || toggle === false) {
+			this.urlStringParams['wantarray']['value'] = toggle === true;
+		}
 		return this.build();
 	}
 
@@ -177,7 +181,9 @@ class DataDiscoveryFilter extends BaseFilter {
 	* @returns {DataDiscoveryFilter} this object
 	*/ 	
 	csvHeader(toggle = true) {
-		this.urlStringParams['headers']['value'] = toggle === true;
+		if (toggle === true || toggle === false) {
+			this.urlStringParams['headers']['value'] = toggle === true;
+		}
 		return this.build();
 	}
 
@@ -187,7 +193,9 @@ class DataDiscoveryFilter extends BaseFilter {
 	* @returns {DataDiscoveryFilter} this object
 	*/	
 	csvNullStr(toggle = true) {
-		this.urlStringParams['csvNullStr']['value'] = toggle === true;
+		if (toggle === true || toggle === false) {
+			this.urlStringParams['csvNullStr']['value'] = toggle === true;
+		}
 		return this.build();
 	}
 
@@ -197,7 +205,9 @@ class DataDiscoveryFilter extends BaseFilter {
 	* @returns {DataDiscoveryFilter} this object
 	*/		
 	jsonHref(toggle = true) {
-		this.urlStringParams['href']['value'] = toggle === true;
+		if (toggle === true || toggle === false) {
+			this.urlStringParams['href']['value'] = toggle === true;
+		}
 		return this.build();
 	}	
 

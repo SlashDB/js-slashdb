@@ -593,7 +593,7 @@ describe('DataDiscoveryFilter class tests', () => {
         // remove jsonHref
         result.jsonHref(false);
         expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}?href=false`);
-        
+
         // should be ignored, keeping the value last set - only true/false allowed - only true/false allowed
         result.jsonHref(1);
         expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}?href=false`);

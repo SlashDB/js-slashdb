@@ -113,7 +113,9 @@ class BaseFilter {
 	* @returns this object
 	*/ 
 	distinct(toggle = true) {
-		this.urlStringParams['distinct']['value'] = toggle === true;
+		if (toggle === true || toggle === false) {
+			this.urlStringParams['distinct']['value'] = toggle === true;
+		}
 		return this.build();
 	}
 
@@ -157,7 +159,9 @@ class BaseFilter {
 	* @returns this object	
 	*/ 	
 	transpose(toggle = true) {
-		this.urlStringParams['transpose']['value'] = toggle === true;
+		if (toggle === true || toggle === false) {
+			this.urlStringParams['transpose']['value'] = toggle === true;
+		}
 		return this.build();
 	}
 

@@ -93,7 +93,9 @@ class SQLPassThruFilter extends BaseFilter {
 	* @returns {SQLPassThruFilter} this object	
 	*/ 		
 	count(toggle = true) {
-		this.urlStringParams['count']['value'] = toggle === true;
+		if (toggle === true || toggle === false) {
+			this.urlStringParams['count']['value'] = toggle === true;
+		}
 		return this.build();
 	}
 
