@@ -33,4 +33,4 @@ There is also a small demo application in this repository.  To use it _(assumes 
 
 Note that some of the demo features won't work properly if you're using https://demo.slashdb.com as the host.  You can [set up your own SlashDB instance using Docker](https://docs.slashdb.com/user-guide/getting-slashdb/docker/), or there's a [number of other platforms that are also supported](https://docs.slashdb.com/user-guide/getting-slashdb/).
 
-For more info about SlashDB, visit https://slashdb.com.  [You can read the application documentation here](https://docs.slashdb.com/user-guide/).
+For more info about SlashDB, visit https://slashdb.com.  You can [read the application documentation here](https://docs.slashdb.com/user-guide/).
