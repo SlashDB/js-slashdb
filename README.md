@@ -12,15 +12,15 @@ This repository contains JavaScript ES6 modules with classes and functions to cr
 
 A brief explanation of each module:
 
-* `slashdbclient.js` : contains a class for connecting to SlashDB and retrieving configuration information
-* `datadiscovery.js` : contains classes for making Data Discovery REST calls
-* `datadiscoveryfilter.js` : contains a class for creating Data Discovery URL endpoints, including all the Data Discovery options
-* `sqlpassthru.js` : contains a class for executing SQL Pass-Thru queries
-* `sqlpassthrufilter.js` : contains a class for creating SQL Pass-Thru URL endpoints, including all the SQL Pass-Thru options
-* `filterfunctions.js` : a set of functions to create SlashDB-compatible filters
-* `basefilter.js` : an underlying class used by other classes _(not necessary to import directly into your code)_
-* `baserequesthandler.js` : an underlying class used by other classes _(not necessary to import directly into your code)_
-* `fetchwrapper.js` : underlying functions for fetching data used by other modules _(not necessary to import directly into your code)_
+* `modules/slashdbclient.js` : contains a class for connecting to SlashDB and retrieving configuration information
+* `modules/datadiscovery.js` : contains classes for making Data Discovery REST calls
+* `modules/datadiscoveryfilter.js` : contains a class for creating Data Discovery URL endpoints, including all the Data Discovery options
+* `modules/sqlpassthru.js` : contains a class for executing SQL Pass-Thru queries
+* `modules/sqlpassthrufilter.js` : contains a class for creating SQL Pass-Thru URL endpoints, including all the SQL Pass-Thru options
+* `modules/filterfunctions.js` : a set of functions to create SlashDB-compatible filters
+* `modules/basefilter.js` : an underlying class used by other classes _(not necessary to import directly into your code)_
+* `modules/baserequesthandler.js` : an underlying class used by other classes _(not necessary to import directly into your code)_
+* `modules/fetchwrapper.js` : underlying functions for fetching data used by other modules _(not necessary to import directly into your code)_
 
 [Full documentation of the modules can be found here](https://github.com/SlashDB/slashdb-js/tree/main/jsdocs).  Clone this repo and open the jsdocs/index.html file to browse.
 
