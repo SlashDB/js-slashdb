@@ -168,7 +168,7 @@
         ddDemo();        
         sptDemo();            
         filterDemo();        
-        setTimeout ( sdbLoginDemo, 1000);   // delay this so the login process doesn't slow down the other functions
+        setTimeout ( sdbLoginDemo, 2000);   // delay this so the login process doesn't slow down the other functions
     }
 
     window.setVars = setVars;
@@ -581,15 +581,15 @@
                 </div>
                 <div class="txtField">
                     <label>Username</label>
-                    <input name="user" type="text" value="">
+                    <input name="user" type="text" value="sdk_demos">
                 </div>
                 <div class="txtField">
                     <label>Password</label>
-                    <input name="password" type="password" value="">
+                    <input name="password" type="password" value="YXSBSeprXHXv">
                 </div>                
                 <div class="txtField">
                     <label>API Key</label>
-                    <input name="apiKey" type="password" value="">
+                    <input name="apiKey" type="password" value="oqf12478exwewnzdyn0o3gec2nuyimw0">
                 </div>
             </div>
             <div class="config">
@@ -712,7 +712,8 @@
 
 
     <div id="clientDesc" class="codeBlock">
-        Create a SlashDBClient object and log in to SlashDB with username/password
+        Create a SlashDBClient object and log in to SlashDB with username/password <br />
+        <em style="font-size: 0.85rem">Requires a valid SlashDB username/password</em>
         <pre>
         const sdbClient = new SlashDBClient('http://hostname:port');
         let status = await sdbClient.login(username,password);
@@ -721,7 +722,8 @@
     </div>
 
     <div id="apiDesc" class="codeBlock">
-        SlashDBClient API methods
+        SlashDBClient API methods<br />
+        <em style="font-size: 0.85rem">Requires a valid SlashDB admin username/API key</em>        
         <pre>
         const sdbClient = new SlashDBClient('http://hostname:port', user, apiKey);
         let status = await sdbClient.isAuthenticated();
