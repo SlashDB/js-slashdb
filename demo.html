@@ -459,28 +459,33 @@
         console.log('SlashDBClient sdb1 logged in status:', await sdb1.isAuthenticated())
     
         // get some config info etc from the connected host
-        console.log('** sdb1 config --------------------------------------------------------------------------\n')
-        console.log('Settings --');
-        console.log(await sdb1.getSettings());
-        console.log('Version --');
-        console.log(await sdb1.getVersion());
-        console.log('Unload model taskdatadb --');
-        console.log(await sdb1.unloadModel('taskdatadb'));
-        console.log('Load model taskdatadb --');
-        console.log(await sdb1.loadModel('taskdatadb'));
-        console.log('User details for user taskapp -- ')
-        console.log(await sdb1.getUser('taskapp'));
-        console.log('Reflect Status for Chinook --');
-        console.log(await sdb1.getReflectStatus('Chinook'));
-        console.log('DB definition for Chinook --');
-        console.log(await sdb1.getDbDef('Chinook'));
-        console.log('Query definitions all --');
-        console.log(await sdb1.getQueryDef());
-        console.log('Query definition for add-new-customer --');
-        console.log(await sdb1.getQueryDef('add-new-customer'));
-        console.log('Queries packaged up -- ')
-        console.log(await sdb1.getQueries());
-        console.log('---------------------------------------------------------------------------------\n')
+        try {
+            console.log('** sdb1 config --------------------------------------------------------------------------\n')
+            console.log('Settings --');
+            console.log(await sdb1.getSettings());
+            console.log('Version --');
+            console.log(await sdb1.getVersion());
+            console.log('Unload model taskdatadb --');
+            console.log(await sdb1.unloadModel('taskdatadb'));
+            console.log('Load model taskdatadb --');
+            console.log(await sdb1.loadModel('taskdatadb'));
+            console.log('User details for user taskapp -- ')
+            console.log(await sdb1.getUser('taskapp'));
+            console.log('Reflect Status for Chinook --');
+            console.log(await sdb1.getReflectStatus('Chinook'));
+            console.log('DB definition for Chinook --');
+            console.log(await sdb1.getDbDef('Chinook'));
+            console.log('Query definitions all --');
+            console.log(await sdb1.getQueryDef());
+            console.log('Query definition for add-new-customer --');
+            console.log(await sdb1.getQueryDef('add-new-customer'));
+            console.log('Queries packaged up -- ')
+            console.log(await sdb1.getQueries());
+            console.log('---------------------------------------------------------------------------------\n')
+        }
+        catch(error) {
+            console.error(error);
+        }
 
     let q2 = new DataDiscoveryFilter()
         .addFilter(any('FirstName','J*,H*'))
