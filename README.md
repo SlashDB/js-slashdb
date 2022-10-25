@@ -53,6 +53,7 @@ const ddFilter = new DataDiscoveryFilter()                            // create 
                .cols('FirstName','LastName','Company');               // only return columns FirstName, LastName, Company
 
 const sptFilter = new SQLPassThruFilter( { 'mintotal': 10, 'maxtotal': 20 } )   // create a filter for SQL Pass-Thru with these query parameters set
+                .limit(3)                                                       // return only the first 3 results
                 .sort('CustomerId');                                            // sort results by column CustomerId
 
 let dd_results = await customerTable.get(ddFilter);                   // get the data from Customer table with the Data Discovery filter options applied (returns JSON)
@@ -75,9 +76,6 @@ There is small demo application in this repository.  To use it _(assumes you hav
 
 Note that administrative features of the demo will be limited if you're using https://demo.slashdb.com as the host.  You can [set up your own SlashDB instance using Docker](https://docs.slashdb.com/user-guide/getting-slashdb/docker/), or there's a [number of other platforms that are also supported](https://docs.slashdb.com/user-guide/getting-slashdb/) if you want to try all the features.
 
-<<<<<<< Updated upstream
 For more info about SlashDB, visit www.slashdb.com.  You can [read the application documentation here](https://docs.slashdb.com/user-guide/).
-=======
 
-For more info about SlashDB, visit https://slashdb.com.  You can [read the application documentation here](https://docs.slashdb.com/user-guide/).
->>>>>>> Stashed changes
+
