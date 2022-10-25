@@ -1,3 +1,5 @@
+import { asc, desc } from './basefilter.js';
+
 /* example use
 
 	// create a couple filter expressions
@@ -13,11 +15,11 @@
 		.join("Track")																			// join a related resource - last context
 		.sort("Name","UnitPrice")																// sort results by these columns
 		
-	qstring = q1.build(true)																	// retrieve the constructed query string
+	qstring = q1.str()																	// retrieve the constructed query string
 */
 
  	// output:
-	// FirstName/A*/Country/Brazil/City/Brasília|São Paulo/Invoice/InvoiceDate/2011-01-01../BillingCountry/Brazil/InvoiceLine/Track?sort=Name,UnitPrice&separator=|
+	// FirstName/A*/Country/Brazil/City/Brasília|São Paulo/Invoice/InvoiceDate/2011-01-01../BillingCountry/Brazil/InvoiceLine/Track?sort=Name,UnitPrice
 
 
 // *** expression builders - any/eq/between/gte/lte build expressions
@@ -303,6 +305,7 @@ function and(...colFilters) {
 
 export { eq, any, between, gte, lte, not, and }
 export { chgSeparator }
+export { asc, desc }
 export { SDB_SEPARATOR }
 
 // for testing only

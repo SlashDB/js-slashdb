@@ -69,9 +69,7 @@
     import { SQLPassThruQuery } from './modules/sqlpassthru.js';
     import { DataDiscoveryFilter } from './modules/datadiscoveryfilter.js';
     import { SQLPassThruFilter } from './modules/sqlpassthrufilter.js';
-    import { eq, any, between, gte, lte, not, and, chgSeparator } from './modules/filterfunctions.js';
-    import { asc, desc } from './modules/basefilter.js';
-
+    import { eq, any, between, gte, lte, not, and, chgSeparator, asc, desc } from './modules/filterfunctions.js';
 
     // make methods, modules, available to console for testing
     window.DataDiscoveryFilter = DataDiscoveryFilter
@@ -290,8 +288,8 @@
             outTxt += `${r}\n`; 
             document.querySelector('#ddTxt').innerHTML = outTxt;        
 
-            outTxt += `\n* ddf2 = new DataDiscoveryFilter( any('${column1}', '${value1}', '${value2}') ).cols('${column2}).sort('${column2}') - filter to retrieve '${column2}' of records sorted by '${column2}' where field '${column1}' matches either '${value1}' or '${value2}'\n`;        
-            let ddf2 = new DataDiscoveryFilter( any(column1,value1,value2)).cols(column2).sort(column2);
+            outTxt += `\n* ddf2 = new DataDiscoveryFilter( any('${column1}', '${value1}', '${value2}') ).cols('${column2}).sort(desc('${column2}')) - filter to retrieve '${column2}' of records sorted by '${column2}' descending where field '${column1}' matches either '${value1}' or '${value2}'\n`;        
+            let ddf2 = new DataDiscoveryFilter( any(column1,value1,value2)).cols(column2).sort(desc(column2));
             document.querySelector('#ddTxt').innerHTML = outTxt;                
             outTxt += `* ddResource.get(ddf2) - HTTP GET request with filter (JSON): `;
             r = JSON.stringify((await ddResource.accept('json').get(ddf2)).data).substr(0,80) + '...';    
@@ -684,7 +682,7 @@
         let records = resource.get(ddf1);                                                    // returns JSON data by default
         records = resource.accept('csv').get(ddf1);                                          // set accept header (can be CSV, XML, JSON)
 
-        let ddf2 = new DataDiscoveryFilter( <a href="#filters">any(column1,value1,value2)</a> ).cols(column2).sort(column2);     // set to sort by column2
+        let ddf2 = new DataDiscoveryFilter( <a href="#filters">any(column1,value1,value2)</a> ).cols(column2).sort(desc(column2));     // set to sort by column2 descending
         records = resource.accept('json).get(ddf2);                                                       // set accept header back
 
         let ddf3 = new DataDiscoveryFilter( <a href="#filters">any(column1,value1,value2)</a> ).cols(column2).limit(2);          // set to return 2 records
@@ -708,7 +706,7 @@
         const sdbClient = new SlashDBClient('http://hostname:port', user, apiKey);          // create a new SlashDB client
         const sptQuery = new SQLPassThruQuery(queryName, sdbClient)                         // select a query queryName for transactions
 
-        let sptf = new SQLPassThruFilter( {key : value} ) - set sptQuery parameters using key:value pairs
+        let sptf = new SQLPassThruFilter( {key : value} )                                   // set sptQuery parameters using key:value pairs
         let records = sptQuery.get(sptf) - execute query using HTTP GET                     // returns JSON by default
         records = sptQuery.accept('csv').get(sptf1)                                         // retrieve as CSV
         </pre>
