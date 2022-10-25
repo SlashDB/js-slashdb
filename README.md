@@ -10,8 +10,20 @@ This repository contains JavaScript ES6 modules with classes and functions to cr
      * all SQL Pass-Thru options, e.g. query parameters, sorting, stream, accept types, etc
  * **Functions for creating SlashDB-compatible filters**
 
-A brief explanation of each module:
 
+## Installation
+To install the SDK in your application's folder using Node:
+* Run `npm install @slashdb/js-sdk`
+
+You can import the following classes/functions into any JavaScript source file:
+* `import { SlashDBClient } from '@slashdb/js-sdk/modules/slashdbclient.js';`
+* `import { DataDiscoveryResource, DataDiscoveryDatabase } from '@slashdb/js-sdk/modules/datadiscovery.js';`
+* `import { DataDiscoveryFilter } from '@slashdb/js-sdk/modules/datadiscoveryfilter.js';`
+* `import { SQLPassThruQuery } from '@slashdb/js-sdk/modules/sqlpassthru.js';`
+* `import { SQLPassThruFilter } from '@slashdb/js-sdk/modules/sqlpassthrufilter.js';`
+* `import { eq, any, between, gte, lte, not, and, chgSeparator, asc, desc } from '@slashdb/js-sdk/filterfunctions.js';`
+
+A brief explanation of each module:
 * `modules/slashdbclient.js` : contains a class for connecting to SlashDB and retrieving configuration information
 * `modules/datadiscovery.js` : contains classes for making Data Discovery REST calls
 * `modules/datadiscoveryfilter.js` : contains a class for creating Data Discovery URL endpoints, including all the Data Discovery options
@@ -24,8 +36,38 @@ A brief explanation of each module:
 
 [Full documentation of the modules can be found here](https://github.com/SlashDB/slashdb-js/tree/main/jsdocs).  Clone this repo and open the jsdocs/index.html file to browse.
 
-There is also a small demo application in this repository.  To use it _(assumes you have Node installed, v17.5+ recommended)_ :
-* Clone this repository to your system
+
+## SDK Quick Start
+To get up and running with the SDK, here's a quick example:
+
+```
+const sdbClient = new SlashDBClient('https://demo.slashdb.com');      // create a SlashDB client to connect to a SlashDB instance
+const db = new DataDiscoveryDatabase(sdb1,'Chinook');                 // access the Chinook Database that is on the SlashDB instance
+const customerTable = new DataDiscoveryResource(db,'Customer');       // access the Customer table in the Chinook database
+const query = new SQLPassThruQuery('invoices-total-range',sdbClient); // access the invoices-total-range query that is on the SlashDB instance
+
+const ddFilter = new DataDiscoveryFilter()                            // create a filter for Data Discovery operations
+               .addFilter(any('FirstName','J*,H*'))                   // filter by column FirstName, starting with 'J' or 'H'
+               .addFilter(eq('Country','USA'))                        // filter by coumn Country, matches 'USA'
+               .sort('LastName',desc('FirstName'))                    // sort results by columns LastName, descending FirstName
+               .cols('FirstName','LastName','Company');               // only return columns FirstName, LastName, Company
+
+const sptFilter = new SQLPassThruFilter( { 'mintotal': 10, 'maxtotal': 20 } )   // create a filter for SQL Pass-Thru with these query parameters set
+                .sort('CustomerId');                                            // sort results by column CustomerId
+
+let dd_results = await customerTable.get(ddFilter);                   // get the data from Customer table with the Data Discovery filter options applied (returns JSON)
+let spt_results = await query.accept('csv').get(sptFilter);           // execute the invoices-by-year query with the SQL Pass-Thru filter options applied (returns CSV)
+```
+
+There's more examples in the demo application.
+
+All the [DataDiscovery/SQL Pass-Thru options in the documentation](https://docs.slashdb.com/user-guide/using-slashdb/) are supported.  The [SDK module documentation](https://github.com/SlashDB/slashdb-js/tree/main/jsdocs) lists all the methods available.  
+
+
+## Demo Application
+
+There is small demo application in this repository.  To use it _(assumes you have Node installed, v17.5+ recommended)_ :
+* Clone this repository to your system and open a shell in the repo folder 
 * Run `npm install`
 * Run `npm run localserver` _(starts an HTTP server on port 8080)_
 * Navigate in a browser to http://localhost:8080/demo.html
@@ -33,4 +75,9 @@ There is also a small demo application in this repository.  To use it _(assumes 
 
 Note that administrative features of the demo will be limited if you're using https://demo.slashdb.com as the host.  You can [set up your own SlashDB instance using Docker](https://docs.slashdb.com/user-guide/getting-slashdb/docker/), or there's a [number of other platforms that are also supported](https://docs.slashdb.com/user-guide/getting-slashdb/) if you want to try all the features.
 
+<<<<<<< Updated upstream
 For more info about SlashDB, visit www.slashdb.com.  You can [read the application documentation here](https://docs.slashdb.com/user-guide/).
+=======
+
+For more info about SlashDB, visit https://slashdb.com.  You can [read the application documentation here](https://docs.slashdb.com/user-guide/).
+>>>>>>> Stashed changes
