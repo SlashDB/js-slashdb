@@ -67,7 +67,7 @@ All the [DataDiscovery/SQL Pass-Thru options in the documentation](https://docs.
 
 ## Demo Application
 
-There is small demo application in this repository.  To use it _(assumes you have Node installed, v17.5+ recommended)_ :
+There is a small demo application in this repository.  To use it _(assumes you have Node installed, v17.5+ recommended)_ :
 * Clone this repository to your system and open a shell in the repo folder 
 * Run `npm install`
 * Run `npm run localserver` _(starts an HTTP server on port 8080)_
