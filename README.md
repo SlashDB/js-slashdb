@@ -28,7 +28,7 @@ There is also a small demo application in this repository.  To use it _(assumes 
 * Clone this repository to your system
 * Run `npm install`
 * Run `npm run localserver` _(starts an HTTP server on port 8080)_
-* Navigate in a browser to http://localhost/demo.html
+* Navigate in a browser to http://localhost:8080/demo.html
 * Open the developer console to see a few more details in the demo
 
 Note that some of the demo features won't work properly if you're using https://demo.slashdb.com as the host.  You can [set up your own SlashDB instance using Docker](https://docs.slashdb.com/user-guide/getting-slashdb/docker/), or there's a [number of other platforms that are also supported](https://docs.slashdb.com/user-guide/getting-slashdb/).
