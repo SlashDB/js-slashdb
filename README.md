@@ -1,4 +1,4 @@
-# slashdb-js
+# js-slashdb
 This repository contains JavaScript ES6 modules with classes and functions to create applications for SlashDB.  Use this SDK directly if you're building a JavaScript application that needs to interact with SlashDB.  If you're building a React application, you can use the [SlashDB React SDK](https://github.com/SlashDB/react-slashdb), which contains out-of-the-box hooks to build React-based applications with SlashDB.  For other frameworks or pure JavaScript solutions, this SDK provides the developer with tools to use the following [SlashDB features](https://www.slashdb.com/how-it-works/):
 
 * **SlashDB application configuration** _(partial; currently limited to R/O operations)_
@@ -13,15 +13,15 @@ This repository contains JavaScript ES6 modules with classes and functions to cr
 
 ## Installation
 To install the SDK in your application's folder using Node:
-* Run `npm install @slashdb/js-sdk`
+* Run `npm install @slashdb/js-slashdb`
 
 You can import the following classes/functions into any JavaScript source file:
-* `import { SlashDBClient } from '@slashdb/js-sdk/modules/slashdbclient.js';`
-* `import { DataDiscoveryResource, DataDiscoveryDatabase } from '@slashdb/js-sdk/modules/datadiscovery.js';`
-* `import { DataDiscoveryFilter } from '@slashdb/js-sdk/modules/datadiscoveryfilter.js';`
-* `import { SQLPassThruQuery } from '@slashdb/js-sdk/modules/sqlpassthru.js';`
-* `import { SQLPassThruFilter } from '@slashdb/js-sdk/modules/sqlpassthrufilter.js';`
-* `import { eq, any, between, gte, lte, not, and, chgSeparator, asc, desc } from '@slashdb/js-sdk/filterfunctions.js';`
+* `import { SlashDBClient } from '@slashdb/js-slashdb/modules/slashdbclient.js';`
+* `import { DataDiscoveryResource, DataDiscoveryDatabase } from '@slashdb/js-slashdb/modules/datadiscovery.js';`
+* `import { DataDiscoveryFilter } from '@slashdb/js-slashdb/modules/datadiscoveryfilter.js';`
+* `import { SQLPassThruQuery } from '@slashdb/js-slashdb/modules/sqlpassthru.js';`
+* `import { SQLPassThruFilter } from '@slashdb/js-slashdb/modules/sqlpassthrufilter.js';`
+* `import { eq, any, between, gte, lte, not, and, chgSeparator, asc, desc } from '@slashdb/js-slashdb/filterfunctions.js';`
 
 A brief explanation of each module:
 * `modules/slashdbclient.js` : contains a class for connecting to SlashDB and retrieving configuration information
