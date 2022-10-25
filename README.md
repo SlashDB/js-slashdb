@@ -48,7 +48,7 @@ const query = new SQLPassThruQuery('invoices-total-range',sdbClient); // access 
 
 const ddFilter = new DataDiscoveryFilter()                            // create a filter for Data Discovery operations
                .addFilter(any('FirstName','J*,H*'))                   // filter by column FirstName, starting with 'J' or 'H'
-               .addFilter(eq('Country','USA'))                        // filter by coumn Country, matches 'USA'
+               .addFilter(eq('Country','USA'))                        // filter by column Country, matches 'USA'
                .sort('LastName',desc('FirstName'))                    // sort results by columns LastName, descending FirstName
                .cols('FirstName','LastName','Company');               // only return columns FirstName, LastName, Company
 
