@@ -15,9 +15,9 @@
 To install the SDK in your application's folder using Node:
 * Run `npm install @slashdb/js-slashdb`
 
-When using `npm` to start your application, you can import all the classes/functions from the `index.js` file:  
+When using `npm` to start your application, you can import all the classes/functions from the repository package:  
 
-`import { SlashDBClient, DataDiscoveryDatabase, DataDiscoveryResource, DataDiscoveryFilter, SQLPassThruQuery, SQLPassThruFilter, eq, any, between, gte, lte, not, and,asc, desc, chgSeparator } from '@slashdb/js-slashdb/src/index.js';`
+`import { SlashDBClient, DataDiscoveryDatabase, DataDiscoveryResource, DataDiscoveryFilter, SQLPassThruQuery, SQLPassThruFilter, eq, any, between, gte, lte, not, and,asc, desc, chgSeparator } from '@slashdb/js-slashdb';`
 
 Or import them separately:
 * `import { SlashDBClient } from '@slashdb/js-slashdb/src/slashdbclient.js';`
