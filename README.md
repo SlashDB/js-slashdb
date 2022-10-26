@@ -87,8 +87,8 @@ Note that administrative features of the demo will be limited if you're using ht
 
 ## SlashDB - REST API to Databases for Reading & Writing
 
-For more info about SlashDB, visit https://www.slashdb.com. 
+For more info about SlashDB, visit [https://www.slashdb.com](https://www.slashdb.com). 
 
-The complete SlashDB documentation is available at https://docs.slashdb.com .
+The complete SlashDB documentation is available at [https://docs.slashdb.com](https://docs.slashdb.com).
 
 
