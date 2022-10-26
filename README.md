@@ -34,7 +34,7 @@ A brief explanation of each module:
 * `modules/baserequesthandler.js` : an underlying class used by other classes _(not necessary to import directly into your code)_
 * `modules/fetchwrapper.js` : underlying functions for fetching data used by other modules _(not necessary to import directly into your code)_
 
-[Full documentation of the modules can be found here](https://github.com/SlashDB/slashdb-js/tree/main/jsdocs).  Clone this repo and open the jsdocs/index.html file to browse.
+[Full documentation of the modules can be found here](https://slashdb.github.io/js-slashdb/docs).
 
 
 ## SDK Quick Start
