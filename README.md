@@ -15,7 +15,8 @@ This repository contains JavaScript ES6 modules with classes and functions to cr
 To install the SDK in your application's folder using Node:
 * Run `npm install @slashdb/js-slashdb`
 
-When using `npm`, to start your application, you can import all the classes/functions from the `index.js` file:
+When using `npm` to start your application, you can import all the classes/functions from the `index.js` file:  
+
 `import { SlashDBClient, DataDiscoveryDatabase, DataDiscoveryResource, DataDiscoveryFilter, SQLPassThruQuery, SQLPassThruFilter, eq, any, between, gte, lte, not, and,asc, desc, chgSeparator } from '@slashdb/js-slashdb/src/index.js';`
 
 Or import them separately:
@@ -26,7 +27,8 @@ Or import them separately:
 * `import { SQLPassThruFilter } from '@slashdb/js-slashdb/src/sqlpassthrufilter.js';`
 * `import { eq, any, between, gte, lte, not, and, chgSeparator, asc, desc } from '@slashdb/js-slashdb/src/filterfunctions.js';`
 
-If you aren't using `npm`, just reference the files in the `src` folder, e.g.:
+If you aren't using `npm`, just reference the files in the `src` folder, e.g.:  
+
 `import { SlashDBClient, DataDiscoveryDatabase, DataDiscoveryResource, DataDiscoveryFilter, SQLPassThruQuery, SQLPassThruFilter, eq, any, between, gte, lte, not, and,asc, desc, chgSeparator } from './src/index.js';`
 
 A brief explanation of each module:
@@ -85,8 +87,8 @@ Note that administrative features of the demo will be limited if you're using ht
 
 ## SlashDB - REST API to Databases for Reading & Writing
 
-For more info about SlashDB, visit www.slashdb.com. 
+For more info about SlashDB, visit https://www.slashdb.com. 
 
-The complete SlashDB documentation is available at https://docs.slashdb.com.
+The complete SlashDB documentation is available at https://docs.slashdb.com .
 
 
