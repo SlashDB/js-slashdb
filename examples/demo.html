@@ -64,12 +64,8 @@
 
     </style>
 <script type="module">
-    import { SlashDBClient } from './modules/slashdbclient.js';
-    import { DataDiscoveryResource, DataDiscoveryDatabase } from './modules/datadiscovery.js';
-    import { SQLPassThruQuery } from './modules/sqlpassthru.js';
-    import { DataDiscoveryFilter } from './modules/datadiscoveryfilter.js';
-    import { SQLPassThruFilter } from './modules/sqlpassthrufilter.js';
-    import { eq, any, between, gte, lte, not, and, chgSeparator, asc, desc } from './modules/filterfunctions.js';
+    import { SlashDBClient, DataDiscoveryDatabase, DataDiscoveryResource, DataDiscoveryFilter, SQLPassThruQuery, SQLPassThruFilter,
+             eq, any, between, gte, lte, not, and, asc, desc, chgSeparator } from '../src/index.js';
 
     // make methods, modules, available to console for testing
     window.DataDiscoveryFilter = DataDiscoveryFilter

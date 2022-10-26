@@ -1,6 +1,6 @@
-import { eq, any, between, gte, lte, not, and, chgSeparator } from '../modules/filterfunctions.js';
+import { eq, any, between, gte, lte, not, and, chgSeparator } from '../src/filterfunctions.js';
 import { SDB_FILTER_ERR_INVALID_COL_NAME, SDB_FILTER_ERR_INVALID_NUM_ARGS, SDB_FILTER_ERR_INVALID_TYPE, SDB_FILTER_ERR_INVALID_VALUE_EMPTY_STRING, 
-    SDB_FILTER_ERR_INVALID_VALUE_SLASH, SDB_FILTER_ERR_INVALID_COMPARE_TYPE, SDB_FILTER_ERR_INVALID_RANGE, SDB_FILTER_ERR_NO_COL_FOUND, SDB_SEPARATOR } from '../modules/filterfunctions.js'    
+    SDB_FILTER_ERR_INVALID_VALUE_SLASH, SDB_FILTER_ERR_INVALID_COMPARE_TYPE, SDB_FILTER_ERR_INVALID_RANGE, SDB_FILTER_ERR_NO_COL_FOUND, SDB_SEPARATOR } from '../src/filterfunctions.js'    
 
 
 beforeAll( () => {

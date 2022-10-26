@@ -1,11 +1,11 @@
-import { DataDiscoveryFilter } from '../modules/datadiscoveryfilter.js';
-import { eq, any, between, gte, lte, not, and, chgSeparator } from '../modules/filterfunctions.js';
+import { DataDiscoveryFilter } from '../src/datadiscoveryfilter.js';
+import { eq, any, between, gte, lte, not, and, chgSeparator } from '../src/filterfunctions.js';
 
 import { SDB_DDF_INVALID_RESOURCE, SDB_DDF_INVALID_FILTER,  SDB_DDF_INVALID_WILDCARD, SDB_DDF_INVALID_SEPARATOR,
-    SDB_DDF_DEPTH_TYPE, SDB_DDF_XSDCARD_TYPE } from '../modules/datadiscoveryfilter.js';
+    SDB_DDF_DEPTH_TYPE, SDB_DDF_XSDCARD_TYPE } from '../src/datadiscoveryfilter.js';
 
-import { desc, asc } from "../modules/basefilter.js";
-import { SDB_BF_INVALID_SORT_COL, SDB_BF_LIMIT_TYPE, SDB_BF_OFFSET_TYPE, } from "../modules/basefilter.js";
+import { desc, asc } from "../src/basefilter.js";
+import { SDB_BF_INVALID_SORT_COL, SDB_BF_LIMIT_TYPE, SDB_BF_OFFSET_TYPE, } from "../src/basefilter.js";
 
 
 

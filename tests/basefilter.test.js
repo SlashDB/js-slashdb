@@ -1,5 +1,5 @@
-import { BaseFilter, desc, asc } from "../modules/basefilter.js";
-import { SDB_BF_INVALID_SORT_COL, SDB_BF_LIMIT_TYPE, SDB_BF_OFFSET_TYPE, } from "../modules/basefilter.js";
+import { BaseFilter, desc, asc } from "../src/basefilter.js";
+import { SDB_BF_INVALID_SORT_COL, SDB_BF_LIMIT_TYPE, SDB_BF_OFFSET_TYPE, } from "../src/basefilter.js";
 
 beforeAll( () => {
 

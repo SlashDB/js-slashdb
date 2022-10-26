@@ -1,5 +1,5 @@
 import fetchMock from 'fetch-mock-jest';
-import { fetchWrapper } from '../modules/fetchwrapper.js';
+import { fetchWrapper } from '../src/fetchwrapper.js';
 
 const testIf = (condition, ...args) =>
   condition ? test(...args) : test.skip(...args);

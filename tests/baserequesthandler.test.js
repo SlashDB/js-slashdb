@@ -1,7 +1,7 @@
 import fetchMock from 'fetch-mock-jest';
-import { SlashDBClient } from '../modules/slashdbclient.js';
-import { fetchWrapper } from '../modules/fetchwrapper.js';
-import { BaseRequestHandler } from '../modules/baserequesthandler.js';
+import { SlashDBClient } from '../src/slashdbclient.js';
+import { fetchWrapper } from '../src/fetchwrapper.js';
+import { BaseRequestHandler } from '../src/baserequesthandler.js';
 
 const testIf = (condition, ...args) =>
   condition ? test(...args) : test.skip(...args);

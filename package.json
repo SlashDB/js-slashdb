@@ -1,11 +1,12 @@
 {
-  "name": "@slashdb/js-sdk",
+  "name": "@slashdb/js-slashdb",
   "version": "1.0.0",
   "description": "Vanilla Javascript SDK for SlashDB development",
-  "main": "slashdb_sdk.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "jest",
-    "localserver": "http-server -c-1 -p 8080"
+    "localserver": "http-server -c-1 -p 8080",
+    "builddocs": "cd node_modules/.bin/ && jsdoc ../../src ../../README.md -d ../../docs"
   },
   "author": "",
   "license": "MIT",
