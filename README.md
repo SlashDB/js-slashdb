@@ -17,7 +17,14 @@ To install the SDK in your application's folder using Node:
 
 When using `npm` to start your application, you can import all the classes/functions from the repository package:  
 
-`import { SlashDBClient, DataDiscoveryDatabase, DataDiscoveryResource, DataDiscoveryFilter, SQLPassThruQuery, SQLPassThruFilter, eq, any, between, gte, lte, not, and,asc, desc, chgSeparator } from '@slashdb/js-slashdb';`
+```js
+import { 
+  SlashDBClient, 
+  DataDiscoveryDatabase, DataDiscoveryResource, DataDiscoveryFilter, 
+  SQLPassThruQuery, SQLPassThruFilter, 
+  eq, any, between, gte, lte, not, and, asc, desc, chgSeparator
+} from '@slashdb/js-slashdb';
+```
 
 Or import them separately:
 * `import { SlashDBClient } from '@slashdb/js-slashdb/src/slashdbclient.js';`
@@ -29,7 +36,14 @@ Or import them separately:
 
 If you aren't using `npm`, just reference the files in the `src` folder, e.g.:  
 
-`import { SlashDBClient, DataDiscoveryDatabase, DataDiscoveryResource, DataDiscoveryFilter, SQLPassThruQuery, SQLPassThruFilter, eq, any, between, gte, lte, not, and,asc, desc, chgSeparator } from './src/index.js';`
+```js
+import { 
+  SlashDBClient, 
+  DataDiscoveryDatabase, DataDiscoveryResource, DataDiscoveryFilter, 
+  SQLPassThruQuery, SQLPassThruFilter, 
+  eq, any, between, gte, lte, not, and, asc, desc, chgSeparator 
+} from './src/index.js';
+```
 
 A brief explanation of each module:
 * `src/slashdbclient.js` : contains a class for connecting to SlashDB and retrieving configuration information
