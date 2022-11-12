@@ -79,7 +79,7 @@ const sptFilter = new SQLPassThruFilter( { 'mintotal': 10, 'maxtotal': 20 } )   
                 .sort('CustomerId');                                            // sort results by column CustomerId
 
 let dd_results = await customerTable.get(ddFilter);                   // get the data from Customer table with the Data Discovery filter options applied (returns JSON)
-let spt_results = await query.accept('csv').get(sptFilter);           // execute the invoices-by-year query with the SQL Pass-Thru filter options applied (returns CSV)
+let spt_results = await query.accept('csv').get(sptFilter);           // execute the invoices-total-range query with the SQL Pass-Thru filter options applied (returns CSV)
 ```
 
 There's more examples in the demo application.
