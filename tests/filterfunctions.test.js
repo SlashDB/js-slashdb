@@ -1,8 +1,8 @@
-import { eq, any, between, gte, lte, not, and, chgSeparator } from '../src/filterfunctions.js';
+import { eq, any, between, gte, lte, not, and, chgPlaceHolder } from '../src/filterfunctions.js';
 import { SDB_FILTER_ERR_INVALID_COL_NAME, SDB_FILTER_ERR_INVALID_NUM_ARGS, SDB_FILTER_ERR_INVALID_TYPE, 
     SDB_FILTER_ERR_INVALID_VALUE_EMPTY_STRING, SDB_FILTER_ERR_INVALID_VALUE_SLASH, SDB_FILTER_ERR_INVALID_COMPARE_TYPE, 
     SDB_FILTER_ERR_INVALID_RANGE, SDB_FILTER_ERR_NO_COL_FOUND, SDB_FILTER_ERR_INVALID_RANGE_VALUE_DOTS, 
-    SDB_FILTER_ERR_INVALID_NUM_ARRAY_ELEMENTS, SDB_SEPARATOR 
+    SDB_FILTER_ERR_INVALID_ARRAY_ARG, SDB_SEPARATOR 
 } from '../src/filterfunctions.js'    
 
 
@@ -212,27 +212,9 @@ describe('Composable functions unit tests', () => {
         result = between([1,5]);
         expect(result).toBe(`1..5`);           
 
-        result = between([1,5,6,10]);
-        expect(result).toBe(`1..5${SDB_SEPARATOR}6..10`);           
-
-        result = between([1,5,6,null]);
-        expect(result).toBe(`1..5${SDB_SEPARATOR}6..`);           
-
-        result = between([1,5,null,10]);
-        expect(result).toBe(`1..5${SDB_SEPARATOR}..10`);           
-
         // strings
         result = between(['a','c']);
         expect(result).toBe(`a..c`);           
-
-        result = between(['a','c','f','h']);
-        expect(result).toBe(`a..c${SDB_SEPARATOR}f..h`);           
-
-        result = between(['a','c','f',null]);
-        expect(result).toBe(`a..c${SDB_SEPARATOR}f..`);           
-
-        result = between(['a','c',null,'h']);
-        expect(result).toBe(`a..c${SDB_SEPARATOR}..h`);           
 
         // ERROR TESTS
     
@@ -243,7 +225,7 @@ describe('Composable functions unit tests', () => {
 
         expect(() => {
             between(validCol);
-        }).toThrowError(SDB_FILTER_ERR_INVALID_NUM_ARGS);
+        }).toThrowError(SDB_FILTER_ERR_INVALID_ARRAY_ARG);
     
     
         // valid inputs, but too many args
@@ -316,16 +298,16 @@ describe('Composable functions unit tests', () => {
         // empty array
         expect(() => {
             between([]);
-        }).toThrowError(SDB_FILTER_ERR_INVALID_NUM_ARRAY_ELEMENTS);
+        }).toThrowError(SDB_FILTER_ERR_INVALID_ARRAY_ARG);
 
-        // array non-even number of values
+        // array does not contain 2 values
         expect(() => {
             between([1]);
-        }).toThrowError(SDB_FILTER_ERR_INVALID_NUM_ARRAY_ELEMENTS);
+        }).toThrowError(SDB_FILTER_ERR_INVALID_ARRAY_ARG);
 
         expect(() => {
             between([1,2,3]);
-        }).toThrowError(SDB_FILTER_ERR_INVALID_NUM_ARRAY_ELEMENTS);
+        }).toThrowError(SDB_FILTER_ERR_INVALID_ARRAY_ARG);
 
         // array non-number/string types
         expect(() => {
@@ -339,28 +321,28 @@ describe('Composable functions unit tests', () => {
         
         expect(() => {
             between([1,'b',2,'c']);
-        }).toThrowError(SDB_FILTER_ERR_INVALID_COMPARE_TYPE);
+        }).toThrowError(SDB_FILTER_ERR_INVALID_ARRAY_ARG);
 
         // array invalid characters in values
         expect(() => {
-            between(['a',invalidVal_slash,'c','e']);
+            between(['a',invalidVal_slash]);
         }).toThrowError(SDB_FILTER_ERR_INVALID_VALUE_SLASH);
 
         expect(() => {
-            between(['a',invalidVal_dots,'c','e']);
+            between(['a',invalidVal_dots]);
         }).toThrowError(SDB_FILTER_ERR_INVALID_RANGE_VALUE_DOTS);
 
         // empty strings
         expect(() => {
-            between(['a','c',invalidVal_empty,'e']);
+            between([invalidVal_empty,'e']);
         }).toThrowError(SDB_FILTER_ERR_INVALID_VALUE_EMPTY_STRING);
 
         expect(() => {
-            between([1,2,null,null]);
+            between([null,null]);
         }).toThrowError(SDB_FILTER_ERR_INVALID_RANGE);
 
         expect(() => {
-            between([1,2,undefined, undefined]);
+            between([undefined, undefined]);
         }).toThrowError(SDB_FILTER_ERR_INVALID_RANGE);
 
     });

@@ -29,13 +29,13 @@ class DataDiscoveryFilter extends BaseFilter {
 		super(urlPlaceholder);
 
 		if (wildcard !== undefined) {
-			if (typeof(wildcard) !== 'string' || wildcard.indexOf('/') !== -1  || wildcard.trim().length < 1) {
+			if (typeof(wildcard) !== 'string' || wildcard.indexOf('/') > -1  || wildcard.trim().length < 1) {
 				throw TypeError(SDB_DDF_INVALID_WILDCARD);
 			}
 		}
 
 		if (separator !== undefined || separator !== null) {
-			if (typeof(separator) !== 'string' || separator.indexOf('/') !== -1  || separator.trim().length < 1) {
+			if (typeof(separator) !== 'string' || separator.indexOf('/') > -1  || separator.trim().length < 1) {
 				throw TypeError(SDB_DDF_INVALID_SEPARATOR);
 			}
 
@@ -119,11 +119,11 @@ class DataDiscoveryFilter extends BaseFilter {
 		if (typeof(resource) !== 'string' || resource.trim().length < 1) {
 			throw TypeError(SDB_DDF_INVALID_RESOURCE);
 		}
-		if (resource.indexOf('/') !== -1) {
+		if (resource.indexOf('/') > -1) {
 			throw SyntaxError(SDB_DDF_INVALID_RESOURCE);
 		}
 
-		if (!isNaN(parseInt(resource)) || resource.indexOf(' ') !== -1) {
+		if (!isNaN(parseInt(resource)) || resource.indexOf(' ') > -1) {
 			throw SyntaxError(SDB_DDF_INVALID_RESOURCE);
 		}
 

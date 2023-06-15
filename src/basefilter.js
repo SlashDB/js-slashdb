@@ -25,7 +25,7 @@ class BaseFilter {
 		};
 	
 		if (urlPlaceholder !== undefined) {
-			if (typeof(urlPlaceholder) !== 'string' || urlPlaceholder.indexOf('/') !== -1  || urlPlaceholder.trim().length < 1) {
+			if (typeof(urlPlaceholder) !== 'string' || urlPlaceholder.indexOf('/') > -1  || urlPlaceholder.trim().length < 1) {
 				throw TypeError(SDB_BF_INVALID_WILDCARD);
 			}
 		}
@@ -80,7 +80,7 @@ class BaseFilter {
 		if (typeof(col) !== 'string') {
 			throw TypeError(SDB_BF_INVALID_SORT_COL);
 		}
-		if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1) {
+		if (!isNaN(parseInt(col[0])) || col.indexOf(' ') > -1) {
 			throw SyntaxError(SDB_BF_INVALID_SORT_COL);
 		}
 
@@ -100,7 +100,7 @@ class BaseFilter {
 		if (typeof(col) !== 'string') {
 			throw TypeError(SDB_BF_INVALID_SORT_COL);
 		}
-		if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1) {
+		if (!isNaN(parseInt(col[0])) || col.indexOf(' ') > -1) {
 			throw SyntaxError(SDB_BF_INVALID_SORT_COL);
 		}
 
@@ -199,7 +199,7 @@ class BaseFilter {
 				if (typeof(col) !== 'string' || col.trim().length < 1) {
 					throw TypeError(SDB_BF_INVALID_SORT_COL);
 				}
-				if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1) {
+				if (!isNaN(parseInt(col[0])) || col.indexOf(' ') > -1) {
 					throw SyntaxError(SDB_BF_INVALID_SORT_COL);
 				}
 

@@ -59,11 +59,11 @@ class SQLPassThruFilter extends BaseFilter {
 				throw SyntaxError(SDB_SPTF_INVALID_PARAM_NAME);
 			}
 
-			if (typeof(key) !== 'string' || key.indexOf(' ') !== -1) {
+			if (typeof(key) !== 'string' || key.indexOf(' ') > -1) {
 				throw TypeError(SDB_SPTF_INVALID_PARAM_NAME);
 			}
 	
-			if (key.indexOf('/') !== -1) {
+			if (key.indexOf('/') > -1) {
 				throw TypeError(SDB_SPTF_INVALID_PARAM_NAME);
 			}
 
@@ -71,7 +71,7 @@ class SQLPassThruFilter extends BaseFilter {
 				throw TypeError(SDB_SPTF_INVALID_PARAM_VALUE);
 			}
 
-			if ( typeof(params[key]) === 'string' && params[key].indexOf('/') !== -1) {
+			if ( typeof(params[key]) === 'string' && params[key].indexOf('/') > -1) {
 				throw TypeError(SDB_SPTF_INVALID_PARAM_VALUE);
 			}
 

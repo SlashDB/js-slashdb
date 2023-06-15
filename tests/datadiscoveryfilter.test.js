@@ -1,5 +1,5 @@
 import { DataDiscoveryFilter } from '../src/datadiscoveryfilter.js';
-import { eq, any, between, gte, lte, not, and, chgSeparator } from '../src/filterfunctions.js';
+import { eq, any, between, gte, lte, not, and, chgPlaceHolder } from '../src/filterfunctions.js';
 
 import { SDB_DDF_INVALID_RESOURCE, SDB_DDF_INVALID_FILTER,  SDB_DDF_INVALID_WILDCARD, SDB_DDF_INVALID_SEPARATOR,
     SDB_DDF_DEPTH_TYPE, SDB_DDF_XSDCARD_TYPE } from '../src/datadiscoveryfilter.js';
@@ -671,7 +671,7 @@ describe('DataDiscoveryFilter class tests', () => {
     
     test('testing: DataDiscoveryFilter with composable functions', () => {
 
-        chgSeparator(',');
+        chgPlaceHolder(',');
         let f1 = any("columnA",1,2,3);
         let f2 = eq("columnB","Country");
         let f3 = not(gte("columnC",10));
@@ -684,7 +684,7 @@ describe('DataDiscoveryFilter class tests', () => {
         result = new DataDiscoveryFilter(f1);
         result.join("resource2").addFilter(f2).addFilter(f3).join("resource3").addFilter(f4).cols('col1','col2','col3');
         expect(result.endpoint).toBe(`/${expected}`);
-        chgSeparator();
+        chgPlaceHolder();
         
     });
 });

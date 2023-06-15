@@ -30,11 +30,11 @@ class SQLPassThruQuery extends BaseRequestHandler {
 		if (typeof(queryID) !== 'string' || queryID.trim().length < 1) {
 			throw TypeError(SDB_SPTQ_INVALID_QUERYNAME);
 		}
-		if (queryID.indexOf('/') !== -1) {
+		if (queryID.indexOf('/') > -1) {
 			throw SyntaxError(SDB_SPTQ_INVALID_QUERYNAME);
 		}
 
-		if (!isNaN(parseInt(queryID)) || queryID.indexOf(' ') !== -1) {
+		if (!isNaN(parseInt(queryID)) || queryID.indexOf(' ') > -1) {
 			throw SyntaxError(SDB_SPTQ_INVALID_QUERYNAME);
 		}
         
