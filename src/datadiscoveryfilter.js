@@ -200,7 +200,7 @@ class DataDiscoveryFilter extends BaseFilter {
 	}
 
 	/**
-	* Sets the href query string parameter; applies only to JSON formatted data
+	* Sets the href query string parameter; applies only to JSON/XML formatted data
 	* @param {boolean} [toggle] - sets the href query string parameter if not provided; removes the query string parameter if set to false.
 	* @returns {DataDiscoveryFilter} this object
 	*/		

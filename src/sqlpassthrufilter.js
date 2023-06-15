@@ -1,8 +1,9 @@
 import { BaseFilter } from "./basefilter.js";
+import { SDB_NULLSTR } from "./filterfunctions.js";
 
 const SDB_SPTF_INVALID_PARAM_FORMAT = 'Parameters must be given as an object of key/value pairs';
 const SDB_SPTF_INVALID_PARAM_NAME = "Parameter name must be a non-empty string, cannot contain '/' character";
-const SDB_SPTF_INVALID_PARAM_VALUE = "Parameter value must be a non-empty string or integer, cannot contain '/'";
+const SDB_SPTF_INVALID_PARAM_VALUE = "Parameter value must be a non-empty string, integer, or null, cannot contain '/'";
 const SDB_SPTF_INVALID_XMLTYPE = "Parameter must be a non-empty string";
 
 /** 
@@ -64,7 +65,11 @@ class SQLPassThruFilter extends BaseFilter {
 			}
 	
 			if (key.indexOf('/') > -1) {
-				throw TypeError(SDB_SPTF_INVALID_PARAM_NAME);
+				throw SyntaxError(SDB_SPTF_INVALID_PARAM_NAME);
+			}
+
+			if (params[key] === null) {
+				params[key] = SDB_NULLSTR;
 			}
 
 			if (typeof(params[key]) !== 'number' && (typeof(params[key]) !== 'string')) {
@@ -72,13 +77,20 @@ class SQLPassThruFilter extends BaseFilter {
 			}
 
 			if ( typeof(params[key]) === 'string' && params[key].indexOf('/') > -1) {
-				throw TypeError(SDB_SPTF_INVALID_PARAM_VALUE);
+				throw SyntaxError(SDB_SPTF_INVALID_PARAM_VALUE);
 			}
 
 			// handle empty string values
 			if (typeof(params[key]) === 'string' && params[key].trim() === '') {
 				params[key] = '/';
 			}
+
+			// update query parameter value if previously given
+			// TODO add tests for this
+			if (key in this.queryParams) {
+				this.pathString = this.pathString.replace(`/${key}/${this.queryParams[key]}`, '');
+			}
+
 			this.queryParams[key] = params[key];
 			this.pathString += `/${key}/${params[key]}`;
 			this.pathString = this.pathString.replace('///','//');		// if multiple empty string values are given, '///' can appear - remove the extra '/'

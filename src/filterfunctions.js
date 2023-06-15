@@ -27,34 +27,56 @@ import { asc, desc } from './basefilter.js';
 const SDB_FILTER_ERR_INVALID_COL_NAME = "Invalid column name parameter: must be non-empty string/cannot contain spaces/cannot begin with a number/cannot contain '/'";
 const SDB_FILTER_ERR_INVALID_NUM_ARGS = 'Invalid number of filter parameters';
 const SDB_FILTER_ERR_INVALID_TYPE = 'Invalid data type for value, must be string or number';
+const SDB_FILTER_ERR_INVALID_TYPE_NULL = 'Invalid data type for value, must be string, number, or null';
 const SDB_FILTER_ERR_INVALID_VALUE_EMPTY_STRING = 'String values cannot be empty';
 const SDB_FILTER_ERR_INVALID_VALUE_SLASH = "String values cannot contain '/' (use __ or set placeholder query parameter for values that contain '/') ";
 const SDB_FILTER_ERR_INVALID_COMPARE_TYPE ='Range value data types must match';
 const SDB_FILTER_ERR_INVALID_RANGE = 'Invalid range values';
 const SDB_FILTER_ERR_INVALID_RANGE_VALUE_DOTS = "Range values cannot contain '..'";
 const SDB_FILTER_ERR_NO_COL_FOUND = 'No column detected in parameter (string must contain at least one of: {col/}';
-const SDB_FILTER_ERR_INVALID_NUM_ARRAY_ELEMENTS = 'Array must contain pairs of ranges (e.g. [1,5,8,10], an even number of values)';
+const SDB_FILTER_ERR_INVALID_ARRAY_ARG = 'Single parameter must be an array of two string or numeric values (e.g. [1,5])';
 
-// the default delimiter for any(), between()
-let SDB_SEPARATOR = '|SDBSEP|';
+// default placeholder values - set below
+let SDB_SEPARATOR = '';
+let SDB_NULLSTR = '';
 
-// in the highly unlikely event a different separator token is needed
-function chgSeparator(value) {
-	if (value === undefined) {
-		SDB_SEPARATOR = '|SDBSEP|';
-		return;
+function chgPlaceHolder(placeHolder, value) {
+	
+	function setPlaceHolders(placeHolder, value) {
+		switch(placeHolder) {
+			case ',':
+				SDB_SEPARATOR = value === undefined ? '|SDBSEP|' : value;
+				return SDB_SEPARATOR;
+			case null:
+				SDB_NULLSTR = value === undefined ? '<null>' : value;
+				return SDB_NULLSTR;
+			default:
+				SDB_SEPARATOR = '|SDBSEP|';
+				SDB_NULLSTR = '<null>';
+				return [[',', SDB_SEPARATOR], [null, SDB_NULLSTR]];
+		}
+	}
+
+	if (arguments.length === 0) {
+		return setPlaceHolders();
+	}
+
+	if (arguments.length === 1) {
+		return setPlaceHolders(placeHolder);
 	}
 
 	if (typeof(value) !== 'string') {
-		throw TypeError('Separator must be a string') 
+		throw TypeError('Placeholder value must be a string') 
 	}
 	
-	if (!isNaN(parseInt(value[0])) || value.indexOf(' ') !== -1 || value.indexOf('/') !== -1) {
-		throw TypeError('Separator cannot contain spaces/slash') 
+	if (!isNaN(parseInt(value[0])) || value.indexOf(' ') > -1 || value.indexOf('/') > -1 || value.indexOf('..') > -1) {
+		throw SyntaxError("Placeholder value cannot contain spaces/slash or '..' sequences") 
 	}
 	
-	SDB_SEPARATOR = value;
-}
+	return setPlaceHolders(placeHolder, value);
+};
+chgPlaceHolder();	// set the default placeholder values on module load
+
 
 // sanity checks for column names
 function validateColumnName(col) {
@@ -62,15 +84,13 @@ function validateColumnName(col) {
 		throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME);
 	}
 	
-	if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1 || col.trim().length < 1) {
-		throw TypeError(SDB_FILTER_ERR_INVALID_COL_NAME);
-	}
-	
-	if (col.indexOf('/') !== -1) {								
+	if (!isNaN(parseInt(col[0])) || col.indexOf(' ') > -1 || col.trim().length < 1) {
 		throw SyntaxError(SDB_FILTER_ERR_INVALID_COL_NAME);
 	}
 	
-	return
+	if (col.indexOf('/') > -1) {								
+		throw SyntaxError(SDB_FILTER_ERR_INVALID_COL_NAME);
+	}
 }
 
 
@@ -89,11 +109,15 @@ function eq(col, value) {
 	}
 	validateColumnName(col);
 
-	if (typeof(value) !== 'number' && typeof(value) !== 'string') {
-		throw TypeError(SDB_FILTER_ERR_INVALID_TYPE); 
+	if (value === null) {
+		value = SDB_NULLSTR;
 	}
 
-	if (typeof(value) === 'string' && value.indexOf('/') !== -1) {
+	if (typeof(value) !== 'number' && typeof(value) !== 'string') {
+		throw TypeError(SDB_FILTER_ERR_INVALID_TYPE_NULL); 
+	}
+
+	if (typeof(value) === 'string' && value.indexOf('/') > -1) {
 		throw SyntaxError(SDB_FILTER_ERR_INVALID_VALUE_SLASH);
 	}	
 	
@@ -119,11 +143,15 @@ function any(col, ...values) {
 	let s = `${col}/`;
 	for (let [i, v] of values.entries()) {
 		
+		if (v === null) {
+			v = SDB_NULLSTR;
+		}
+
 		if (typeof(v) !== 'number' && typeof(v) !== 'string') {
-			throw TypeError(SDB_FILTER_ERR_INVALID_TYPE + ` (parameter ${i+2})`);
+			throw TypeError(SDB_FILTER_ERR_INVALID_TYPE_NULL + ` (parameter ${i+2})`);
 		}		
 
-		if (typeof(v) === 'string' && v.indexOf('/') !== -1) {
+		if (typeof(v) === 'string' && v.indexOf('/') > -1) {
 			throw SyntaxError(SDB_FILTER_ERR_INVALID_VALUE_SLASH);
 		}	
 			
@@ -133,9 +161,9 @@ function any(col, ...values) {
 		// }
 			
 		else {
-			// if (typeof(v) === 'string') {
-				// v = v.replaceAll(',' , '%2C');
-			// }
+			if (typeof(v) === 'string') {
+				v = v.replaceAll(',' , '%2C');
+			}
 
 			s += `${v}${SDB_SEPARATOR}`
 		}
@@ -160,18 +188,18 @@ function any(col, ...values) {
 *
 * eg: 
 * between("CustomerId",1,10) - returns range string with column name
-* between([4,8,10,12]) - returns string w/o column name with multiple ranges separated by separtor
+* between([4,8]) - returns range string w/o column name
 *
-* @param {string} arg1 - name of column to apply filter to, or array of values
-* @param {string | number | null} r1 - lower bound value of the range
-* @param {string | number | null} r2 - upper bound value of the range
-* @returns {string} constructed URL segment for filtering the given column, or range string separated by separator
+* @param {string} arg1 - name of column to apply filter to, or array with lower bound and upper bound
+* @param {string | number | null} lb - lower bound value of the range
+* @param {string | number | null} ub - upper bound value of the range
+* @returns {string} constructed URL segment for filtering the given column, or range string
 */
-function between(arg1, r1 = null, r2 = null) {
+function between(arg1, lb = null, ub = null) {
 
+	const nullValues = [null,undefined];
 	let hasColumnName = false;
-	let rangeValues = [];
-	let s = '';
+	let v = [];
 
 	if (arguments.length < 1 || arguments.length > 3 ) { 
 		throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS);
@@ -179,89 +207,64 @@ function between(arg1, r1 = null, r2 = null) {
 	
 	if (arguments.length == 1) {
 		if (! Array.isArray(arg1)) {
-			throw SyntaxError(SDB_FILTER_ERR_INVALID_NUM_ARGS);
+			throw TypeError(SDB_FILTER_ERR_INVALID_ARRAY_ARG);
 		}
-		rangeValues = arg1;
 
-		if (rangeValues.length % 2 !== 0 || rangeValues.length === 0) {
-			throw RangeError(SDB_FILTER_ERR_INVALID_NUM_ARRAY_ELEMENTS);
+		if (arg1.length !== 2) {
+			throw RangeError(SDB_FILTER_ERR_INVALID_ARRAY_ARG);
 		}
+
+		v = arg1;
 	}
 
-	// when 2+ args are present, arg1 is column name, validate
 	else if (arguments.length >= 2) {
 		validateColumnName(arg1);
 		hasColumnName = true;
-		rangeValues = [r1, r2];
+		v = [lb, ub];
 	}
 
-	// group values in the rangeValue array into array of pairs
-	rangeValues = rangeValues.reduce( (result, value, i, array) => {
-		if (i % 2 === 0) {
-			result.push(array.slice(i, i+2));
-		}
-		return result;
-	}, []);
 
-	for (let [v1,v2] of rangeValues)
+	// if both values are null/undefined - error
+	if ( nullValues.includes(v[0]) && nullValues.includes(v[1]) ) {
+		throw ReferenceError(SDB_FILTER_ERR_INVALID_RANGE); 
+	}
+	
+	// if both values are present but are of different types - error
+	if ( !nullValues.includes(v[0]) && !nullValues.includes(v[1]) ) {
+		if ( typeof(v[0]) !== typeof(v[1]) ) {
+			throw TypeError(SDB_FILTER_ERR_INVALID_COMPARE_TYPE); 
+		}
+	}
+	
+	const ranges = []
+	for (let value of v)
 	{
-		// if both values are null/undefined - error
-		if ( (v1 === null || v1 === undefined) && (v2 === null || v2 === undefined) ) {
-			throw ReferenceError(SDB_FILTER_ERR_INVALID_RANGE); 
-		}
-		
-		// if both values are present but are of different types - error
-		if ((v1 !== null && v1 !== undefined) && (v2 !== null && v2 !== undefined) ) {
-			if ( typeof(v1) !== typeof(v2) ) {
-				throw TypeError(SDB_FILTER_ERR_INVALID_COMPARE_TYPE); 
-			}
-		}
-		
 		// if either value is an empty string - error
-		if ( (typeof(v1) === 'string' && v1.trim().length < 1) || (typeof(v2) === 'string' && v2.trim().length < 1) ) {
-			throw TypeError(SDB_FILTER_ERR_INVALID_VALUE_EMPTY_STRING); 
+		if (typeof(value) === 'string' && value.trim().length < 1) {
+			throw SyntaxError(SDB_FILTER_ERR_INVALID_VALUE_EMPTY_STRING); 
 		}
 
-		// if values contain '/' - error
-		if (typeof(v1) === 'string' && v1.indexOf('/') !== -1 || typeof(v2) === 'string' && v2.indexOf('/') !== -1) {
+		// if either value contains '/' - error
+		if (typeof(value) === 'string' && value.indexOf('/') > -1) {
 			throw SyntaxError(SDB_FILTER_ERR_INVALID_VALUE_SLASH);
 		}	
 
-		// if values contain .. - error
-		if (typeof(v1) === 'string' && v1.indexOf('..') !== -1 || typeof(v2) === 'string' && v2.indexOf('..') !== -1) {
+		// if either value contains .. - error
+		if (typeof(value) === 'string' && value.indexOf('..') > -1) {
 			throw SyntaxError(SDB_FILTER_ERR_INVALID_RANGE_VALUE_DOTS);
 		}
 
-		// null values are acceptable as inputs for range values, just need to be converted to empty strings
-		v1 = v1 == null ? '' : v1;
-		v2 = v2 == null ? '' : v2;
+		value = nullValues.includes(value) ? '' : value;
 
-		// now check that each range value, if defined, are valid data types for ranges - note that the only strings
-		// that can actually be used are date strings
-		if (typeof(v1) !== 'number' && typeof(v1) !== 'string') { 
+		if (typeof(value) !== 'number' && typeof(value) !== 'string') { 
 			throw TypeError(SDB_FILTER_ERR_INVALID_TYPE); 
-		}	
-		
-		if (typeof(v2) !== 'number' && typeof(v2) !== 'string') { 
-			throw TypeError(SDB_FILTER_ERR_INVALID_TYPE); 
-		}	
-
-		// when column name is present, there will only be one pair of values
-		if (hasColumnName) {
-			s = `${arg1}/${v1}..${v2}`;
-			break;
 		}
 
-		else {
-			s += `${v1}..${v2}${SDB_SEPARATOR}`;
-		}
+		ranges.push(value);
 	}
-	if (hasColumnName) {
-		return s;
-	}
-	
-	return s.slice(0, (0 - SDB_SEPARATOR.length) )
-	
+
+	[lb, ub] = ranges;
+	return hasColumnName ? `${arg1}/${lb}..${ub}` : `${lb}..${ub}`
 }
 
 /**
@@ -327,8 +330,13 @@ function lte(arg1, ub) {
 * @returns {string} negated version of URL segment for filtering the given column(s)
 */
 function not(colFilter) { 
-	if (arguments.length !== 1)											{ throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS) }
-	if (typeof(colFilter) !== 'string' || colFilter.trim().length < 1) 	{ throw TypeError(SDB_FILTER_ERR_INVALID_TYPE) }
+	if (arguments.length !== 1)	{ 
+		throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS);
+	}
+
+	if (typeof(colFilter) !== 'string' || colFilter.trim().length < 1) {
+		throw TypeError(SDB_FILTER_ERR_INVALID_TYPE);
+	}
 	
 	if (colFilter.indexOf('/') === -1) {
 		throw SyntaxError(SDB_FILTER_ERR_NO_COL_FOUND);
@@ -348,7 +356,9 @@ function not(colFilter) {
 */
 function and(...colFilters) {
 
-	if (colFilters.length === 0) { throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS) }
+	if (colFilters.length === 0) {
+		throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS);
+	}
 
 	let s = '';
 	for (const [i,v] of colFilters.entries()) {
@@ -371,11 +381,11 @@ function and(...colFilters) {
 }
 
 export { eq, any, between, gte, lte, not, and }
-export { chgSeparator }
+export { chgPlaceHolder }
 export { asc, desc }
-export { SDB_SEPARATOR }
+export { SDB_SEPARATOR, SDB_NULLSTR }
 
 // for testing only
 export { SDB_FILTER_ERR_INVALID_COL_NAME, SDB_FILTER_ERR_INVALID_NUM_ARGS, SDB_FILTER_ERR_INVALID_TYPE, SDB_FILTER_ERR_INVALID_VALUE_EMPTY_STRING, 
     SDB_FILTER_ERR_INVALID_VALUE_SLASH, SDB_FILTER_ERR_INVALID_COMPARE_TYPE, SDB_FILTER_ERR_INVALID_RANGE, SDB_FILTER_ERR_NO_COL_FOUND, 
-	SDB_FILTER_ERR_INVALID_NUM_ARRAY_ELEMENTS, SDB_FILTER_ERR_INVALID_RANGE_VALUE_DOTS }
+	SDB_FILTER_ERR_INVALID_ARRAY_ARG, SDB_FILTER_ERR_INVALID_RANGE_VALUE_DOTS, SDB_FILTER_ERR_INVALID_TYPE_NULL }
