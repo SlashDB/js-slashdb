@@ -2,6 +2,7 @@ const SDB_BF_INVALID_SORT_COL = 'Column must be a non-empty string/cannot contai
 const SDB_BF_LIMIT_TYPE = 'Limit row number must be a positive integer value';
 const SDB_BF_OFFSET_TYPE = 'Offset row number must be a positive integer value';
 const SDB_BF_INVALID_WILDCARD = 'URL string placeholder must be a string, cannot contain slash (/)';
+const SDB_BF_INVALID_NULLSTR = 'NULL string placeholder must be a string, cannot contain slash (/)'
 
 /** 
  * Filter class for creating SlashDB-compatible URL strings.  Base class for DataDiscoveryFilter and SQLPassThruFilter classes.
@@ -22,6 +23,7 @@ class BaseFilter {
 			offset: { default: undefined, value: undefined },
 			transpose : { default: false, value: false },
 			nil_visible: { default: false, value: false },
+			nullStr: { default: '<null>', value: '<null>' }
 		};
 	
 		if (urlPlaceholder !== undefined) {
@@ -154,6 +156,22 @@ class BaseFilter {
 	}
 
 	/**
+	* Sets the nullStr query string parameter
+	* @param {string} [nullString] - sets the nullStr query string parameter with the value provided, resets to default if not given
+	* @returns this object	
+	* @throws {TypeError} if value provided is not a valid string
+	*/ 		
+	nullStr(nullString) {
+		if (arguments.length > 0) {
+			if ( typeof(nullString) !== 'string' || nullString.indexOf('/') > -1 ) {
+					throw TypeError(SDB_BF_INVALID_NULLSTR);
+				}
+		}
+		this.urlStringParams['nullStr']['value'] = arguments.length > 0 ? nullString : this.urlStringParams['nullStr']['default'];
+		return this.build();
+	}
+
+	/**
 	* Sets the transpose query string parameter
 	* @param {boolean} [toggle] - sets the transpose query string parameter if not provided; removes the query string parameter if set to false
 	* @returns this object	
@@ -250,4 +268,4 @@ const desc = BaseFilter.prototype._sort_desc;
 const asc = BaseFilter.prototype._sort_asc;
 
 export { BaseFilter, desc, asc }
-export { SDB_BF_INVALID_SORT_COL, SDB_BF_LIMIT_TYPE, SDB_BF_OFFSET_TYPE }
+export { SDB_BF_INVALID_SORT_COL, SDB_BF_LIMIT_TYPE, SDB_BF_OFFSET_TYPE, SDB_BF_INVALID_NULLSTR }
