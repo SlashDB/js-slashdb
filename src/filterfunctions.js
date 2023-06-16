@@ -28,7 +28,6 @@ const SDB_FILTER_ERR_INVALID_COL_NAME = "Invalid column name parameter: must be 
 const SDB_FILTER_ERR_INVALID_NUM_ARGS = 'Invalid number of filter parameters';
 const SDB_FILTER_ERR_INVALID_TYPE = 'Invalid data type for value, must be string or number';
 const SDB_FILTER_ERR_INVALID_TYPE_NULL = 'Invalid data type for value, must be string, number, or null';
-const SDB_FILTER_ERR_INVALID_TYPE_NULL = 'Invalid data type for value, must be string, number, or null';
 const SDB_FILTER_ERR_INVALID_VALUE_EMPTY_STRING = 'String values cannot be empty';
 const SDB_FILTER_ERR_INVALID_VALUE_SLASH = "String values cannot contain '/' (use __ or set placeholder query parameter for values that contain '/') ";
 const SDB_FILTER_ERR_INVALID_COMPARE_TYPE ='Range value data types must match';
@@ -90,11 +89,8 @@ function chgPlaceHolder(placeHolder, value) {
 
 	if (typeof(value) !== 'string') {
 		throw TypeError('Placeholder value must be a string') 
-		throw TypeError('Placeholder value must be a string') 
 	}
 	
-	if (!isNaN(parseInt(value[0])) || value.indexOf(' ') > -1 || value.indexOf('/') > -1 || value.indexOf('..') > -1) {
-		throw SyntaxError("Placeholder value cannot contain spaces/slash or '..' sequences") 
 	if (!isNaN(parseInt(value[0])) || value.indexOf(' ') > -1 || value.indexOf('/') > -1 || value.indexOf('..') > -1) {
 		throw SyntaxError("Placeholder value cannot contain spaces/slash or '..' sequences") 
 	}
@@ -112,11 +108,8 @@ function validateColumnName(col) {
 	
 	if (!isNaN(parseInt(col[0])) || col.indexOf(' ') > -1 || col.trim().length < 1) {
 		throw SyntaxError(SDB_FILTER_ERR_INVALID_COL_NAME);
-	if (!isNaN(parseInt(col[0])) || col.indexOf(' ') > -1 || col.trim().length < 1) {
-		throw SyntaxError(SDB_FILTER_ERR_INVALID_COL_NAME);
 	}
 	
-	if (col.indexOf('/') > -1) {								
 	if (col.indexOf('/') > -1) {								
 		throw SyntaxError(SDB_FILTER_ERR_INVALID_COL_NAME);
 	}
@@ -137,10 +130,6 @@ function eq(col, value) {
 		throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS);
 	}
 	validateColumnName(col);
-
-	if (value === null) {
-		value = SDB_NULLSTR;
-	}
 
 	if (value === null) {
 		value = SDB_NULLSTR;
@@ -180,17 +169,10 @@ function any(col, ...values) {
 			v = SDB_NULLSTR;
 		}
 
-		
-		if (v === null) {
-			v = SDB_NULLSTR;
-		}
-
 		if (typeof(v) !== 'number' && typeof(v) !== 'string') {
-			throw TypeError(SDB_FILTER_ERR_INVALID_TYPE_NULL + ` (parameter ${i+2})`);
 			throw TypeError(SDB_FILTER_ERR_INVALID_TYPE_NULL + ` (parameter ${i+2})`);
 		}		
 
-		if (typeof(v) === 'string' && v.indexOf('/') > -1) {
 		if (typeof(v) === 'string' && v.indexOf('/') > -1) {
 			throw SyntaxError(SDB_FILTER_ERR_INVALID_VALUE_SLASH);
 		}	
@@ -232,15 +214,13 @@ function any(col, ...values) {
 * between("CustomerId",1,10) - returns range string with column name
 * between(4,8) - returns range string w/o column name
 *
-* @param {string} arg1 - name of column to apply filter to,or lower bound
+* @param {string} arg1 - name of column to apply filter to, or lower bound
 * @param {string | number | null} lb - lower bound value of the range, or upper bound
 * @param {string | number | null} ub - upper bound value of the range
 * @returns {string} constructed URL segment for filtering the given column, or range string
 */
 function between(arg1, lb = null, ub = null) {
-function between(arg1, lb = null, ub = null) {
 
-	const nullValues = [null,undefined];
 	const nullValues = [null,undefined];
 	let hasColumnName = false;
 
@@ -277,12 +257,8 @@ function between(arg1, lb = null, ub = null) {
 		// if either value is an empty string - error
 		if (typeof(value) === 'string' && value.trim().length < 1) {
 			throw SyntaxError(SDB_FILTER_ERR_INVALID_VALUE_EMPTY_STRING); 
-		if (typeof(value) === 'string' && value.trim().length < 1) {
-			throw SyntaxError(SDB_FILTER_ERR_INVALID_VALUE_EMPTY_STRING); 
 		}
 
-		// if either value contains '/' - error
-		if (typeof(value) === 'string' && value.indexOf('/') > -1) {
 		// if either value contains '/' - error
 		if (typeof(value) === 'string' && value.indexOf('/') > -1) {
 			throw SyntaxError(SDB_FILTER_ERR_INVALID_VALUE_SLASH);
@@ -290,27 +266,17 @@ function between(arg1, lb = null, ub = null) {
 
 		// if either value contains .. - error
 		if (typeof(value) === 'string' && value.indexOf('..') > -1) {
-		// if either value contains .. - error
-		if (typeof(value) === 'string' && value.indexOf('..') > -1) {
 			throw SyntaxError(SDB_FILTER_ERR_INVALID_RANGE_VALUE_DOTS);
 		}
 
 		value = nullValues.includes(value) ? '' : value;
-		value = nullValues.includes(value) ? '' : value;
 
-		if (typeof(value) !== 'number' && typeof(value) !== 'string') { 
 		if (typeof(value) !== 'number' && typeof(value) !== 'string') { 
 			throw TypeError(SDB_FILTER_ERR_INVALID_TYPE); 
 		}
 
 		ranges.push(value);
-		}
-
-		ranges.push(value);
 	}
-
-	[lb, ub] = ranges;
-	return hasColumnName ? `${arg1}/${lb}..${ub}` : `${lb}..${ub}`
 
 	[lb, ub] = ranges;
 	return hasColumnName ? `${arg1}/${lb}..${ub}` : `${lb}..${ub}`
@@ -386,13 +352,6 @@ function not(colFilter) {
 	if (typeof(colFilter) !== 'string' || colFilter.trim().length < 1) {
 		throw TypeError(SDB_FILTER_ERR_INVALID_TYPE);
 	}
-	if (arguments.length !== 1)	{ 
-		throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS);
-	}
-
-	if (typeof(colFilter) !== 'string' || colFilter.trim().length < 1) {
-		throw TypeError(SDB_FILTER_ERR_INVALID_TYPE);
-	}
 	
 	if (colFilter.indexOf('/') === -1) {
 		throw SyntaxError(SDB_FILTER_ERR_NO_COL_FOUND);
@@ -412,9 +371,6 @@ function not(colFilter) {
 */
 function and(...colFilters) {
 
-	if (colFilters.length === 0) {
-		throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS);
-	}
 	if (colFilters.length === 0) {
 		throw ReferenceError(SDB_FILTER_ERR_INVALID_NUM_ARGS);
 	}
