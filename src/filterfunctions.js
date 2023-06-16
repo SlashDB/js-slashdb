@@ -24,7 +24,7 @@ import { asc, desc } from './basefilter.js';
 
 // *** expression builders - any/eq/between/gte/lte build expressions
 
-const SDB_FILTER_ERR_INVALID_COL_NAME = "Invalid column name parameter: must be non-empty string/cannot contain spaces/cannot begin with a number/cannot contain '/'";
+const SDB_FILTER_ERR_INVALID_COL_NAME = "Invalid column name parameter: must be non-empty string; cannot contain spaces; cannot begin with a number; cannot contain '/'; cannot contain '..'";
 const SDB_FILTER_ERR_INVALID_NUM_ARGS = 'Invalid number of filter parameters';
 const SDB_FILTER_ERR_INVALID_TYPE = 'Invalid data type for value, must be string or number';
 const SDB_FILTER_ERR_INVALID_TYPE_NULL = 'Invalid data type for value, must be string, number, or null';
@@ -113,6 +113,11 @@ function validateColumnName(col) {
 	if (col.indexOf('/') > -1) {								
 		throw SyntaxError(SDB_FILTER_ERR_INVALID_COL_NAME);
 	}
+
+	if (col.indexOf('..') > -1) {
+		throw SyntaxError(SDB_FILTER_ERR_INVALID_COL_NAME);
+	}
+
 }
 
 
@@ -141,7 +146,7 @@ function eq(col, value) {
 
 	if (typeof(value) === 'string' && value.indexOf('/') > -1) {
 		throw SyntaxError(SDB_FILTER_ERR_INVALID_VALUE_SLASH);
-	}	
+	}
 	
 	return any(col, value);
 }
@@ -174,8 +179,8 @@ function any(col, ...values) {
 		}		
 
 		if (typeof(v) === 'string' && v.indexOf('/') > -1) {
-			throw SyntaxError(SDB_FILTER_ERR_INVALID_VALUE_SLASH);
-		}	
+			throw SyntaxError(SDB_FILTER_ERR_INVALID_VALUE_SLASH + ` (parameter ${i+2})`);
+		}
 			
 		/** uncomment to disable empty strings for values **/
 		// if (typeof(v) === 'string' && v.trim().length === 0) {
