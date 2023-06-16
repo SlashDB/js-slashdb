@@ -1,3 +1,5 @@
+import { SDB_NULLSTR } from "./filterfunctions.js";
+
 const SDB_BF_INVALID_SORT_COL = 'Column must be a non-empty string/cannot contain spaces/cannot begin with a number';
 const SDB_BF_LIMIT_TYPE = 'Limit row number must be a positive integer value';
 const SDB_BF_OFFSET_TYPE = 'Offset row number must be a positive integer value';
@@ -23,7 +25,7 @@ class BaseFilter {
 			offset: { default: undefined, value: undefined },
 			transpose : { default: false, value: false },
 			nil_visible: { default: false, value: false },
-			nullStr: { default: '<null>', value: '<null>' }
+			nullStr: { default: '<null>', value: SDB_NULLSTR }	// SDB_NULLSTR can be changed using chgPlaceholder(null, value) - default is <null>
 		};
 	
 		if (urlPlaceholder !== undefined) {

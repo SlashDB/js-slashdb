@@ -1,5 +1,6 @@
 import { BaseFilter, desc, asc } from "../src/basefilter.js";
-import { SDB_BF_INVALID_SORT_COL, SDB_BF_LIMIT_TYPE, SDB_BF_OFFSET_TYPE, } from "../src/basefilter.js";
+import { chgPlaceHolder } from "../src/filterfunctions.js";
+import { SDB_BF_INVALID_SORT_COL, SDB_BF_LIMIT_TYPE, SDB_BF_OFFSET_TYPE, SDB_BF_INVALID_NULLSTR } from "../src/basefilter.js";
 
 beforeAll( () => {
 
@@ -206,6 +207,46 @@ describe('BaseFilter class tests', () => {
         expect(result.endpoint).toBe('');
     });
 
+    test('testing: nullStr() method', () => {
+
+        let result = new BaseFilter();
+        
+
+        // set nullStr
+        result.nullStr('@NULL@');
+        expect(result.urlStringParams['nullStr']['value']).toBe('@NULL@');
+        expect(result.endpoint).toBe(`?nullStr=@NULL@`);
+
+        // remove nullStr
+        result.nullStr();
+        expect(result.urlStringParams['nullStr']['value']).toBe('<null>');
+        expect(result.endpoint).toBe('');
+
+        expect(() => {
+            result.nullStr(1234);
+        }).toThrowError(SDB_BF_INVALID_NULLSTR);
+
+
+        // setting a custom NULL placeholder value using chgPlaceholder
+        // should make basefilter automatically append the custom nullStr
+        // parameter
+        chgPlaceHolder(null,'@NEWNULL@');
+        result = new BaseFilter();
+        
+        expect(result.urlStringParams['nullStr']['value']).toBe('@NEWNULL@');
+
+        // this is intentional - calling nullStr() here will reset the parameter to its
+         // default value, which is '<null>'.  Calling an arbitrary method like offset() 
+         // will populate the result.endpoint property, which should have the custom 
+         // NULL placeholder value string
+        result.offset();
+        expect(result.endpoint).toBe(`?nullStr=@NEWNULL@`);
+        result.nullStr();   // reset the nullStr and confirm it's back to default value
+        expect(result.urlStringParams['nullStr']['value']).toBe('<null>');
+        chgPlaceHolder();
+        
+
+    });
 
     test('testing: transpose() method', () => {
 

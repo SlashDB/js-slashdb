@@ -136,9 +136,7 @@ function eq(col, value) {
 	}
 	validateColumnName(col);
 
-	if (value === null) {
-		value = SDB_NULLSTR;
-	}
+	value = value === null ? SDB_NULLSTR : value;
 
 	if (typeof(value) !== 'number' && typeof(value) !== 'string') {
 		throw TypeError(SDB_FILTER_ERR_INVALID_TYPE_NULL); 
@@ -170,9 +168,7 @@ function any(col, ...values) {
 	let s = `${col}/`;
 	for (let [i, v] of values.entries()) {
 		
-		if (v === null) {
-			v = SDB_NULLSTR;
-		}
+		v = v === null ? SDB_NULLSTR : v;
 
 		if (typeof(v) !== 'number' && typeof(v) !== 'string') {
 			throw TypeError(SDB_FILTER_ERR_INVALID_TYPE_NULL + ` (parameter ${i+2})`);

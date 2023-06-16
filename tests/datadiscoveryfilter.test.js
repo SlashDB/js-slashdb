@@ -5,7 +5,7 @@ import { SDB_DDF_INVALID_RESOURCE, SDB_DDF_INVALID_FILTER,  SDB_DDF_INVALID_WILD
     SDB_DDF_DEPTH_TYPE, SDB_DDF_XSDCARD_TYPE } from '../src/datadiscoveryfilter.js';
 
 import { desc, asc } from "../src/basefilter.js";
-import { SDB_BF_INVALID_SORT_COL, SDB_BF_LIMIT_TYPE, SDB_BF_OFFSET_TYPE, } from "../src/basefilter.js";
+import { SDB_BF_INVALID_SORT_COL, SDB_BF_LIMIT_TYPE, SDB_BF_OFFSET_TYPE, SDB_BF_INVALID_NULLSTR } from "../src/basefilter.js";
 
 
 
@@ -577,7 +577,7 @@ describe('DataDiscoveryFilter class tests', () => {
         // should be ignored - only true/false allowed
         result.csvNullStr(1);
         expect(result.endpoint).toBe(`/${validFilter}/${validResource}/${validFilter2}`);
-    });        
+    });
 
     test('testing: jsonHref() method', () => {
 
@@ -671,19 +671,29 @@ describe('DataDiscoveryFilter class tests', () => {
     
     test('testing: DataDiscoveryFilter with composable functions', () => {
 
-        chgPlaceHolder(',');
-        let f1 = any("columnA",1,2,3);
-        let f2 = eq("columnB","Country");
-        let f3 = not(gte("columnC",10));
-        let f4 = and( any("columnD","a","b","c"),eq("columnE",100));
-        let cols = "/col1,col2,col3"
+        chgPlaceHolder(',',',');
+        chgPlaceHolder(null,'$null$');
+        const f1 = any("columnA",1,2,3);
+        const f2 = eq("columnB","Country");
+        const f3 = not(gte("columnC",10));
+        const f4 = and( any("columnD","a","b","c"),eq("columnE",100));
+        const f5 = any('columnF',lte(10), gte(30), between(15,25) );
+        const f6 = eq('columnG',null)
+        const cols = "/col1,col2,col3"
 
-        let result;
-        let expected = and(f1,"resource2/",f2,f3,"resource3/",f4).replaceAll('//','/') + cols;
+        const expected = and(f1,"resource2/",f2,f3,"resource3/",f4,f5,f6).replaceAll('//','/') + cols;
 
-        result = new DataDiscoveryFilter(f1);
-        result.join("resource2").addFilter(f2).addFilter(f3).join("resource3").addFilter(f4).cols('col1','col2','col3');
-        expect(result.endpoint).toBe(`/${expected}`);
+        const result = new DataDiscoveryFilter(f1);
+        result
+            .join("resource2")
+            .addFilter(f2)
+            .addFilter(f3)
+            .join("resource3")
+            .addFilter(f4)
+            .addFilter(f5)
+            .addFilter(f6)
+            .cols('col1','col2','col3');
+        expect(result.endpoint).toBe(`/${expected}?nullStr=$null$`);
         chgPlaceHolder();
         
     });
