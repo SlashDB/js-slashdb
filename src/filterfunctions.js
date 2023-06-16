@@ -212,10 +212,10 @@ function any(col, ...values) {
 *
 * eg: 
 * between("CustomerId",1,10) - returns range string with column name
-* between([4,8]) - returns range string w/o column name
+* between(4,8) - returns range string w/o column name
 *
-* @param {string} arg1 - name of column to apply filter to, or array with lower bound and upper bound
-* @param {string | number | null} lb - lower bound value of the range
+* @param {string} arg1 - name of column to apply filter to,or lower bound
+* @param {string | number | null} lb - lower bound value of the range, or upper bound
 * @param {string | number | null} ub - upper bound value of the range
 * @returns {string} constructed URL segment for filtering the given column, or range string
 */
@@ -229,13 +229,6 @@ function between(arg1, lb = null, ub = null) {
 	}
 	
 	if (arguments.length == 2) {
-		// if (! Array.isArray(arg1)) {
-		// 	throw TypeError(SDB_FILTER_ERR_INVALID_ARRAY_ARG);
-		// }
-
-		// if (arg1.length !== 2) {
-		// 	throw RangeError(SDB_FILTER_ERR_INVALID_ARRAY_ARG);
-		// }
 		ub = lb;
 		lb = arg1;
 	}
