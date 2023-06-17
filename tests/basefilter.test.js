@@ -235,11 +235,7 @@ describe('BaseFilter class tests', () => {
         
         expect(result.urlStringParams['nullStr']['value']).toBe('@NEWNULL@');
 
-        // this is intentional - calling nullStr() here will reset the parameter to its
-         // default value, which is '<null>'.  Calling an arbitrary method like offset() 
-         // will populate the result.endpoint property, which should have the custom 
-         // NULL placeholder value string
-        result.offset();
+         result.build()
         expect(result.endpoint).toBe(`?nullStr=@NEWNULL@`);
         result.nullStr();   // reset the nullStr and confirm it's back to default value
         expect(result.urlStringParams['nullStr']['value']).toBe('<null>');

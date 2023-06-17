@@ -5,7 +5,7 @@ import { SDB_DDF_INVALID_RESOURCE, SDB_DDF_INVALID_FILTER,  SDB_DDF_INVALID_WILD
     SDB_DDF_DEPTH_TYPE, SDB_DDF_XSDCARD_TYPE } from '../src/datadiscoveryfilter.js';
 
 import { desc, asc } from "../src/basefilter.js";
-import { SDB_BF_INVALID_SORT_COL, SDB_BF_LIMIT_TYPE, SDB_BF_OFFSET_TYPE, SDB_BF_INVALID_NULLSTR } from "../src/basefilter.js";
+import { SDB_BF_INVALID_SORT_COL, SDB_BF_LIMIT_TYPE, SDB_BF_OFFSET_TYPE } from "../src/basefilter.js";
 
 
 
@@ -683,6 +683,7 @@ describe('DataDiscoveryFilter class tests', () => {
 
         const expected = and(f1,"resource2/",f2,f3,"resource3/",f4,f5,f6).replaceAll('//','/') + cols;
 
+        // should have the nullStr parameter since the default NULL placeholder string was changed
         const result = new DataDiscoveryFilter(f1);
         result
             .join("resource2")

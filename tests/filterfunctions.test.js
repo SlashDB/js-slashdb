@@ -559,7 +559,12 @@ describe('Composable functions unit tests', () => {
         result = and(`${validCol}/${strVal_1}`,`LastName/${strVal_2}`);
         expect(result).toBe(`${validCol}/${strVal_1}/LastName/${strVal_2}`);
     
-  
+        // empty string handling - make sure '/' handled properly
+        result = and(`${validCol}/${strVal_1}`,eq('LastName',''));
+        expect(result).toBe(`${validCol}/${strVal_1}/LastName/`);
+        result = and(eq(validCol,''),`LastName/${strVal_2}`);
+        expect(result).toBe(`${validCol}//LastName/${strVal_2}`);
+        
         // ERROR TESTS
     
         // too few args
@@ -587,21 +592,49 @@ describe('Composable functions unit tests', () => {
     test('testing: multifunction usage', () => {
         
         let result;
-        const expected = 'Customer/FirstName/A*/Country/Brazil/City/Brasília,São Paulo/Invoice/InvoiceDate/2011-01-01../Customer/F*..J*/~BillingCountry/Brazil/InvoiceLine/Track';
+        let expected = 'Customer/FirstName/A*/LastName/<null>/Country/Brazil/State//City/,Brasília,São Paulo/Invoice/InvoiceDate/2011-01-01../Customer/F*..J*/~BillingCountry/Brazil/InvoiceLine/Track';
 
-        result = and(
-                    'Customer/',
-                    eq('FirstName','A*'),
-                    eq('Country','Brazil'),
-                    any('City','Brasília','São Paulo').replaceAll(SDB_SEPARATOR,','),
-                    'Invoice/',
-                    gte('InvoiceDate','2011-01-01'),
-                    between('Customer','F*','J*'),
-                    not(eq('BillingCountry','Brazil')),
-                    'InvoiceLine/Track'
-                );
+        result = 'Customer/' + 
+                    and(
+                        eq('FirstName','A*'),
+                        eq('LastName',null),
+                        eq('Country','Brazil'),
+                        eq('State',''),
+                        any('City','','Brasília','São Paulo').replaceAll(SDB_SEPARATOR,',')
+                    ) +
+                    '/Invoice/' +
+                    and(
+                        gte('InvoiceDate','2011-01-01'),
+                        between('Customer','F*','J*'),
+                        not(eq('BillingCountry','Brazil')),
+                        'InvoiceLine/Track'
+                    );
+
 
         expect(result).toBe(expected);
+
+        // make sure NULLs are updated when placeholder changed
+        chgPlaceHolder(null,'@NEWNULL@');
+        expected = 'Customer/FirstName/A*/LastName/@NEWNULL@/Country/Brazil/State//City/,Brasília,São Paulo/Invoice/InvoiceDate/2011-01-01../Customer/F*..J*/~BillingCountry/Brazil/InvoiceLine/Track';
+
+        result = 'Customer/' + 
+        and(
+            eq('FirstName','A*'),
+            eq('LastName',null),
+            eq('Country','Brazil'),
+            eq('State',''),
+            any('City','','Brasília','São Paulo').replaceAll(SDB_SEPARATOR,',')
+        ) +
+        '/Invoice/' +
+        and(
+            gte('InvoiceDate','2011-01-01'),
+            between('Customer','F*','J*'),
+            not(eq('BillingCountry','Brazil')),
+            'InvoiceLine/Track'
+        );
+
+        expect(result).toBe(expected);
+        chgPlaceHolder();
         
     });
 });

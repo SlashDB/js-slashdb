@@ -386,13 +386,10 @@ function and(...colFilters) {
 			throw SyntaxError(SDB_FILTER_ERR_NO_COL_FOUND);
 		}
 
-		if (v.endsWith('/')) {
-			s += v;
-		}
-		else {
-			s += `${v}/`;
-		}
+		s += `${v}/`;
+
 	}
+
 	return s.slice(0,-1)
 }
 

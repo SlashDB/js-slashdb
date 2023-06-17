@@ -80,11 +80,6 @@ class SQLPassThruFilter extends BaseFilter {
 				throw SyntaxError(SDB_SPTF_INVALID_PARAM_VALUE);
 			}
 
-			// handle empty string values
-			if (typeof(params[key]) === 'string' && params[key].trim() === '') {
-				params[key] = '/';
-			}
-
 			// update query parameter value if previously given
 			// TODO add tests for this
 			if (key in this.queryParams) {
