@@ -1,5 +1,5 @@
 import { DataDiscoveryFilter } from '../src/datadiscoveryfilter.js';
-import { eq, any, between, gte, lte, not, and, chgPlaceHolder } from '../src/filterfunctions.js';
+import { eq, any, between, gte, lte, not, and, chgPlaceHolder, SDB_SEPARATOR } from '../src/filterfunctions.js';
 
 import { SDB_DDF_INVALID_RESOURCE, SDB_DDF_INVALID_FILTER,  SDB_DDF_INVALID_WILDCARD, SDB_DDF_INVALID_SEPARATOR,
     SDB_DDF_DEPTH_TYPE, SDB_DDF_XSDCARD_TYPE } from '../src/datadiscoveryfilter.js';
@@ -163,7 +163,7 @@ describe('DataDiscoveryFilter class tests', () => {
         
         result = new DataDiscoveryFilter(validFilterSeparated, undefined, '@');
         expect(result).toHaveProperty('endpoint');
-        expect(result.endpoint).toBe('/column/value1@value2@value3?&separator=@');
+        expect(result.endpoint).toBe('/column/value1@value2@value3?separator=@');
 
     });        
 
@@ -684,7 +684,7 @@ describe('DataDiscoveryFilter class tests', () => {
         const expected = and(f1,"resource2/",f2,f3,"resource3/",f4,f5,f6).replaceAll('//','/') + cols;
 
         // should have the nullStr parameter since the default NULL placeholder string was changed
-        const result = new DataDiscoveryFilter(f1);
+        let result = new DataDiscoveryFilter(f1);
         result
             .join("resource2")
             .addFilter(f2)
@@ -697,6 +697,68 @@ describe('DataDiscoveryFilter class tests', () => {
         expect(result.endpoint).toBe(`/${expected}?nullStr=$null$`);
         chgPlaceHolder();
         
+    });
+
+
+    test('testing: empty string handling', () => {
+
+        /* a bunch of tests to make sure composable functions and DataDiscovery
+        properly handle values in empty strings
+
+        Rules
+        - a column filtering on a single-value empty string should end with '/'
+        - a column filtering on multi-values with an empty string at end should end in ',' (or separator)
+        - multiple filters with single-value column with empty string somewhere in the middle should appear as
+          'col//nextcol'
+        - multiple filters with multi-value column ending in empty string somewhere in the middle should appear as
+          'col/a,b,c,/nextcol
+        */ 
+
+        const separators = ['|SDBSEP|',',','$'];
+        for (const sep of separators)
+        {
+
+            chgPlaceHolder(',',sep);
+            expect(SDB_SEPARATOR).toBe(sep);
+            expect(eq(validCol,'')).toBe(`${validCol}/`);
+            expect(any(validCol,'a','b','')).toBe(`${validCol}/a${SDB_SEPARATOR}b${SDB_SEPARATOR}`);
+            expect(any(validCol,'a','','b')).toBe(`${validCol}/a${SDB_SEPARATOR}${SDB_SEPARATOR}b`);
+            expect(any(validCol,'a','b','','','')).toBe(`${validCol}/a${SDB_SEPARATOR}b${SDB_SEPARATOR}${SDB_SEPARATOR}${SDB_SEPARATOR}`);
+            
+            const f1 = eq(validCol,'');
+            const f2 = any(validCol,'a','b','');
+            const f3 = any(validCol,'a','','b');
+            const f4 = any(validCol,'a','b','','','');
+
+            const fCombine1 = and(f1,f2,f3,f4);
+            const fCombine2 = and(f3,f2,f1,f4,f1);
+            const fCombine1_Output = `${validCol}//${validCol}/a${SDB_SEPARATOR}b${SDB_SEPARATOR}/${validCol}/a${SDB_SEPARATOR}${SDB_SEPARATOR}b/${validCol}/a${SDB_SEPARATOR}b${SDB_SEPARATOR}${SDB_SEPARATOR}${SDB_SEPARATOR}`;
+            const fCombine2_Output = `${validCol}/a${SDB_SEPARATOR}${SDB_SEPARATOR}b/${validCol}/a${SDB_SEPARATOR}b${SDB_SEPARATOR}/${validCol}//${validCol}/a${SDB_SEPARATOR}b${SDB_SEPARATOR}${SDB_SEPARATOR}${SDB_SEPARATOR}/${validCol}/`;
+
+            expect(fCombine1).toBe(fCombine1_Output);
+            expect(fCombine2).toBe(fCombine2_Output);
+
+            let fCombine1_Output_DDF, fCombine2_Output_DDF;
+            let ddf1, ddf2;
+            
+            if (sep == '$') {
+                fCombine1_Output_DDF = '/' + fCombine1_Output.replaceAll(SDB_SEPARATOR,'$');
+                fCombine2_Output_DDF = '/' + fCombine2_Output.replaceAll(SDB_SEPARATOR,'$');
+                ddf1 = new DataDiscoveryFilter(fCombine1,undefined,'$').build();
+                ddf2 = new DataDiscoveryFilter(fCombine2,undefined,'$').build();
+                expect(ddf1.endpoint).toBe(`${fCombine1_Output_DDF}?separator=$`);
+                expect(ddf2.endpoint).toBe(`${fCombine2_Output_DDF}?separator=$`);
+            }
+
+            else {
+                fCombine1_Output_DDF = '/' + fCombine1_Output.replaceAll(SDB_SEPARATOR,',');
+                fCombine2_Output_DDF = '/' + fCombine2_Output.replaceAll(SDB_SEPARATOR,',');
+                ddf1 = new DataDiscoveryFilter(fCombine1).build();
+                ddf2 = new DataDiscoveryFilter(fCombine2).build();
+                expect(ddf1.endpoint).toBe(fCombine1_Output_DDF);
+                expect(ddf2.endpoint).toBe(fCombine2_Output_DDF);
+            }
+        }
     });
 });
 

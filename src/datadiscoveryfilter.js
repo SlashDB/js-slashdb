@@ -267,7 +267,8 @@ class DataDiscoveryFilter extends BaseFilter {
 
 		paramString = paramString.slice(0,paramString.length-1);	// chop trailing &
 		paramString += this._setSeparator() + this._setWildcard() + this._urlPlaceholderFn();
-		
+		paramString = paramString.at(0) === '&' ? paramString.slice(1) : paramString; // chop leading & if exists
+
 		this.endpoint = paramString.length > 0 ? `${this.pathString}${columns}?${paramString}` : `${this.pathString}${columns}`;
 		
 		return this;

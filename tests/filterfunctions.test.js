@@ -39,6 +39,8 @@ describe('Composable functions unit tests', () => {
         expect(result).toBe(`${validCol}/${strVal_1}`);
         result = eq(validCol, intVal_1);
         expect(result).toBe(`${validCol}/${intVal_1}`);
+        result = eq(validCol, '');
+        expect(result).toBe(`${validCol}/`);
         result = eq(validCol, null);
         expect(result).toBe(`${validCol}/${SDB_NULLSTR}`);
 
@@ -101,7 +103,11 @@ describe('Composable functions unit tests', () => {
         // valid inputs, strings/numbers/null can be mixed
         result = any(validCol, strVal_1, null, intVal_1, strVal_2);
         expect(result).toBe(`${validCol}/${strVal_1}${SDB_SEPARATOR}${SDB_NULLSTR}${SDB_SEPARATOR}${intVal_1}${SDB_SEPARATOR}${strVal_2}`)
-    
+
+        // empty handling
+        result = any(validCol, strVal_1, '', intVal_1, '');
+        expect(result).toBe(`${validCol}/${strVal_1}${SDB_SEPARATOR}${SDB_SEPARATOR}${intVal_1}${SDB_SEPARATOR}`);
+
         // ERROR TESTS
     
         // too few args
@@ -564,7 +570,9 @@ describe('Composable functions unit tests', () => {
         expect(result).toBe(`${validCol}/${strVal_1}/LastName/`);
         result = and(eq(validCol,''),`LastName/${strVal_2}`);
         expect(result).toBe(`${validCol}//LastName/${strVal_2}`);
-        
+        result = and(eq(validCol,''),`LastName/${strVal_2}`,any('FirstName','a','b',''));
+        expect(result).toBe(`${validCol}//LastName/${strVal_2}/FirstName/a|SDBSEP|b|SDBSEP|`);
+
         // ERROR TESTS
     
         // too few args

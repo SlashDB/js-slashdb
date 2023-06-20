@@ -194,16 +194,6 @@ function any(col, ...values) {
 		}
 	}
 
-	// if value was an empty string, then last character in created string will be '/'
-	// append '/'
-	if (s.endsWith(`/${SDB_SEPARATOR.length}`)) {
-		return s.slice(0, (0 - SDB_SEPARATOR.length) ) + '/';
-	}
-	// if multiple values were given, and final value is an empty string, two separators will
-	// present, remove one separator and append '/'
-	else if (s.endsWith(`${SDB_SEPARATOR}${SDB_SEPARATOR}`)) {
-		return s.slice(0, (0 - SDB_SEPARATOR.length) ) + '/';
-	}
 	return s.slice(0, (0 - SDB_SEPARATOR.length) )
 }
 
