@@ -23,7 +23,7 @@ const testIf = (condition, ...args) =>
     }
 
     // add a record to Chinook database Customer table for PUT/DELETE tests
-    fetchWrapper("POST", `${LIVE_SDB_HOST}/db/${TEST_DB_NAME}/Customer`, testCustomer, {'Content-Type': 'application/json'});
+    fetchWrapper("POST", `${LIVE_SDB_HOST}/db/${SDB_TEST_DB_NAME}/Customer`, testCustomer, {'Content-Type': 'application/json'});
     
 });
 
@@ -35,14 +35,14 @@ afterEach( () => {
 afterAll( async () => {
     // delete the record created by the POST test
     try {
-        let r = await fetchWrapper("DELETE", `${LIVE_SDB_HOST}/db/${TEST_DB_NAME}/Customer/FirstName/POSTTest`);
+        let r = await fetchWrapper("DELETE", `${LIVE_SDB_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/POSTTest`);
     }
     catch(e) {
         null;
     }
     // delete the record created before tests ran if DELETE test failed to delete it
     try {
-        let r = await fetchWrapper("DELETE", `${LIVE_SDB_HOST}/db/${TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`);
+        let r = await fetchWrapper("DELETE", `${LIVE_SDB_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`);
     }
     catch(e) {
         null;
@@ -54,9 +54,9 @@ describe('fetchWrapper() tests', () => {
     const customers = 
     [
         {
-            "__href": `/db/${TEST_DB_NAME}/Customer/CustomerId/1.json`,
+            "__href": `/db/${SDB_TEST_DB_NAME}/Customer/CustomerId/1.json`,
             "Employee": {
-                "__href": `/db/${TEST_DB_NAME}/Customer/CustomerId/1/Employee.json`
+                "__href": `/db/${SDB_TEST_DB_NAME}/Customer/CustomerId/1/Employee.json`
             },
             "CustomerId": 1,
             "FirstName": "Lu\u00eds",
@@ -72,13 +72,13 @@ describe('fetchWrapper() tests', () => {
             "Email": "luisg@embraer.com.br",
             "SupportRepId": 3,
             "Invoice": {
-                "__href": `/db/${TEST_DB_NAME}/Customer/CustomerId/1/Invoice.json`
+                "__href": `/db/${SDB_TEST_DB_NAME}/Customer/CustomerId/1/Invoice.json`
             }
         },
         {
-            "__href": `/db/${TEST_DB_NAME}/Customer/CustomerId/2.json`,
+            "__href": `/db/${SDB_TEST_DB_NAME}/Customer/CustomerId/2.json`,
             "Employee": {
-                "__href": `/db/${TEST_DB_NAME}/Customer/CustomerId/2/Employee.json`
+                "__href": `/db/${SDB_TEST_DB_NAME}/Customer/CustomerId/2/Employee.json`
             },
             "CustomerId": 2,
             "FirstName": "Leonie",
@@ -94,13 +94,13 @@ describe('fetchWrapper() tests', () => {
             "Email": "leonekohler@surfeu.de",
             "SupportRepId": 5,
             "Invoice": {
-                "__href": `/db/${TEST_DB_NAME}/Customer/CustomerId/2/Invoice.json`
+                "__href": `/db/${SDB_TEST_DB_NAME}/Customer/CustomerId/2/Invoice.json`
             }
         },
         {
-            "__href": `/db/${TEST_DB_NAME}/Customer/CustomerId/3.json`,
+            "__href": `/db/${SDB_TEST_DB_NAME}/Customer/CustomerId/3.json`,
             "Employee": {
-                "__href": `/db/${TEST_DB_NAME}/Customer/CustomerId/3/Employee.json`
+                "__href": `/db/${SDB_TEST_DB_NAME}/Customer/CustomerId/3/Employee.json`
             },
             "CustomerId": 3,
             "FirstName": "Fran\u00e7ois",
@@ -116,7 +116,7 @@ describe('fetchWrapper() tests', () => {
             "Email": "ftremblay@gmail.com",
             "SupportRepId": 3,
             "Invoice": {
-                "__href": `/db/${TEST_DB_NAME}/Customer/CustomerId/3/Invoice.json`
+                "__href": `/db/${SDB_TEST_DB_NAME}/Customer/CustomerId/3/Invoice.json`
             }
         }
     ];
@@ -124,22 +124,22 @@ describe('fetchWrapper() tests', () => {
     testIf(MOCK_TESTS_ENABLED, 'GET mock tests', async () => {
 
         fetchMock
-            .get(`${MOCK_HOST}/db/${TEST_DB_NAME}/Customer`, customers)
-            .get(`${MOCK_HOST}/db/${TEST_DB_NAME}/InvalidResource`, 404 )
+            .get(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer`, customers)
+            .get(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/InvalidResource`, 404 )
             .get(`${MOCK_HOST}/userdef/admin.json`, 403 )
             .get(`${MOCK_HOST}/userdef/admin`, 406 )
 
         // get a valid resource
-        let r = await fetchWrapper('GET', `${MOCK_HOST}/db/${TEST_DB_NAME}/Customer`);
+        let r = await fetchWrapper('GET', `${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer`);
         expect(r.data).toStrictEqual(customers)
-        expect(fetchMock).toHaveLastGot(`${MOCK_HOST}/db/${TEST_DB_NAME}/Customer`);
+        expect(fetchMock).toHaveLastGot(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer`);
 
         // get a non-existent resource - 404
         try {
-            await fetchWrapper('GET', `${MOCK_HOST}/db/${TEST_DB_NAME}/InvalidResource`);
+            await fetchWrapper('GET', `${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/InvalidResource`);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastGot(`${MOCK_HOST}/db/${TEST_DB_NAME}/InvalidResource`);
+            expect(fetchMock).toHaveLastGot(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/InvalidResource`);
             expect(e.message).toBe('404');
         }
 
@@ -167,7 +167,7 @@ describe('fetchWrapper() tests', () => {
     testIf(LIVE_TESTS_ENABLED, 'GET live tests', async () => {
 
         try {
-            let r = await fetchWrapper('GET', `${LIVE_SDB_HOST}/db/${TEST_DB_NAME}/Customer.json?limit=3`);
+            let r = await fetchWrapper('GET', `${LIVE_SDB_HOST}/db/${SDB_TEST_DB_NAME}/Customer.json?limit=3`);
             expect(r.data).toStrictEqual(customers)
         }
         catch(e) {
@@ -175,7 +175,7 @@ describe('fetchWrapper() tests', () => {
         }
 
         try {
-            await fetchWrapper('GET', `${LIVE_SDB_HOST}/db/${TEST_DB_NAME}/InvalidResource`);
+            await fetchWrapper('GET', `${LIVE_SDB_HOST}/db/${SDB_TEST_DB_NAME}/InvalidResource`);
         }
         catch(e) {
             expect(e.message).toBe('404');
@@ -215,7 +215,7 @@ describe('fetchWrapper() tests', () => {
         }
 
         fetchMock
-            .post(`${MOCK_HOST}/db/${TEST_DB_NAME}/Customer`, (url, options) => {
+            .post(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer`, (url, options) => {
                 let b = JSON.parse(options.body)
                 if (!options.headers.apiKey) {
                         return 403;
@@ -231,38 +231,38 @@ describe('fetchWrapper() tests', () => {
 
             return 201;
             })
-            .post(`${MOCK_HOST}/db/${TEST_DB_NAME}/InvalidResource`, 404)
+            .post(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/InvalidResource`, 404)
 
         // create a new record
-        let r = await fetchWrapper('POST', `${MOCK_HOST}/db/${TEST_DB_NAME}/Customer`, newCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
+        let r = await fetchWrapper('POST', `${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer`, newCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
         expect(r.status).toBe(201)
-        expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/${TEST_DB_NAME}/Customer`);
+        expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer`);
 
         // create a record for a non-existent resource - 404
         try {
-            await fetchWrapper('POST', `${MOCK_HOST}/db/${TEST_DB_NAME}/InvalidResource`, newCustomer, {'Content-Type': 'application/json', apiKey:null}, true);
+            await fetchWrapper('POST', `${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/InvalidResource`, newCustomer, {'Content-Type': 'application/json', apiKey:null}, true);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/${TEST_DB_NAME}/InvalidResource`);
+            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/InvalidResource`);
             expect(e.message).toBe('404');
         }
 
         // create a new record w/o auth - 403
         try {
-            await fetchWrapper('POST', `${MOCK_HOST}/db/${TEST_DB_NAME}/Customer`, newCustomer, {'Content-Type': 'application/json', apiKey:null}, true);
+            await fetchWrapper('POST', `${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer`, newCustomer, {'Content-Type': 'application/json', apiKey:null}, true);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/${TEST_DB_NAME}/Customer`);
+            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer`);
             expect(e.message).toBe('403');
         }
 
         // create a new record with non-existent fields for given resource - 400
         try {
             newCustomer['nonExistentField'] = 'invalidValue';
-            await fetchWrapper('POST', `${MOCK_HOST}/db/${TEST_DB_NAME}/Customer`, newCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
+            await fetchWrapper('POST', `${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer`, newCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/${TEST_DB_NAME}/Customer`);
+            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer`);
             expect(e.message).toBe('400');
             newCustomer['nonExistentField'] = undefined;
         }
@@ -270,10 +270,10 @@ describe('fetchWrapper() tests', () => {
         // create a record that already exists - 409
         try {
             newCustomer['CustomerId'] = 1
-            await fetchWrapper('POST', `${MOCK_HOST}/db/${TEST_DB_NAME}/Customer`, newCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
+            await fetchWrapper('POST', `${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer`, newCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/${TEST_DB_NAME}/Customer`);
+            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer`);
             expect(e.message).toBe('409');
             newCustomer['CustomerId'] = undefined;
         }
@@ -297,7 +297,7 @@ describe('fetchWrapper() tests', () => {
 
         // valid resource to create
         try {
-            let r = await fetchWrapper('POST', `${LIVE_SDB_HOST}/db/${TEST_DB_NAME}/Customer`, newCustomer, {'Content-Type': 'application/json', apiKey:LIVE_SDB_API_KEY}, true);
+            let r = await fetchWrapper('POST', `${LIVE_SDB_HOST}/db/${SDB_TEST_DB_NAME}/Customer`, newCustomer, {'Content-Type': 'application/json', apiKey:LIVE_SDB_API_KEY}, true);
             expect(r.status).toBe(201)
         }
         catch(e) {
@@ -306,7 +306,7 @@ describe('fetchWrapper() tests', () => {
 
         // non-existent resource - 404
         try {
-            await fetchWrapper('POST', `${LIVE_SDB_HOST}/db/${TEST_DB_NAME}/InvalidResource`, newCustomer, {'Content-Type': 'application/json', apiKey:LIVE_SDB_API_KEY}, true);
+            await fetchWrapper('POST', `${LIVE_SDB_HOST}/db/${SDB_TEST_DB_NAME}/InvalidResource`, newCustomer, {'Content-Type': 'application/json', apiKey:LIVE_SDB_API_KEY}, true);
         }
         catch(e) {
             expect(e.message).toBe('404');
@@ -323,7 +323,7 @@ describe('fetchWrapper() tests', () => {
         // create a record that already exists - 409
         try {
             newCustomer['CustomerId'] = 1
-            await fetchWrapper('POST', `${LIVE_SDB_HOST}/db/${TEST_DB_NAME}/Customer`, newCustomer, {'Content-Type': 'application/json', apiKey:LIVE_SDB_API_KEY}, true);
+            await fetchWrapper('POST', `${LIVE_SDB_HOST}/db/${SDB_TEST_DB_NAME}/Customer`, newCustomer, {'Content-Type': 'application/json', apiKey:LIVE_SDB_API_KEY}, true);
         }
         catch(e) {
             expect(e.message).toBe('409');
@@ -349,7 +349,7 @@ describe('fetchWrapper() tests', () => {
         }
 
         fetchMock
-            .put(`${MOCK_HOST}/db/${TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`, (url, options) => {
+            .put(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`, (url, options) => {
                 let b = JSON.parse(options.body)
                 if (!options.headers.apiKey) {
                         return 403;
@@ -365,38 +365,38 @@ describe('fetchWrapper() tests', () => {
 
             return 201;
             })
-            .put(`${MOCK_HOST}/db/${TEST_DB_NAME}/InvalidResource/FirstName/fetchWrapperTestRecord`, 404)
+            .put(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/InvalidResource/FirstName/fetchWrapperTestRecord`, 404)
 
         // update a record
-        let r = await fetchWrapper('PUT', `${MOCK_HOST}/db/${TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`, updateCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
+        let r = await fetchWrapper('PUT', `${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`, updateCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
         expect(r.status).toBe(201)
-        expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/${TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`);
+        expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`);
 
         // update a non-existent record - 404
         try {
-            await fetchWrapper('PUT', `${MOCK_HOST}/db/${TEST_DB_NAME}/InvalidResource/FirstName/fetchWrapperTestRecord`, updateCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
+            await fetchWrapper('PUT', `${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/InvalidResource/FirstName/fetchWrapperTestRecord`, updateCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/${TEST_DB_NAME}/InvalidResource/FirstName/fetchWrapperTestRecord`);
+            expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/InvalidResource/FirstName/fetchWrapperTestRecord`);
             expect(e.message).toBe('404');
         }
 
         // // create a new record w/o auth - 403
         try {
-            await fetchWrapper('PUT', `${MOCK_HOST}/db/${TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`, updateCustomer, {'Content-Type': 'application/json', apiKey:null}, true);
+            await fetchWrapper('PUT', `${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`, updateCustomer, {'Content-Type': 'application/json', apiKey:null}, true);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/${TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`);
+            expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`);
             expect(e.message).toBe('403');
         }
 
         // update a record with non-existent fields for given resource - 400
         try {
             updateCustomer['nonExistentField'] = 'invalidValue';
-            await fetchWrapper('PUT', `${MOCK_HOST}/db/${TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`, updateCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
+            await fetchWrapper('PUT', `${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`, updateCustomer, {'Content-Type': 'application/json', apiKey:'1234'}, true);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/${TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`);
+            expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`);
             expect(e.message).toBe('400');
             updateCustomer['nonExistentField'] = undefined;
         }
@@ -411,7 +411,7 @@ describe('fetchWrapper() tests', () => {
 
         // valid resource to update
         try {
-            let r = await fetchWrapper('PUT', `${LIVE_SDB_HOST}/db/${TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`, updateCustomer, {'Content-Type': 'application/json', apiKey:LIVE_SDB_API_KEY}, true);
+            let r = await fetchWrapper('PUT', `${LIVE_SDB_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`, updateCustomer, {'Content-Type': 'application/json', apiKey:LIVE_SDB_API_KEY}, true);
             expect(r.status).toBe(204)
         }
         catch(e) {
@@ -420,7 +420,7 @@ describe('fetchWrapper() tests', () => {
 
         // non-existent record - 404
         try {
-            await fetchWrapper('PUT', `${LIVE_SDB_HOST}/db/${TEST_DB_NAME}/InvalidResource`, updateCustomer, {'Content-Type': 'application/json', apiKey:LIVE_SDB_API_KEY}, true);
+            await fetchWrapper('PUT', `${LIVE_SDB_HOST}/db/${SDB_TEST_DB_NAME}/InvalidResource`, updateCustomer, {'Content-Type': 'application/json', apiKey:LIVE_SDB_API_KEY}, true);
         }
         catch(e) {
             expect(e.message).toBe('404');
@@ -439,35 +439,35 @@ describe('fetchWrapper() tests', () => {
     testIf(MOCK_TESTS_ENABLED, 'DELETE mock tests', async () => {
 
         fetchMock
-            .delete(`${MOCK_HOST}/db/${TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`, (url, options) => {
+            .delete(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`, (url, options) => {
                 if (!options.headers.apiKey) {
                         return 403;
                     }
 
             return 204;
             })
-            .delete(`${MOCK_HOST}/db/${TEST_DB_NAME}/InvalidResource/FirstName/fetchWrapperTestRecord`, 404)
+            .delete(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/InvalidResource/FirstName/fetchWrapperTestRecord`, 404)
 
         // delete a record
-        let r = await fetchWrapper('DELETE', `${MOCK_HOST}/db/${TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`, undefined, {apiKey:'1234'}, true);
+        let r = await fetchWrapper('DELETE', `${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`, undefined, {apiKey:'1234'}, true);
         expect(r.status).toBe(204)
-        expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/${TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`);
+        expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`);
 
         // delete a non-existent record - 404
         try {
-            await fetchWrapper('DELETE', `${MOCK_HOST}/db/${TEST_DB_NAME}/InvalidResource/FirstName/fetchWrapperTestRecord`, undefined, {apiKey:'1234'}, true);
+            await fetchWrapper('DELETE', `${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/InvalidResource/FirstName/fetchWrapperTestRecord`, undefined, {apiKey:'1234'}, true);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/${TEST_DB_NAME}/InvalidResource/FirstName/fetchWrapperTestRecord`);
+            expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/InvalidResource/FirstName/fetchWrapperTestRecord`);
             expect(e.message).toBe('404');
         }
 
         // // delete a record w/o auth - 403
         try {
-            await fetchWrapper('DELETE', `${MOCK_HOST}/db/${TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`, undefined, {apiKey:null}, true);
+            await fetchWrapper('DELETE', `${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`, undefined, {apiKey:null}, true);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/${TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`);
+            expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`);
             expect(e.message).toBe('403');
         }
         
@@ -477,7 +477,7 @@ describe('fetchWrapper() tests', () => {
 
         // valid resource to delete
         try {
-            let r = await fetchWrapper('DELETE', `${LIVE_SDB_HOST}/db/${TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`, undefined, {apiKey:LIVE_SDB_API_KEY}, true);
+            let r = await fetchWrapper('DELETE', `${LIVE_SDB_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/fetchWrapperTestRecord`, undefined, {apiKey:LIVE_SDB_API_KEY}, true);
             expect(r.status).toBe(204)
         }
         catch(e) {
@@ -486,7 +486,7 @@ describe('fetchWrapper() tests', () => {
 
         // non-existent record - 404
         try {
-            await fetchWrapper('DELETE', `${LIVE_SDB_HOST}/db/${TEST_DB_NAME}/InvalidResource`, undefined, {apiKey:LIVE_SDB_API_KEY}, true);
+            await fetchWrapper('DELETE', `${LIVE_SDB_HOST}/db/${SDB_TEST_DB_NAME}/InvalidResource`, undefined, {apiKey:LIVE_SDB_API_KEY}, true);
         }
         catch(e) {
             expect(e.message).toBe('404');
