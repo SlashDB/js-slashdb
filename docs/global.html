@@ -112,7 +112,8 @@
 
 
 <div class="description">
-    Concatenates filter expressions - can nest any/eq/between/gte/lte expressionseg: and( eq("FirstName","David"), any("City","Vancouver","Edmonton") )
+    <p>Concatenates filter expressions - can nest <code>any, eq, between, gte, lte</code> expressions</p>
+<p>eg: <code>and( eq(&quot;FirstName&quot;,&quot;David&quot;)</code>, <code>any(&quot;City&quot;,&quot;Vancouver&quot;,&quot;Edmonton&quot;) )</code></p>
 </div>
 
 
@@ -176,7 +177,7 @@
 
             
 
-            <td class="description last">comma delimited list of strings containing column filters</td>
+            <td class="description last"><p>comma delimited list of strings containing column filters</p></td>
         </tr>
 
     
@@ -217,7 +218,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="filterfunctions.js.html">filterfunctions.js</a>, <a href="filterfunctions.js.html#line282">line 282</a>
+        <a href="filterfunctions.js.html">filterfunctions.js</a>, <a href="filterfunctions.js.html#line370">line 370</a>
     </li></ul></dd>
     
 
@@ -246,7 +247,7 @@
 
         
 <div class="param-desc">
-    concatenated URL fragment containing multiple column filters
+    <p>concatenated URL segment containing multiple column filters</p>
 </div>
 
 
@@ -283,7 +284,8 @@
 
 
 <div class="description">
-    Multi-value equality filter - column value equals any of the parameter valueseg: any("CustomerId",1,2,3)
+    <p>Multi-value equality filter - column value equals any of the parameter values</p>
+<p>eg: <code>any(&quot;CustomerId&quot;,1,2,3)</code></p>
 </div>
 
 
@@ -345,7 +347,7 @@
 
             
 
-            <td class="description last">name of column to apply filter to</td>
+            <td class="description last"><p>name of column to apply filter to</p></td>
         </tr>
 
     
@@ -381,7 +383,7 @@
 
             
 
-            <td class="description last">comma delimited list of values to filter by (can be mixed strings/numbers)</td>
+            <td class="description last"><p>comma delimited list of values to filter by (can be mixed strings/numbers)</p></td>
         </tr>
 
     
@@ -422,7 +424,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="filterfunctions.js.html">filterfunctions.js</a>, <a href="filterfunctions.js.html#line88">line 88</a>
+        <a href="filterfunctions.js.html">filterfunctions.js</a>, <a href="filterfunctions.js.html#line169">line 169</a>
     </li></ul></dd>
     
 
@@ -451,7 +453,7 @@
 
         
 <div class="param-desc">
-    constructed URL fragment for filtering the given column
+    <p>constructed URL segment for filtering the given column</p>
 </div>
 
 
@@ -480,7 +482,7 @@
     
 
     
-    <h4 class="name" id="between"><span class="type-signature"></span>between<span class="signature">(col, r1, r2)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    <h4 class="name" id="between"><span class="type-signature"></span>between<span class="signature">(arg1, lb, ub)</span><span class="type-signature"> &rarr; {string}</span></h4>
     
 
     
@@ -488,7 +490,10 @@
 
 
 <div class="description">
-    Range filter - column value is between the parameter values (strictly >< , values not included)eg: between("CustomerId",1,10)
+    <p>Range filter - column value is between the parameter values (inclusive)</p>
+<p>eg:<br>
+<code>between(&quot;CustomerId&quot;,1,10)</code> - returns range string with column name<br>
+<code>between(4,8)</code> - returns range string w/o column name</p>
 </div>
 
 
@@ -526,7 +531,7 @@
 
         <tr>
             
-                <td class="name"><code>col</code></td>
+                <td class="name"><code>arg1</code></td>
             
 
             <td class="type">
@@ -546,14 +551,14 @@
                 </td>
             
 
-            <td class="description last">name of column to apply filter to</td>
+            <td class="description last"><p>name of column to apply filter to, or lower bound</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>r1</code></td>
+                <td class="name"><code>lb</code></td>
             
 
             <td class="type">
@@ -581,14 +586,14 @@
                 </td>
             
 
-            <td class="description last">lower bound value of the range</td>
+            <td class="description last"><p>lower bound value of the range, or upper bound</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>r2</code></td>
+                <td class="name"><code>ub</code></td>
             
 
             <td class="type">
@@ -616,7 +621,7 @@
                 </td>
             
 
-            <td class="description last">upper bound value of the range</td>
+            <td class="description last"><p>upper bound value of the range</p></td>
         </tr>
 
     
@@ -657,7 +662,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="filterfunctions.js.html">filterfunctions.js</a>, <a href="filterfunctions.js.html#line143">line 143</a>
+        <a href="filterfunctions.js.html">filterfunctions.js</a>, <a href="filterfunctions.js.html#line220">line 220</a>
     </li></ul></dd>
     
 
@@ -686,7 +691,7 @@
 
         
 <div class="param-desc">
-    constructed URL fragment for filtering the given column
+    <p>constructed URL segment for filtering the given column, or range string</p>
 </div>
 
 
@@ -715,6 +720,196 @@
     
 
     
+    <h4 class="name" id="chgPlaceHolder"><span class="type-signature"></span>chgPlaceHolder<span class="signature">(placeHolder, value)</span><span class="type-signature"> &rarr; {<a href="global.html#any">any</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Change placeholder values for <code>null</code> and <code>,</code> in filter functions.<br>
+eg: <code>chgPlaceHolder(null,'*nullValue*')</code> - updates the null placeholder to <code>*nullValue*</code></p>
+<p>Calling without parameters will reset all placeholders to their default values.<br>
+A single placeholder parameter w/o a value will reset only that parameter to its default value.</p>
+<p>Note that changing the <code>null</code> placeholder with this function will automatically set the <code>nullStr</code><br>
+query string parameter for any <code>BaseFilter</code>, <code>DataDiscoveryFilter</code> and <code>SQLPassThruFilter</code><br>
+objects created afte invoking the function.</p>
+<p><em>It is not recommended to change the <code>,</code> separator unless you are encountering issues creating filters<br>
+with the default value <code>|SDBSEP|</code></em></p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>placeHolder</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#any">any</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>placeholder to update</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>new value for the placeholder</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="filterfunctions.js.html">filterfunctions.js</a>, <a href="filterfunctions.js.html#line74">line 74</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>updated placeholder value</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="global.html#any">any</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
     <h4 class="name" id="eq"><span class="type-signature"></span>eq<span class="signature">(col, value)</span><span class="type-signature"> &rarr; {string}</span></h4>
     
 
@@ -723,7 +918,8 @@
 
 
 <div class="description">
-    Single value equality filter - column value equals parameter valueeg: eq("CustomerId",1)
+    <p>Single value equality filter - column value equals parameter value</p>
+<p>eg: <code>eq(&quot;CustomerId&quot;,1)</code></p>
 </div>
 
 
@@ -775,7 +971,7 @@
 
             
 
-            <td class="description last">name of column to apply filter to</td>
+            <td class="description last"><p>name of column to apply filter to</p></td>
         </tr>
 
     
@@ -801,7 +997,7 @@
 
             
 
-            <td class="description last">parameter containing the value to filter by</td>
+            <td class="description last"><p>parameter containing the value to filter by</p></td>
         </tr>
 
     
@@ -842,7 +1038,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="filterfunctions.js.html">filterfunctions.js</a>, <a href="filterfunctions.js.html#line61">line 61</a>
+        <a href="filterfunctions.js.html">filterfunctions.js</a>, <a href="filterfunctions.js.html#line140">line 140</a>
     </li></ul></dd>
     
 
@@ -871,7 +1067,7 @@
 
         
 <div class="param-desc">
-    constructed URL fragment for filtering the given column
+    <p>constructed URL segment for filtering the given column</p>
 </div>
 
 
@@ -908,7 +1104,7 @@
 
 
 <div class="description">
-    fetch API wrapper for handling HTTP requests.
+    <p>fetch API wrapper for handling HTTP requests.</p>
 </div>
 
 
@@ -976,7 +1172,7 @@
                 </td>
             
 
-            <td class="description last">HTTP method to use for the fetch() call</td>
+            <td class="description last"><p>HTTP method to use for the <code>fetch()</code> call</p></td>
         </tr>
 
     
@@ -1011,7 +1207,7 @@
                 </td>
             
 
-            <td class="description last">protocol, host:port and path to resource/endpoint</td>
+            <td class="description last"><p>protocol, host:port and path to resource/endpoint</p></td>
         </tr>
 
     
@@ -1046,7 +1242,7 @@
                 </td>
             
 
-            <td class="description last">Payload to be sent; object containing key/value pairs.</td>
+            <td class="description last"><p>Payload to be sent; object containing key/value pairs.</p></td>
         </tr>
 
     
@@ -1081,7 +1277,7 @@
                 </td>
             
 
-            <td class="description last">Header parameters to send in request; object containing key/value pairs.</td>
+            <td class="description last"><p>Header parameters to send in request; object containing key/value pairs.</p></td>
         </tr>
 
     
@@ -1120,7 +1316,7 @@
                 </td>
             
 
-            <td class="description last">Flag to indicate whether to send back HTTP response status only or also send back data</td>
+            <td class="description last"><p>Flag to indicate whether to send back HTTP response status only or also send back data</p></td>
         </tr>
 
     
@@ -1191,7 +1387,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        error message with HTTP status code if applicable on 4xx/5xx/network errors
+        <p>error message with HTTP status code if applicable on 4xx/5xx/network errors</p>
         </div>
     </dt>
     <dd></dd>
@@ -1219,7 +1415,7 @@
 <ul>
         <li>
 <div class="param-desc">
-    returnObj.data - response data.
+    <p>returnObj.data - response data.</p>
 </div>
 
 
@@ -1239,7 +1435,7 @@
     
         <li>
 <div class="param-desc">
-    returnObj.res - response status.
+    <p>returnObj.res - response status.</p>
 </div>
 
 
@@ -1268,7 +1464,7 @@
     
 
     
-    <h4 class="name" id="gte"><span class="type-signature"></span>gte<span class="signature">(col, lb)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    <h4 class="name" id="gte"><span class="type-signature"></span>gte<span class="signature">(arg1, lb)</span><span class="type-signature"> &rarr; {string}</span></h4>
     
 
     
@@ -1276,7 +1472,11 @@
 
 
 <div class="description">
-    Greater-than-equal filter - column value is greater than the parameter value (strictly >, value not included)eg: gte("CustomerId",10)
+    <p>Greater-than-equal filter - column value is greater than or equal to the parameter value<br>
+Wrapper for <code>between()</code></p>
+<p>eg:<br>
+<code>gte(&quot;CustomerId&quot;,10)</code> - returns range string with column name<br>
+<code>gte(10)</code> - returns range string w/o column</p>
 </div>
 
 
@@ -1312,7 +1512,7 @@
 
         <tr>
             
-                <td class="name"><code>col</code></td>
+                <td class="name"><code>arg1</code></td>
             
 
             <td class="type">
@@ -1328,7 +1528,7 @@
 
             
 
-            <td class="description last">name of column to apply filter to</td>
+            <td class="description last"><p>name of column to apply filter to, or lower bound</p></td>
         </tr>
 
     
@@ -1354,7 +1554,7 @@
 
             
 
-            <td class="description last">lower bound value of the filter</td>
+            <td class="description last"><p>lower bound value of the filter when column name given</p></td>
         </tr>
 
     
@@ -1395,7 +1595,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="filterfunctions.js.html">filterfunctions.js</a>, <a href="filterfunctions.js.html#line200">line 200</a>
+        <a href="filterfunctions.js.html">filterfunctions.js</a>, <a href="filterfunctions.js.html#line296">line 296</a>
     </li></ul></dd>
     
 
@@ -1424,7 +1624,7 @@
 
         
 <div class="param-desc">
-    constructed URL fragment for filtering the given column
+    <p>constructed URL segment for filtering the given column, or bare range string</p>
 </div>
 
 
@@ -1461,7 +1661,7 @@
 
 
 <div class="description">
-    Helper function to handle requests response.
+    <p>Helper function to handle requests response.</p>
 </div>
 
 
@@ -1583,7 +1783,7 @@
 
         
 <div class="param-desc">
-    data
+    <p>data</p>
 </div>
 
 
@@ -1612,7 +1812,7 @@
     
 
     
-    <h4 class="name" id="lte"><span class="type-signature"></span>lte<span class="signature">(col, ub)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    <h4 class="name" id="lte"><span class="type-signature"></span>lte<span class="signature">(arg1, ub)</span><span class="type-signature"> &rarr; {string}</span></h4>
     
 
     
@@ -1620,7 +1820,11 @@
 
 
 <div class="description">
-    Less-than-equal filter - column value is less than the parameter value (strictly <, value not included)eg: lte("CustomerId",10)
+    <p>Less-than-equal filter - column value is less than or equal to the parameter value<br>
+Wrapper for <code>between()</code></p>
+<p>eg:<br>
+<code>lte(&quot;CustomerId&quot;,10)</code> - returns range string with column name<br>
+<code>lte(10)</code> - returns range string w/o column</p>
 </div>
 
 
@@ -1656,7 +1860,7 @@
 
         <tr>
             
-                <td class="name"><code>col</code></td>
+                <td class="name"><code>arg1</code></td>
             
 
             <td class="type">
@@ -1672,7 +1876,7 @@
 
             
 
-            <td class="description last">name of column to apply filter to</td>
+            <td class="description last"><p>name of column to apply filter to, or upper bound</p></td>
         </tr>
 
     
@@ -1698,7 +1902,7 @@
 
             
 
-            <td class="description last">upperr bound value of the filter</td>
+            <td class="description last"><p>upper bound value of the filter when column name given</p></td>
         </tr>
 
     
@@ -1739,7 +1943,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="filterfunctions.js.html">filterfunctions.js</a>, <a href="filterfunctions.js.html#line230">line 230</a>
+        <a href="filterfunctions.js.html">filterfunctions.js</a>, <a href="filterfunctions.js.html#line322">line 322</a>
     </li></ul></dd>
     
 
@@ -1768,7 +1972,7 @@
 
         
 <div class="param-desc">
-    constructed URL fragment for filtering the given column
+    <p>constructed URL segment for filtering the given column, or bare range string</p>
 </div>
 
 
@@ -1805,7 +2009,8 @@
 
 
 <div class="description">
-    Negates a filter expression - can nest any/eq/and/between/gte/lte expressionseg: not(eq("CustomerId",1))
+    <p>Negates a filter expression - can nest <code>any, eq, and, between, gte, lte</code> expressions</p>
+<p>eg: <code>not(eq(&quot;CustomerId&quot;,1))</code></p>
 </div>
 
 
@@ -1857,7 +2062,7 @@
 
             
 
-            <td class="description last">a string containing column filter (can contain concatenated filters)</td>
+            <td class="description last"><p>a string containing column filter (can contain concatenated filters)</p></td>
         </tr>
 
     
@@ -1898,7 +2103,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="filterfunctions.js.html">filterfunctions.js</a>, <a href="filterfunctions.js.html#line262">line 262</a>
+        <a href="filterfunctions.js.html">filterfunctions.js</a>, <a href="filterfunctions.js.html#line345">line 345</a>
     </li></ul></dd>
     
 
@@ -1927,7 +2132,7 @@
 
         
 <div class="param-desc">
-    negated version of URL fragment for filtering the given column(s)
+    <p>negated version of URL segment for filtering the given column(s)</p>
 </div>
 
 
@@ -1966,13 +2171,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseFilter.html">BaseFilter</a></li><li><a href="BaseRequestHandler.html">BaseRequestHandler</a></li><li><a href="DataDiscoveryFilter.html">DataDiscoveryFilter</a></li><li><a href="DataDiscoveryResource.html">DataDiscoveryResource</a></li><li><a href="SlashDBClient.html">SlashDBClient</a></li><li><a href="SQLPassThruFilter.html">SQLPassThruFilter</a></li><li><a href="SQLPassThruQuery.html">SQLPassThruQuery</a></li></ul><h3>Global</h3><ul><li><a href="global.html#and">and</a></li><li><a href="global.html#any">any</a></li><li><a href="global.html#between">between</a></li><li><a href="global.html#eq">eq</a></li><li><a href="global.html#fetchWrapper">fetchWrapper</a></li><li><a href="global.html#gte">gte</a></li><li><a href="global.html#handleResponse">handleResponse</a></li><li><a href="global.html#lte">lte</a></li><li><a href="global.html#not">not</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseFilter.html">BaseFilter</a></li><li><a href="BaseRequestHandler.html">BaseRequestHandler</a></li><li><a href="DataDiscoveryFilter.html">DataDiscoveryFilter</a></li><li><a href="DataDiscoveryResource.html">DataDiscoveryResource</a></li><li><a href="SQLPassThruFilter.html">SQLPassThruFilter</a></li><li><a href="SQLPassThruQuery.html">SQLPassThruQuery</a></li><li><a href="SlashDBClient.html">SlashDBClient</a></li></ul><h3>Global</h3><ul><li><a href="global.html#and">and</a></li><li><a href="global.html#any">any</a></li><li><a href="global.html#between">between</a></li><li><a href="global.html#chgPlaceHolder">chgPlaceHolder</a></li><li><a href="global.html#eq">eq</a></li><li><a href="global.html#fetchWrapper">fetchWrapper</a></li><li><a href="global.html#gte">gte</a></li><li><a href="global.html#handleResponse">handleResponse</a></li><li><a href="global.html#lte">lte</a></li><li><a href="global.html#not">not</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.11</a> on Wed Oct 26 2022 17:51:36 GMT-0400 (Eastern Daylight Saving Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Wed Jun 21 2023 19:06:37 GMT-0400 (Eastern Daylight Saving Time)
 </footer>
 
 <script> prettyPrint(); </script>

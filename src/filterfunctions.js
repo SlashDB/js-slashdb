@@ -54,12 +54,19 @@ let SDB_SEPARATOR = PLACEHOLDER_DEFAULTS['valueSeparator'];
 let SDB_NULLSTR = PLACEHOLDER_DEFAULTS['nullStr'];
 
 /**
-* Change placeholder values
+* Change placeholder values for `null` and `,` in filter functions.
 * eg: `chgPlaceHolder(null,'*nullValue*')` - updates the null placeholder to `*nullValue*`
-* No parameters  will set all placeholders to their default values.
-* A single placeholder parameter w/o a value will reset only that parameter to its default value.
-* Possible placeholder values are `null` and `,`
 *
+* Calling without parameters will reset all placeholders to their default values.
+* A single placeholder parameter w/o a value will reset only that parameter to its default value.
+*
+* Note that changing the `null` placeholder with this function will automatically set the `nullStr`
+* query string parameter for any `BaseFilter`, `DataDiscoveryFilter` and `SQLPassThruFilter` 
+* objects created afte invoking the function.
+*
+* *It is not recommended to change the `,` separator unless you are encountering issues creating filters
+* with the default value `|SDBSEP|`*
+
 * @param {any} placeHolder - placeholder to update
 * @param {string} value - new value for the placeholder
 * @returns {any} updated placeholder value

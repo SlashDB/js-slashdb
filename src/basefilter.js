@@ -159,6 +159,10 @@ class BaseFilter {
 
 	/**
 	* Sets the `nullStr` query string parameter
+	*
+	* When using the composable filter functions, if the `chgPlaceHolder` function is invoked to change the default
+	* `null` placeholder, any `BaseFilter`, `DataDiscoveryFilter`, and `SQLPassThruFilter` objects created after changing
+	* the placeholder will have the `nullStr` query string parameter automatically set to the value passed to `chgPlaceHolder`.
 	* @param {string} [nullString] - sets parameter with the value provided, resets to default if not given
 	* @returns this object	
 	* @throws {TypeError} if value provided is not a valid string

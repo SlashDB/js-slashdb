@@ -65,7 +65,7 @@
     </style>
 <script type="module">
     import { SlashDBClient, DataDiscoveryDatabase, DataDiscoveryResource, DataDiscoveryFilter, SQLPassThruQuery, SQLPassThruFilter,
-             eq, any, between, gte, lte, not, and, asc, desc, chgSeparator } from '../src/index.js';
+             eq, any, between, gte, lte, not, and, asc, desc, chgPlaceHolder } from '../src/index.js';
 
     // make methods, modules, available to console for testing
     window.DataDiscoveryFilter = DataDiscoveryFilter
@@ -83,6 +83,7 @@
     window.and = and
     window.desc = desc
     window.asc = asc
+    window.chgPlaceHolder = chgPlaceHolder;
 
     var host;
     var user;
@@ -407,7 +408,7 @@
     const filterDemo = async () => {
         document.querySelector('#apiTxt').style.color = '#000';        
         let outTxt = '';
-        chgSeparator(',')
+        chgPlaceHolder(',',',');
         try {
             let f = eq(column1,value1)
             outTxt += `* eq() - filter result: ${f}\n`;        
@@ -423,6 +424,9 @@
             document.querySelector('#filterTxt').innerHTML = outTxt;           
             f = gte('Temperature',0)
             outTxt += `* gte() - filter result: ${f}\n`;        
+            document.querySelector('#filterTxt').innerHTML = outTxt;           
+            f = any(column1, between(5,10), between(20,30));
+            outTxt += `* any() - filter result: ${f}\n`;        
             document.querySelector('#filterTxt').innerHTML = outTxt;           
             f = and(eq(column1,value1),any(column2,value1,value2));
             outTxt += `* and( eq(), any() ) - filter result: ${f}\n`;        
@@ -466,9 +470,9 @@
             console.log('User details for user taskapp -- ')
             console.log(await sdb1.getUser('taskapp'));
             console.log('Reflect Status for Chinook --');
-            console.log(await sdb1.getReflectStatus('Chinook'));
+            console.log(await sdb1.getReflectStatus(database));
             console.log('DB definition for Chinook --');
-            console.log(await sdb1.getDbDef('Chinook'));
+            console.log(await sdb1.getDbDef(database));
             console.log('Query definitions all --');
             console.log(await sdb1.getQueryDef());
             console.log('Query definition for add-new-customer --');
@@ -492,7 +496,7 @@
 
     let dbs = await sdb1.getDatabases()
     console.log(dbs);
-    let chinookdb = dbs['Chinook'];
+    let chinookdb = dbs[database];
     let chinook_res = await chinookdb.getDataDiscoveryResources();
     console.log(chinook_res);
     let cust_res = chinook_res['Customer'];
@@ -508,7 +512,7 @@
     console.log(r.data);
     
     console.log('\noption2 -- getting JSON')
-    chinookdb = new DataDiscoveryDatabase(sdb1, 'Chinook')
+    chinookdb = new DataDiscoveryDatabase(sdb1, database)
     cust_res = new DataDiscoveryResource(chinookdb,'Customer');
     r = await cust_res.get(eq("FirstName","F*"))
     console.log(r.data)    
@@ -744,12 +748,13 @@
         Filter functions
         <pre>
         // Filter expressions
-        f = eq(fieldName, value);                          // equality/match filter 
-        f = any(fieldName, value1, value2...valueN);       // multi-value match filter 
-        f = between(fieldName, lowerValue, upperValue);    // range filter 
-        f = lte(fieldName, upperValue);                    // less-than-equal filter             
-        f = gte(fieldName, lowerValue);                    // greater-than-equal filter             
-        
+        f = eq(fieldName, value);                               // equality/match filter
+        f = any(fieldName, value1, value2...valueN);            // multi-value match filter 
+        f = between(fieldName, lowerValue, upperValue);         // range filter 
+        f = lte(fieldName, upperValue);                         // less-than-equal filter             
+        f = gte(fieldName, lowerValue);                         // greater-than-equal filter             
+        f = any(fieldName, between(lv1,uv1), between(lv2,uv2)); // multi-value range filter
+
         // Expression modifiers
         f = and(expr1, expr2...exprN);                     // concatenation - join multiple filters in form of strings or filter expressions
         f = not(expr);                                     // negation - negate a filter in form of string or filter expression
