@@ -22,7 +22,7 @@ import {
   SlashDBClient, 
   DataDiscoveryDatabase, DataDiscoveryResource, DataDiscoveryFilter, 
   SQLPassThruQuery, SQLPassThruFilter, 
-  eq, any, between, gte, lte, not, and, asc, desc, chgSeparator
+  eq, any, between, gte, lte, not, and, asc, desc, chgPlaceHolder
 } from '@slashdb/js-slashdb';
 ```
 
@@ -32,7 +32,7 @@ Or import them separately:
 * `import { DataDiscoveryFilter } from '@slashdb/js-slashdb/src/datadiscoveryfilter.js';`
 * `import { SQLPassThruQuery } from '@slashdb/js-slashdb/src/sqlpassthru.js';`
 * `import { SQLPassThruFilter } from '@slashdb/js-slashdb/src/sqlpassthrufilter.js';`
-* `import { eq, any, between, gte, lte, not, and, chgSeparator, asc, desc } from '@slashdb/js-slashdb/src/filterfunctions.js';`
+* `import { eq, any, between, gte, lte, not, and, chgPlaceHolder, asc, desc } from '@slashdb/js-slashdb/src/filterfunctions.js';`
 
 If you aren't using `npm`, just reference the files in the `src` folder, e.g.:  
 
@@ -41,7 +41,7 @@ import {
   SlashDBClient, 
   DataDiscoveryDatabase, DataDiscoveryResource, DataDiscoveryFilter, 
   SQLPassThruQuery, SQLPassThruFilter, 
-  eq, any, between, gte, lte, not, and, asc, desc, chgSeparator 
+  eq, any, between, gte, lte, not, and, asc, desc, chgPlaceHolder 
 } from './src/index.js';
 ```
 
@@ -89,7 +89,7 @@ All the [DataDiscovery/SQL Pass-Thru options in the documentation](https://docs.
 
 ## Demo Application
 
-There is a small demo application in this repository.  To use it _(assumes you have Node installed, v17.5+ recommended)_ :
+There is a small demo application in this repository.  To use it _(assumes using Node, v18+ recommended)_ :
 * Clone this repository to your system and open a shell in the repo folder 
 * Run `npm install`
 * Run `npm run localserver` _(starts an HTTP server on port 8080)_
