@@ -15,7 +15,7 @@
 /**
  * fetch API wrapper for handling HTTP requests.
  *
- * @param {string} httpMethod - HTTP method to use for the fetch() call
+ * @param {string} httpMethod - HTTP method to use for the `fetch()` call
  * @param {string} url - protocol, host:port and path to resource/endpoint
  * @param {object} body - Payload to be sent; object containing key/value pairs.
  * @param {object} headers - Header parameters to send in request; object containing key/value pairs.

@@ -14,16 +14,16 @@ const SDB_DDF_XSDCARD_TYPE = 'xsdCardinality must be a string or positive intege
 class DataDiscoveryFilter extends BaseFilter {
 
    /**
-   * Create a DataDiscoveryFilter object for making SlashDB-compatible URL strings
+   * Create a `DataDiscoveryFilter` object for making SlashDB-compatible URL strings
    * @extends BaseFilter
    * @param {string} [filter] - optional filter string to instantiate object with; accepts strings created using filter expression functions
-   * @param {string} [wildcard] - set if using a special wildcard character(s) in URL strings (default is '*')
-   * @param {string} [separator] - set if using a special separator character(s) in URL strings (default is ',')
+   * @param {string} [wildcard] - set if using a special wildcard character(s) in URL strings (default is `*`)
+   * @param {string} [separator] - set if using a special separator character(s) in URL strings (default is `,`)
    * @param {string} [urlPlaceholder] -  a string that contains a character(s) to set for the placeholder query parameter (used to indicate what character(s)
    * was used to replace '/' character in values contained in the URL that may contain the '/' character);  default is '__'
-   * @throws {TypeError} if wildcard or separator parameters are not strings, are empty strings, or contain '/' character
-   * @throws {TypeError} if filter parameter  is not a string or an empty string
-   * @throws {SyntaxError} if filter does not contain '/' character
+   * @throws {TypeError} if `wildcard` or `separator` parameters are not strings, are empty strings, or contain '/' character
+   * @throws {TypeError} if `filter` parameter  is not a string or an empty string
+   * @throws {SyntaxError} if `filter` parameter does not contain '/' character
    */    	
 	constructor(filter = null, wildcard = '*', separator = ',', urlPlaceholder = '__') {
 		super(urlPlaceholder);
@@ -78,14 +78,14 @@ class DataDiscoveryFilter extends BaseFilter {
 
 	/**
 	* Add a filter string to this object and stores info about filter; accepts strings created using filter expression functions
-	* @param {string} filterString - a filter string; can contain multiple filters (e.g. 'FirstName/Tim/LastName/Smith') or values 
+	* @param {string} filterString - a filter string; can contain multiple filters (e.g. `'FirstName/Tim/LastName/Smith'`) or values 
 	* created using filter expression functions 
 	*
-	* e.g. and(eq('FirstName','Tim'),eq('LastName','Smith'))
+	* e.g. `and(eq('FirstName','Tim'),eq('LastName','Smith'))`
 	*
 	* @returns {DataDiscoveryFilter} this object
-	* @throws {TypeError} - if filterString parameter is not a string or is an empty string
-	* @throws {SyntaxError} - if filterString parameter does not contain '/' character
+	* @throws {TypeError} - if `filterString` parameter is not a string or is an empty string
+	* @throws {SyntaxError} - if `filterString` parameter does not contain '/' character
 	*/ 	
 	addFilter(filterString) {
 
@@ -111,9 +111,9 @@ class DataDiscoveryFilter extends BaseFilter {
 	* Adds a resource to this object and stores info about it 
 	* @param {string} resource - resource name to add to object
 	* @returns {DataDiscoveryFilter} this object
-	* @throws {TypeError} - if resource parameter is not a string or is an empty string
-	* @throws {SyntaxError} - if resource parameter contains '/' character
-	* @throws {SyntaxError} - if resource parameter parses to a number or contains a space
+	* @throws {TypeError} - if `resource` parameter is not a string or is an empty string
+	* @throws {SyntaxError} - if `resource` parameter contains '/' character
+	* @throws {SyntaxError} - if `resource` parameter parses to a number or contains a space
 	*/ 		
 	join(resource) { 
 		if (typeof(resource) !== 'string' || resource.trim().length < 1) {
@@ -134,8 +134,8 @@ class DataDiscoveryFilter extends BaseFilter {
 	}
 
 	/**
-	* Sets the stream query string parameter
-	* @param {boolean} [toggle] - sets the stream query string parameter if not provided; removes the query string parameter if set to false
+	* Sets the `stream` query string parameter
+	* @param {boolean} [toggle] - sets the parameter if not provided; removes the parameter if set to false
 	* @returns {DataDiscoveryFilter} this object
 	*/ 		 	
 	stream(toggle = true) {
@@ -146,8 +146,8 @@ class DataDiscoveryFilter extends BaseFilter {
 	}
 
 	/**
-	* Sets the depth query string parameter
-	* @param {number | boolean} [level] - sets the depth query string parameter with the value provided; removes the query string
+	* Sets the `depth` query string parameter
+	* @param {number | boolean} [level] - sets the parameter with the value provided; removes the
 	* parameter if not provided or set to false
 	* @returns {DataDiscoveryFilter} this object
 	* @throws {TypeError} if value provided is not an integer or < 1
@@ -164,8 +164,8 @@ class DataDiscoveryFilter extends BaseFilter {
 		
 
 	/**
-	* Sets the wantarray query string parameter
-	* @param {boolean} [toggle] - sets the wantarray query string parameter if not provided; removes the query string parameter if set to false
+	* Sets the `wantarray` query string parameter
+	* @param {boolean} [toggle] - sets the parameter if not provided; removes the parameter if set to false
 	* @returns {DataDiscoveryFilter} this object
 	*/ 	
 	wantarray(toggle = true) {
@@ -176,8 +176,8 @@ class DataDiscoveryFilter extends BaseFilter {
 	}
 
 	/**
-	* Sets the headers query string parameter; applies only to CSV formatted data
-	* @param {boolean} [toggle] - sets the headers query string parameter if not provided; removes the query string parameter if set to false.
+	* Sets the `headers` query string parameter; applies only to CSV formatted data
+	* @param {boolean} [toggle] - sets the parameter if not provided; removes the parameter if set to false.
 	* @returns {DataDiscoveryFilter} this object
 	*/ 	
 	csvHeader(toggle = true) {
@@ -188,8 +188,8 @@ class DataDiscoveryFilter extends BaseFilter {
 	}
 
 	/**
-	* Sets the csvNullStr query string parameter; applies only to CSV formatted data
-	* @param {boolean} [toggle] - sets the csvNullStr query string parameter if not provided; removes the query string parameter if set to false.
+	* Sets the `csvNullStr` query string parameter; applies only to CSV formatted data
+	* @param {boolean} [toggle] - sets the parameter if not provided; removes the parameter if set to false.
 	* @returns {DataDiscoveryFilter} this object
 	*/	
 	csvNullStr(toggle = true) {
@@ -200,8 +200,8 @@ class DataDiscoveryFilter extends BaseFilter {
 	}
 
 	/**
-	* Sets the href query string parameter; applies only to JSON/XML formatted data
-	* @param {boolean} [toggle] - sets the href query string parameter if not provided; removes the query string parameter if set to false.
+	* Sets the `href` query string parameter; applies only to JSON/XML formatted data
+	* @param {boolean} [toggle] - sets the parameter if not provided; removes the parameter if set to false.
 	* @returns {DataDiscoveryFilter} this object
 	*/		
 	jsonHref(toggle = true) {
@@ -212,11 +212,11 @@ class DataDiscoveryFilter extends BaseFilter {
 	}	
 
 	/**
-	* Sets the cardinality query string parameter; applies only to XSD formatted data
-	* @param {string} [value] - the value for the cardinality parameter (default is 'unbounded'); removes the query string parameter if set to false
+	* Sets the `cardinality` query string parameter; applies only to XSD formatted data
+	* @param {string} [value] - the value for the parameter (default is `'unbounded'`); removes the parameter if set to false
 	* @returns {DataDiscoveryFilter} this object	
-	* @throws {TypeError} if value parameter is an empty string
-	* @throws {TypeError} if value parameter is not an integer or < 0
+	* @throws {TypeError} if `value` parameter is an empty string
+	* @throws {TypeError} if `value` parameter is not an integer or < 0
 	*/		
 	xsdCardinality(value = 'unbounded') {
 

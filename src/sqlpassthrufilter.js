@@ -12,7 +12,7 @@ const SDB_SPTF_INVALID_XMLTYPE = "Parameter must be a non-empty string";
 class SQLPassThruFilter extends BaseFilter {
 
    /**
-   * Create a SQLPassThruFilter object for making SlashDB-compatible URL strings
+   * Create a `SQLPassThruFilter` object for making SlashDB-compatible URL strings
    * @extends BaseFilter
    * @param {Object} [params] - optional object of key/value pairs representing SQL query parameters to instantiate this object with
    * @param {string} [urlPlaceholder] -  a string that contains a character(s) to set for the placeholder query parameter (used to indicate what character(s)
@@ -41,12 +41,12 @@ class SQLPassThruFilter extends BaseFilter {
 	* Adds SQL query parameters to this object and stores info about them
 	* @param {Object} params - an object of key/value pairs containing parameter names and values
 	* @returns {SQLPassThruFilter} this object
-	* @throws {SyntaxError} - if params parameter is not an object
-	* @throws {SyntaxError} - if any object keys parse to numbers
-	* @throws {TypeError} - if any object keys are not strings or contain spaces
-	* @throws {TypeError} - if any object keys contain '/' character
-	* @throws {TypeError} - if any object values are not strings or numbers, or are empty strings
-	* @throws {TypeError} - if any object values contain '/' character
+	* @throws {SyntaxError} - if `params` parameter is not an object
+	* @throws {SyntaxError} - if any of the `param` keys parse to numbers
+	* @throws {TypeError} - if any of the `param` keys are not strings or contain spaces
+	* @throws {TypeError} - if any of the `param` keys contain '/' character
+	* @throws {TypeError} - if any of the `param` values are not strings or numbers, or are empty strings
+	* @throws {TypeError} - if any of the `param` values contain '/' character
 	*/ 	
 	addParams(params) {
 

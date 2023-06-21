@@ -55,10 +55,10 @@ let SDB_NULLSTR = PLACEHOLDER_DEFAULTS['nullStr'];
 
 /**
 * Change placeholder values
-*
-* eg: chgPlaceHolder(null,'*nullValue*') - updates the null placeholder to '*nullValue*'
+* eg: `chgPlaceHolder(null,'*nullValue*')` - updates the null placeholder to `*nullValue*`
 * No parameters  will set all placeholders to their default values.
 * A single placeholder parameter w/o a value will reset only that parameter to its default value.
+* Possible placeholder values are `null` and `,`
 *
 * @param {any} placeHolder - placeholder to update
 * @param {string} value - new value for the placeholder
@@ -124,7 +124,7 @@ function validateColumnName(col) {
 /**
 * Single value equality filter - column value equals parameter value
 *
-* eg: eq("CustomerId",1)
+* eg: `eq("CustomerId",1)`
 *
 * @param {string} col - name of column to apply filter to
 * @param {string | number} value - parameter containing the value to filter by
@@ -153,7 +153,7 @@ function eq(col, value) {
 /**
 * Multi-value equality filter - column value equals any of the parameter values
 *
-* eg: any("CustomerId",1,2,3)
+* eg: `any("CustomerId",1,2,3)`
 *
 * @param {string} col - name of column to apply filter to
 * @param {...string | ...number} values - comma delimited list of values to filter by (can be mixed strings/numbers)
@@ -199,11 +199,11 @@ function any(col, ...values) {
 
 
 /**
-* Range filter - column value is between the parameter values
+* Range filter - column value is between the parameter values (inclusive)
 *
 * eg: 
-* between("CustomerId",1,10) - returns range string with column name
-* between(4,8) - returns range string w/o column name
+* `between("CustomerId",1,10)` - returns range string with column name
+* `between(4,8)` - returns range string w/o column name
 *
 * @param {string} arg1 - name of column to apply filter to, or lower bound
 * @param {string | number | null} lb - lower bound value of the range, or upper bound
@@ -275,11 +275,11 @@ function between(arg1, lb = null, ub = null) {
 
 /**
 * Greater-than-equal filter - column value is greater than or equal to the parameter value
-* Wrapper for between()
+* Wrapper for `between()`
 *
 * eg: 
-* gte("CustomerId",10) - returns range string with column name
-* gte(10) - returns range string w/o column
+* `gte("CustomerId",10)` - returns range string with column name
+* `gte(10)` - returns range string w/o column
 *
 * @param {string} arg1 - name of column to apply filter to, or lower bound
 * @param {string | number } lb - lower bound value of the filter when column name given
@@ -301,11 +301,11 @@ function gte(arg1, lb) {
 
 /**
 * Less-than-equal filter - column value is less than or equal to the parameter value
-* Wrapper for between()
+* Wrapper for `between()`
 *
 * eg: 
-* lte("CustomerId",10) - returns range string with column name
-* lte(10) - returns range string w/o column
+* `lte("CustomerId",10)` - returns range string with column name
+* `lte(10)` - returns range string w/o column
 *
 * @param {string} arg1 - name of column to apply filter to, or upper bound
 * @param {string | number } ub - upper bound value of the filter when column name given
@@ -328,9 +328,9 @@ function lte(arg1, ub) {
 // *** expression modifiers - operate on expressions created by expression builders
 
 /**
-* Negates a filter expression - can nest any/eq/and/between/gte/lte expressions
+* Negates a filter expression - can nest `any, eq, and, between, gte, lte` expressions
 *
-* eg: not(eq("CustomerId",1))
+* eg: `not(eq("CustomerId",1))`
 *
 * @param {string} colFilter - a string containing column filter (can contain concatenated filters)
 * @returns {string} negated version of URL segment for filtering the given column(s)
@@ -353,9 +353,9 @@ function not(colFilter) {
 
 
 /**
-* Concatenates filter expressions - can nest any/eq/between/gte/lte expressions
+* Concatenates filter expressions - can nest `any, eq, between, gte, lte` expressions
 *
-* eg: and( eq("FirstName","David"), any("City","Vancouver","Edmonton") )
+* eg: `and( eq("FirstName","David")`, `any("City","Vancouver","Edmonton") )`
 *
 * @param {...string} colFilters - comma delimited list of strings containing column filters
 * @returns {string} concatenated URL segment containing multiple column filters

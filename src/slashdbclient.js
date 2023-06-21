@@ -19,7 +19,7 @@ class SlashDBClient {
    * @param {string} [username] - optional username to use when connecting to SlashDB instance
    * @param {string} [apiKey] - optional API key associated with username
    */
-  // constructor(host, username, apiKey, password = undefined) {
+
   constructor(host, username, apiKey) {
 
     if (!host || typeof(host) !== 'string') {
@@ -32,22 +32,13 @@ class SlashDBClient {
 
     }
 
-    // if (!apiKey && !password) {
-    //   throw ReferenceError(SDB_SDBC_MISSING_AUTH);
-    // }
-
     if (apiKey && typeof(apiKey) !== 'string') {
       throw TypeError(SDB_SDBC_INVALID_APIKEY);
     }
 
-    // if (password && typeof(password) !== 'string') {
-    //   throw TypeError(SDB_SDBC_INVALID_PASSWORD);
-    // }
-
     this.host = host;
     this.username = username
     this.apiKey = apiKey;
-    // this.password = password;
 
     // create the special case BaseRequestHandler object for interacting with config endpoints
     this.sdbConfig = new BaseRequestHandler(this);
@@ -183,7 +174,7 @@ class SlashDBClient {
   /**
    * Retrieve a list of databases that are configured on the SlashDB instance
    * @returns {Object} databases - a key/value pair object keyed by database name, with
-   * a corresponding DataDiscoveryDatabase object for each key
+   * a corresponding `DataDiscoveryDatabase` object for each key
    */
   async getDatabases() {
     const databases = {};
@@ -198,7 +189,7 @@ class SlashDBClient {
    * Retrieve a list of SQL Pass-Thru queries that are configured on the SlashDB instance
    * @param {string} [dbName] - database name; if specified, will only return queries associated with the given database
    * @returns {object} queries - a key/value pair object keyed by query ID, with
-   * a corresponding SQLPassThruQuery object for each key
+   * a corresponding `SQLPassThruQuery` object for each key
    */
   async getQueries(dbName = undefined) {
     let queryList = await this.getQueryDef();
