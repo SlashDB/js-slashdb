@@ -26,7 +26,7 @@ const testIf = (condition, ...args) =>
     }
 
     // add a record to Chinook database Customer table for PUT/DELETE tests
-    fetchWrapper("POST", `${LIVE_SDB_HOST}/db/Chinook/Customer`, testCustomer, {'Content-Type': 'application/json'});
+    fetchWrapper("POST", `${LIVE_SDB_HOST}/db/${TEST_DB_NAME}/Customer`, testCustomer, {'Content-Type': 'application/json'});
     
     });
 
@@ -38,14 +38,14 @@ const testIf = (condition, ...args) =>
     afterAll( async () => {
         // delete the record created by the POST test
         try {
-            let r = await fetchWrapper("DELETE", `${LIVE_SDB_HOST}/db/Chinook/Customer/FirstName/POSTTest`);
+            let r = await fetchWrapper("DELETE", `${LIVE_SDB_HOST}/db/${TEST_DB_NAME}/Customer/FirstName/POSTTest`);
         }
         catch(e) {
             null;
         }
         // delete the record created before tests ran if DELETE test failed to delete it
         try {
-            let r = await fetchWrapper("DELETE", `${LIVE_SDB_HOST}/db/Chinook/Customer/FirstName/BaseRequestTestRecord`);
+            let r = await fetchWrapper("DELETE", `${LIVE_SDB_HOST}/db/${TEST_DB_NAME}/Customer/FirstName/BaseRequestTestRecord`);
         }
         catch(e) {
             null;
@@ -234,7 +234,7 @@ describe('BaseRequestHandler() class tests', () => {
         // 400 error - non-existent column in resource
         try {
             let testBRH = new BaseRequestHandler(liveClient)
-            await testBRH.get('/db/Chinook/Customer/InvalidResource');
+            await testBRH.get(`/db/${TEST_DB_NAME}/Customer/InvalidResource`);
         }
         catch(e) {
             expect(e.message).toBe('400');
@@ -365,7 +365,7 @@ describe('BaseRequestHandler() class tests', () => {
         // valid resource to create
         try {
             let testBRH = new BaseRequestHandler(liveClient);
-            let r = await testBRH.post(newCustomer,'/db/Chinook/Customer');
+            let r = await testBRH.post(newCustomer,`/db/${TEST_DB_NAME}/Customer`);
             expect(r.res.status).toBe(201)
         }
         catch(e) {
@@ -375,7 +375,7 @@ describe('BaseRequestHandler() class tests', () => {
         // non-existent resource - 404
         try {
             let testBRH = new BaseRequestHandler(liveClient);
-            let r = await testBRH.post(newCustomer,'/db/Chinook/InvalidResource');
+            let r = await testBRH.post(newCustomer,`/db/${TEST_DB_NAME}/InvalidResource`);
         }
         catch(e) {
             expect(e.message).toBe('404');
@@ -385,7 +385,7 @@ describe('BaseRequestHandler() class tests', () => {
         try {
             newCustomer['CustomerId'] = 1
             let testBRH = new BaseRequestHandler(liveClient) 
-            let r = await testBRH.post(newCustomer,'/db/Chinook/Customer');
+            let r = await testBRH.post(newCustomer,`/db/${TEST_DB_NAME}/Customer`);
         }
         catch(e) {
             expect(e.message).toBe('409');
@@ -489,7 +489,7 @@ describe('BaseRequestHandler() class tests', () => {
         // valid resource to update
         try {
             let testBRH = new BaseRequestHandler(liveClient);
-            let r = await testBRH.put('/db/Chinook/Customer/FirstName/BaseRequestTestRecord', updateCustomer);            
+            let r = await testBRH.put(`/db/${TEST_DB_NAME}/Customer/FirstName/BaseRequestTestRecord`, updateCustomer);            
             expect(r.res.status).toBe(204);
         }
         catch(e) {
@@ -499,7 +499,7 @@ describe('BaseRequestHandler() class tests', () => {
         // non-existent record - 404
         try {
             let testBRH = new BaseRequestHandler(liveClient); 
-            let r = await testBRH.put('/db/Chinook/InvalidResource', updateCustomer);  
+            let r = await testBRH.put(`/db/${TEST_DB_NAME}/InvalidResource`, updateCustomer);  
         }
         catch(e) {
             expect(e.message).toBe('404');
@@ -508,7 +508,7 @@ describe('BaseRequestHandler() class tests', () => {
         // non-existent column in record - 400
         try {
             let testBRH = new BaseRequestHandler(liveClient); 
-            let r = await testBRH.put('/db/Chinook/Customer/InvalidColumn/BaseRequestTestRecord', updateCustomer);  
+            let r = await testBRH.put(`/db/${TEST_DB_NAME}/Customer/InvalidColumn/BaseRequestTestRecord`, updateCustomer);  
         }
         catch(e) {
             expect(e.message).toBe('400');
@@ -584,7 +584,7 @@ describe('BaseRequestHandler() class tests', () => {
         // valid resource to delete
         try {
             let testBRH = new BaseRequestHandler(liveClient);
-            let r = await testBRH.delete('/db/Chinook/Customer/FirstName/BaseRequestTestRecord');                    
+            let r = await testBRH.delete(`/db/${TEST_DB_NAME}/Customer/FirstName/BaseRequestTestRecord`);                    
             expect(r.res.status).toBe(204)
         }
         catch(e) {
@@ -594,7 +594,7 @@ describe('BaseRequestHandler() class tests', () => {
         // non-existent record - 404
         try {
             let testBRH = new BaseRequestHandler(liveClient);
-            await testBRH.delete('/db/Chinook/InvalidResource');   
+            await testBRH.delete(`/db/${TEST_DB_NAME}/InvalidResource`);   
         }
         catch(e) {
             expect(e.message).toBe('404');
@@ -603,7 +603,7 @@ describe('BaseRequestHandler() class tests', () => {
         // non-existent column in record - 400
         try {
             let testBRH = new BaseRequestHandler(liveClient);
-            await testBRH.delete('/db/Chinook/Customer/InvalidResource');   
+            await testBRH.delete(`/db/${TEST_DB_NAME}/Customer/InvalidResource`);   
         }
         catch(e) {
             expect(e.message).toBe('400');
