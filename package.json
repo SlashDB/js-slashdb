@@ -1,7 +1,7 @@
 {
   "name": "@slashdb/js-slashdb",
-  "version": "1.0.0",
-  "description": "Vanilla Javascript SDK for SlashDB development",
+  "version": "1.1.0",
+  "description": "Vanilla Javascript SDK for SlashDB development (SlashDB 1.7x)",
   "main": "src/index.js",
   "scripts": {
     "test": "jest",
