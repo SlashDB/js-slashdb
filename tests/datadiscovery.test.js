@@ -7,7 +7,7 @@ const testIf = (condition, ...args) =>
   condition ? test(...args) : test.skip(...args);
 
 
-beforeAll( () => {
+beforeAll( async () => {
     // disable console errors, warns
     jest.spyOn(console, 'error').mockImplementation(() => {});
     jest.spyOn(console, 'warn').mockImplementation(() => {});
@@ -26,8 +26,7 @@ beforeAll( () => {
     }
 
     // add a record to Chinook database Customer table for PUT/DELETE tests
-    fetchWrapper("POST", `${LIVE_SDB_HOST}/db/Chinook/Customer`, testCustomer, {'Content-Type': 'application/json'});
-    
+    await fetchWrapper("POST", `${LIVE_SDB_HOST}/db/${SDB_TEST_DB_NAME}/Customer`, testCustomer, {'Content-Type': 'application/json'});
 });
 
 afterEach( () => {
@@ -38,14 +37,14 @@ afterEach( () => {
 afterAll( async () => {
     // delete the record created by the POST test
     try {
-        let r = await fetchWrapper("DELETE", `${LIVE_SDB_HOST}/db/Chinook/Customer/FirstName/POSTTest`);
+        let r = await fetchWrapper("DELETE", `${LIVE_SDB_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/POSTTest`);
     }
     catch(e) {
         null;
     }
     // delete the record created before tests ran if DELETE test failed to delete it
     try {
-        let r = await fetchWrapper("DELETE", `${LIVE_SDB_HOST}/db/Chinook/Customer/FirstName/DataDiscoveryTestRecord`);
+        let r = await fetchWrapper("DELETE", `${LIVE_SDB_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/DataDiscoveryTestRecord`);
     }
     catch(e) {
         null;
@@ -60,9 +59,9 @@ describe('DataDiscoveryResource() class tests', () => {
     const customers = 
     [
         {
-            "__href": "/db/Chinook/Customer/CustomerId/1.json",
+            "__href": `/db/${SDB_TEST_DB_NAME}/Customer/CustomerId/1.json`,
             "Employee": {
-                "__href": "/db/Chinook/Customer/CustomerId/1/Employee.json"
+                "__href": `/db/${SDB_TEST_DB_NAME}/Customer/CustomerId/1/Employee.json`
             },
             "CustomerId": 1,
             "FirstName": "Lu\u00eds",
@@ -78,13 +77,13 @@ describe('DataDiscoveryResource() class tests', () => {
             "Email": "luisg@embraer.com.br",
             "SupportRepId": 3,
             "Invoice": {
-                "__href": "/db/Chinook/Customer/CustomerId/1/Invoice.json"
+                "__href": `/db/${SDB_TEST_DB_NAME}/Customer/CustomerId/1/Invoice.json`
             }
         },
         {
-            "__href": "/db/Chinook/Customer/CustomerId/2.json",
+            "__href": `/db/${SDB_TEST_DB_NAME}/Customer/CustomerId/2.json`,
             "Employee": {
-                "__href": "/db/Chinook/Customer/CustomerId/2/Employee.json"
+                "__href": `/db/${SDB_TEST_DB_NAME}/Customer/CustomerId/2/Employee.json`
             },
             "CustomerId": 2,
             "FirstName": "Leonie",
@@ -100,13 +99,13 @@ describe('DataDiscoveryResource() class tests', () => {
             "Email": "leonekohler@surfeu.de",
             "SupportRepId": 5,
             "Invoice": {
-                "__href": "/db/Chinook/Customer/CustomerId/2/Invoice.json"
+                "__href": `/db/${SDB_TEST_DB_NAME}/Customer/CustomerId/2/Invoice.json`
             }
         },
         {
-            "__href": "/db/Chinook/Customer/CustomerId/3.json",
+            "__href": `/db/${SDB_TEST_DB_NAME}/Customer/CustomerId/3.json`,
             "Employee": {
-                "__href": "/db/Chinook/Customer/CustomerId/3/Employee.json"
+                "__href": `/db/${SDB_TEST_DB_NAME}/Customer/CustomerId/3/Employee.json`
             },
             "CustomerId": 3,
             "FirstName": "Fran\u00e7ois",
@@ -122,21 +121,21 @@ describe('DataDiscoveryResource() class tests', () => {
             "Email": "ftremblay@gmail.com",
             "SupportRepId": 3,
             "Invoice": {
-                "__href": "/db/Chinook/Customer/CustomerId/3/Invoice.json"
+                "__href": `/db/${SDB_TEST_DB_NAME}/Customer/CustomerId/3/Invoice.json`
             }
         }
     ];
 
     test('testing: constructor()', () => {
 
-        const testDDD = new DataDiscoveryDatabase(mockClient, 'Chinook')
+        const testDDD = new DataDiscoveryDatabase(mockClient, SDB_TEST_DB_NAME)
 
         // simplest constructor - dbName and resourceName defined as strings, client object explicitly given
-        let testDDR = new DataDiscoveryResource('Chinook','Customer',mockClient)
+        let testDDR = new DataDiscoveryResource(SDB_TEST_DB_NAME,'Customer',mockClient)
         expect(testDDR).toHaveProperty('dbPrefix');
         expect(testDDR.dbPrefix).toBe('/db/');
         expect(testDDR).toHaveProperty('dbName');
-        expect(testDDR.dbName).toBe('Chinook');
+        expect(testDDR.dbName).toBe(SDB_TEST_DB_NAME);
         expect(testDDR).toHaveProperty('resourceName');
         expect(testDDR.resourceName).toBe('Customer');
         expect(testDDR).toHaveProperty('sdbClient');
@@ -147,7 +146,7 @@ describe('DataDiscoveryResource() class tests', () => {
         expect(testDDR).toHaveProperty('dbPrefix');
         expect(testDDR.dbPrefix).toBe('/db/');
         expect(testDDR).toHaveProperty('dbName');
-        expect(testDDR.dbName).toBe('Chinook');
+        expect(testDDR.dbName).toBe(SDB_TEST_DB_NAME);
         expect(testDDR).toHaveProperty('resourceName');
         expect(testDDR.resourceName).toBe('Customer');
         expect(testDDR).toHaveProperty('sdbClient');
@@ -165,12 +164,12 @@ describe('DataDiscoveryResource() class tests', () => {
 
         // no resource name or object given
         expect(() => {
-            result = new DataDiscoveryResource('Chinook',undefined,mockClient);
+            result = new DataDiscoveryResource(SDB_TEST_DB_NAME,undefined,mockClient);
         }).toThrowError();
 
         // no client object provided
         expect(() => {
-            result = new DataDiscoveryResource('Chinook','Customer');
+            result = new DataDiscoveryResource(SDB_TEST_DB_NAME,'Customer');
         }).toThrowError();        
 
         // non-strings for dbName, resourceName
@@ -183,7 +182,7 @@ describe('DataDiscoveryResource() class tests', () => {
 
         // non-SlashDBClient object for client object
         expect(() => {
-            result = new DataDiscoveryResource('Chinook','Customer',{a:'1'});
+            result = new DataDiscoveryResource(SDB_TEST_DB_NAME,'Customer',{a:'1'});
         }).toThrowError();          
 
         // non-DataDiscoveryDatabase object provided
@@ -192,7 +191,7 @@ describe('DataDiscoveryResource() class tests', () => {
         }).toThrowError();  
 
         // DDD with invalid sdbClient provided
-        const badDDD = new DataDiscoveryDatabase(mockClient,'Chinook');
+        const badDDD = new DataDiscoveryDatabase(mockClient,SDB_TEST_DB_NAME);
         badDDD.sdbClient = 'invalid';
         expect(() => {
             result = new DataDiscoveryResource(badDDD, 'Customer');
@@ -202,7 +201,7 @@ describe('DataDiscoveryResource() class tests', () => {
     });
 
     test('testing: accept() method', () => {
-        let testDDR = new DataDiscoveryResource('Chinook','Customer',mockClient)
+        let testDDR = new DataDiscoveryResource(SDB_TEST_DB_NAME,'Customer',mockClient)
         expect(testDDR).toHaveProperty('acceptHeader')
         expect(testDDR.acceptHeader).toBe('application/json')
         testDDR.accept('csv')
@@ -221,7 +220,7 @@ describe('DataDiscoveryResource() class tests', () => {
     });
 
     test('testing: contentType() method', () => {
-        let testDDR = new DataDiscoveryResource('Chinook','Customer',mockClient)
+        let testDDR = new DataDiscoveryResource(SDB_TEST_DB_NAME,'Customer',mockClient)
         expect(testDDR).toHaveProperty('contentTypeHeader')
         expect(testDDR.contentTypeHeader).toBe('application/json')        
         testDDR.contentType('csv')
@@ -247,7 +246,7 @@ describe('DataDiscoveryResource() class tests', () => {
             'key3':'value3',
         }
 
-        let testDDR = new DataDiscoveryResource('Chinook','Customer',mockClient)
+        let testDDR = new DataDiscoveryResource(SDB_TEST_DB_NAME,'Customer',mockClient)
         expect(testDDR).toHaveProperty('extraHeaders')
         expect(testDDR.extraHeaders).toEqual({})
 
@@ -284,9 +283,9 @@ describe('DataDiscoveryResource() class tests', () => {
     testIf(MOCK_TESTS_ENABLED, 'testing: get() mock tests', async () => {
 
         fetchMock
-            .get(`${MOCK_HOST}/db/Chinook/Customer`, customers)
-            .get(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource`, 404 )
-            .get(`${MOCK_HOST}/db/Chinook/Customer/ForbiddenResource`, (url, options) => {
+            .get(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer`, customers)
+            .get(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/InvalidResource`, 404 )
+            .get(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/ForbiddenResource`, (url, options) => {
                 if (!options.headers.apiKey) {
                     return 403;
                 }
@@ -294,28 +293,28 @@ describe('DataDiscoveryResource() class tests', () => {
             })
             .get(`${MOCK_HOST}/userdef/admin`, 406 )
 
-        let testDDR = new DataDiscoveryResource('Chinook','Customer',mockClient)
+        let testDDR = new DataDiscoveryResource(SDB_TEST_DB_NAME,'Customer',mockClient)
         let r = await testDDR.get();
         expect(r.data).toStrictEqual(customers)
-        expect(fetchMock).toHaveLastGot(`${MOCK_HOST}/db/Chinook/Customer`);
+        expect(fetchMock).toHaveLastGot(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer`);
 
         // get a non-existent resource - 404
         try {
-            let testDDR = new DataDiscoveryResource('Chinook','Customer',mockClient)
+            let testDDR = new DataDiscoveryResource(SDB_TEST_DB_NAME,'Customer',mockClient)
             await  testDDR.get('InvalidResource');
         }
         catch(e) {
-            expect(fetchMock).toHaveLastGot(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource`);
+            expect(fetchMock).toHaveLastGot(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/InvalidResource`);
             expect(e.message).toBe('404');
         }
 
         // get a forbidden resource - 403
         try {
-            let testDDR = new DataDiscoveryResource('Chinook','Customer',mockClient)            
+            let testDDR = new DataDiscoveryResource(SDB_TEST_DB_NAME,'Customer',mockClient)            
             await testDDR.get('ForbiddenResource');
         }
         catch(e) {
-            expect(fetchMock).toHaveLastGot(`${MOCK_HOST}/db/Chinook/Customer/ForbiddenResource`);
+            expect(fetchMock).toHaveLastGot(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/ForbiddenResource`);
             expect(e.message).toBe('403');
         }
 
@@ -337,7 +336,7 @@ describe('DataDiscoveryResource() class tests', () => {
      testIf(LIVE_TESTS_ENABLED, 'testing: get() live tests', async () => {
 
         try {
-            let testDDR = new DataDiscoveryResource('Chinook','Customer',liveClient)
+            let testDDR = new DataDiscoveryResource(SDB_TEST_DB_NAME,'Customer',liveClient)
             let r = await testDDR.get('?limit=3');            
             expect(r.data).toStrictEqual(customers)
         }
@@ -347,7 +346,7 @@ describe('DataDiscoveryResource() class tests', () => {
 
         // 404 error - non-existent resource
         try {
-            let testDDR = new DataDiscoveryResource('Chinook','InvalidResource',liveClient)            
+            let testDDR = new DataDiscoveryResource(SDB_TEST_DB_NAME,'InvalidResource',liveClient)            
             await testDDR.get();
         }
         catch(e) {
@@ -356,7 +355,7 @@ describe('DataDiscoveryResource() class tests', () => {
 
         // 400 error - non-existent column in resource
         try {
-            let testDDR = new DataDiscoveryResource('Chinook','Customer',liveClient)            
+            let testDDR = new DataDiscoveryResource(SDB_TEST_DB_NAME,'Customer',liveClient)            
             await testDDR.get('InvalidResource');
         }
         catch(e) {
@@ -365,25 +364,30 @@ describe('DataDiscoveryResource() class tests', () => {
 
         // get a resource in a non-existent format - 406
         try {
-            let testDDR = new DataDiscoveryResource('/userdef/admin','deleteme',liveClient) 
+            let testDDR = new DataDiscoveryResource('/userdef/admin.html','deleteme',liveClient) 
             testDDR.dbPrefix = '';
-            testDDR.resourceName = '';        
+            testDDR.dbName = '/userdef';
+            testDDR.resourceName = 'admin.html';        
             await testDDR.get()
         }
         catch(e) {
             expect(e.message).toBe('406');
         }
 
-    try {
-        liveClient.apiKey = '';
-        let testDDR = new DataDiscoveryResource('/userdef','deleteme',liveClient) 
-        testDDR.dbPrefix = '';
-        testDDR.resourceName = '';        
-        await testDDR.get()
-    }
-    catch(e) {
-        expect(e.message).toBe('403');
-    }    
+        try {
+            liveClient.logout();
+            liveClient.apiKey = '';
+            let testDDR = new DataDiscoveryResource('/userdef','deleteme',liveClient);
+            testDDR.dbPrefix = '';
+            testDDR.resourceName = '';
+            await testDDR.get();
+        }
+        catch(e) {
+            expect(e.message).toBe('403');
+        }
+        finally {
+            liveClient.apiKey = LIVE_SDB_API_KEY;
+        }
 
     });
 
@@ -404,7 +408,7 @@ describe('DataDiscoveryResource() class tests', () => {
         }
 
         fetchMock
-            .post(`${MOCK_HOST}/db/Chinook/Customer`, (url, options) => {
+            .post(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer`, (url, options) => {
                 let b = JSON.parse(options.body)
                 if (!options.headers.apiKey) {
                         return 403;
@@ -420,20 +424,20 @@ describe('DataDiscoveryResource() class tests', () => {
                 
             return 201;
             })
-            .post(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource`, 404)
+            .post(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/InvalidResource`, 404)
 
         // create a new record
-        let testDDR = new DataDiscoveryResource('Chinook','Customer',mockClient)        
+        let testDDR = new DataDiscoveryResource(SDB_TEST_DB_NAME,'Customer',mockClient)        
         let r = await testDDR.post(newCustomer);
         expect(r.res.status).toBe(201)
-        expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/Chinook/Customer`);
+        expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer`);
 
         // create a record for a non-existent resource - 404
         try {
             await testDDR.post(newCustomer,'InvalidResource');
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource`);
+            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/InvalidResource`);
             expect(e.message).toBe('404');
         }
 
@@ -443,7 +447,7 @@ describe('DataDiscoveryResource() class tests', () => {
             await testDDR.post(newCustomer);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/Chinook/Customer`);
+            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer`);
             expect(e.message).toBe('403');
             mockClient.sdbConfig.apKey = '1234';             
         }
@@ -454,7 +458,7 @@ describe('DataDiscoveryResource() class tests', () => {
             await testDDR.post(newCustomer);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/Chinook/Customer`);
+            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer`);
             expect(e.message).toBe('400');
             newCustomer['nonExistentField'] = undefined;
         }
@@ -465,7 +469,7 @@ describe('DataDiscoveryResource() class tests', () => {
             await testDDR.post(newCustomer);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/Chinook/Customer`);
+            expect(fetchMock).toHaveLastPosted(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer`);
             expect(e.message).toBe('409');
             newCustomer['CustomerId'] = undefined;
         }
@@ -487,21 +491,19 @@ describe('DataDiscoveryResource() class tests', () => {
             "Email": "user@testcompany.com",
         }
 
-     
-
         // valid resource to create
         try {
-            let testDDR = new DataDiscoveryResource('Chinook','Customer',liveClient) 
+            let testDDR = new DataDiscoveryResource(SDB_TEST_DB_NAME,'Customer',liveClient);
             let r = await testDDR.post(newCustomer);
-            expect(r.res.status).toBe(201)
+            expect(r.res.status).toBe(201);
         }
         catch(e) {
-            throw Error(e)
+            throw Error(e);
         }
 
         // non-existent resource - 404
         try {
-            let testDDR = new DataDiscoveryResource('Chinook','Customer',liveClient) 
+            let testDDR = new DataDiscoveryResource(SDB_TEST_DB_NAME,'Customer',liveClient);
             let r = await testDDR.post(newCustomer);
         }
         catch(e) {
@@ -510,8 +512,8 @@ describe('DataDiscoveryResource() class tests', () => {
 
         // create a record that already exists - 409
         try {
-            newCustomer['CustomerId'] = 1
-            let testDDR = new DataDiscoveryResource('Chinook','Customer',liveClient) 
+            newCustomer['CustomerId'] = 1;
+            let testDDR = new DataDiscoveryResource(SDB_TEST_DB_NAME,'Customer',liveClient);
             let r = await testDDR.post(newCustomer);
         }
         catch(e) {
@@ -521,15 +523,19 @@ describe('DataDiscoveryResource() class tests', () => {
 
         // no auth to create record - 403
         try {
+            liveClient.logout();
             liveClient.apiKey = '';
-            let testDDR = new DataDiscoveryResource('/userdef','deleteme',liveClient) 
+            let testDDR = new DataDiscoveryResource('/userdef','deleteme',liveClient);
             testDDR.dbPrefix = '';
             testDDR.resourceName = '';
             let r = await testDDR.post(newCustomer);
         }
         catch(e) {
             expect(e.message).toBe('403');
-        }               
+        }
+        finally {
+            liveClient.apiKey = LIVE_SDB_API_KEY;
+        }
     });    
 
     
@@ -549,8 +555,8 @@ describe('DataDiscoveryResource() class tests', () => {
         }
 
         fetchMock
-            .put(`${MOCK_HOST}/db/Chinook/Customer/FirstName/DataDiscoveryTestRecord`, (url, options) => {
-                let b = JSON.parse(options.body)
+            .put(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/DataDiscoveryTestRecord`, (url, options) => {
+                let b = JSON.parse(options.body);
                 if (!options.headers.apiKey) {
                         return 403;
                     }
@@ -565,20 +571,20 @@ describe('DataDiscoveryResource() class tests', () => {
 
             return 201;
             })
-            .put(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource/FirstName/DataDiscoveryTestRecord`, 404)
+            .put(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/InvalidResource/FirstName/DataDiscoveryTestRecord`, 404);
 
         // update a record
-        let testDDR = new DataDiscoveryResource('Chinook','Customer',mockClient)    
+        let testDDR = new DataDiscoveryResource(SDB_TEST_DB_NAME,'Customer',mockClient);
         let r = await testDDR.put('FirstName/DataDiscoveryTestRecord', updateCustomer);
         expect(r.res.status).toBe(201)
-        expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/Chinook/Customer/FirstName/DataDiscoveryTestRecord`);
+        expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/DataDiscoveryTestRecord`);
 
         // update a non-existent record - 404
         try {
             await testDDR.put('InvalidResource/FirstName/DataDiscoveryTestRecord', updateCustomer);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource/FirstName/DataDiscoveryTestRecord`);
+            expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/InvalidResource/FirstName/DataDiscoveryTestRecord`);
             expect(e.message).toBe('404');
         }
 
@@ -589,7 +595,7 @@ describe('DataDiscoveryResource() class tests', () => {
             
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/Chinook/Customer/FirstName/DataDiscoveryTestRecord`);
+            expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/DataDiscoveryTestRecord`);
             expect(e.message).toBe('403');
             mockClient.sdbConfig.apiKey = '1234';
         }
@@ -600,7 +606,7 @@ describe('DataDiscoveryResource() class tests', () => {
             await testDDR.put('FirstName/DataDiscoveryTestRecord', updateCustomer);
         }
         catch(e) {
-            expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/Chinook/Customer/FirstName/DataDiscoveryTestRecord`);
+            expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/DataDiscoveryTestRecord`);
             expect(e.message).toBe('400');
             updateCustomer['nonExistentField'] = undefined;
         }
@@ -616,18 +622,18 @@ describe('DataDiscoveryResource() class tests', () => {
 
         // valid resource to update
         try {
-            let testDDR = new DataDiscoveryResource('Chinook','Customer',liveClient)    
-            let r = await testDDR.put('FirstName/DataDiscoveryTestRecord', updateCustomer);            
-            expect(r.res.status).toBe(204)
+            let testDDR = new DataDiscoveryResource(SDB_TEST_DB_NAME,'Customer',liveClient);
+            let r = await testDDR.put('FirstName/DataDiscoveryTestRecord', updateCustomer);
+            expect(r.res.status).toBe(204);
         }
         catch(e) {
-            throw Error(e)
+            throw Error(e);
         }
 
         // non-existent record - 404
         try {
-            let testDDR = new DataDiscoveryResource('Chinook','InvalidResource',liveClient)    
-            let r = await testDDR.put('FirstName/DataDiscoveryTestRecord', updateCustomer);  
+            let testDDR = new DataDiscoveryResource(SDB_TEST_DB_NAME,'InvalidResource',liveClient);
+            let r = await testDDR.put('FirstName/DataDiscoveryTestRecord', updateCustomer);
         }
         catch(e) {
             expect(e.message).toBe('404');
@@ -635,8 +641,8 @@ describe('DataDiscoveryResource() class tests', () => {
 
         // non-existent column in record - 400
         try {
-            let testDDR = new DataDiscoveryResource('Chinook','Customer',liveClient)    
-            let r = await testDDR.put('InvalidResource/DataDiscoveryTestRecord', updateCustomer);  
+            let testDDR = new DataDiscoveryResource(SDB_TEST_DB_NAME,'Customer',liveClient);
+            let r = await testDDR.put('InvalidResource/DataDiscoveryTestRecord', updateCustomer);
         }
         catch(e) {
             expect(e.message).toBe('400');
@@ -644,65 +650,67 @@ describe('DataDiscoveryResource() class tests', () => {
 
         // no auth to update record - 403
         try {
+            liveClient.logout();
             liveClient.apiKey = '';
-            let testDDR = new DataDiscoveryResource('/userdef','deleteme',liveClient) 
-            testDDR.dbPrefix = '';
-            testDDR.resourceName = '';
-            let r = await testDDR.put('admin',updateCustomer);  
+            let testDDR = new DataDiscoveryResource(SDB_TEST_DB_NAME,'Customer',liveClient);
+            let r = await testDDR.put('FirstName/DataDiscoveryTestRecord',updateCustomer);  
         }
         catch(e) {
             expect(e.message).toBe('403');
-        }            
+        }
+        finally {
+            liveClient.apiKey = LIVE_SDB_API_KEY;
+        }
 
     });        
 
     testIf(MOCK_TESTS_ENABLED, 'testing: delete() mock tests', async () => {
 
         fetchMock
-            .delete(`${MOCK_HOST}/db/Chinook/Customer/FirstName/DataDiscoveryTestRecord`, (url, options) => {
+            .delete(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/DataDiscoveryTestRecord`, (url, options) => {
                 if (!options.headers.apiKey) {
                         return 403;
                     }
 
             return 204;
             })
-            .delete(`${MOCK_HOST}/db/Chinook/InvalidResource/FirstName/DataDiscoveryTestRecord`, 404)
-            .delete(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource/FirstName/DataDiscoveryTestRecord`, 400)
+            .delete(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/InvalidResource/FirstName/DataDiscoveryTestRecord`, 404)
+            .delete(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/InvalidResource/FirstName/DataDiscoveryTestRecord`, 400);
 
         // delete a record
-        let testDDR = new DataDiscoveryResource('Chinook','Customer',mockClient)    
+        let testDDR = new DataDiscoveryResource(SDB_TEST_DB_NAME,'Customer',mockClient);
         let r = await testDDR.delete('FirstName/DataDiscoveryTestRecord');
-        expect(r.res.status).toBe(204)
-        expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/Chinook/Customer/FirstName/DataDiscoveryTestRecord`);
+        expect(r.res.status).toBe(204);
+        expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/DataDiscoveryTestRecord`);
 
         // delete a non-existent record - 404
         try {
-            let testDDR = new DataDiscoveryResource('Chinook','InvalidResource',mockClient)    
+            let testDDR = new DataDiscoveryResource(SDB_TEST_DB_NAME,'InvalidResource',mockClient);
             let r = await testDDR.delete('FirstName/DataDiscoveryTestRecord');
         }
         catch(e) {
-            expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/Chinook/InvalidResource/FirstName/DataDiscoveryTestRecord`);
+            expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/InvalidResource/FirstName/DataDiscoveryTestRecord`);
             expect(e.message).toBe('404');
         }
 
         // non-existent column in record - 400
         try {
-            let testDDR = new DataDiscoveryResource('Chinook','Customer',mockClient)    
+            let testDDR = new DataDiscoveryResource(SDB_TEST_DB_NAME,'Customer',mockClient);
             let r = await testDDR.delete('InvalidResource/FirstName/DataDiscoveryTestRecord');
         }
         catch(e) {
-            //expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource/FirstName/PUT`);
+            //expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/InvalidResource/FirstName/PUT`);
             expect(e.message).toBe('400');
         }
 
         // delete a record w/o auth - 403
         try {
             mockClient.apiKey = '';
-            let testDDR = new DataDiscoveryResource('Chinook','Customer',mockClient) 
+            let testDDR = new DataDiscoveryResource(SDB_TEST_DB_NAME,'Customer',mockClient);
             await testDDR.delete('FirstName/DataDiscoveryTestRecord');
         }
         catch(e) {
-            expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/Chinook/Customer/FirstName/DataDiscoveryTestRecord`);
+            expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/DataDiscoveryTestRecord`);
             expect(e.message).toBe('403');
             mockClient.apiKey = '1234';
         }
@@ -713,18 +721,18 @@ describe('DataDiscoveryResource() class tests', () => {
 
         // valid resource to delete
         try {
-            let testDDR = new DataDiscoveryResource('Chinook','Customer',liveClient)    
+            let testDDR = new DataDiscoveryResource(SDB_TEST_DB_NAME,'Customer',liveClient);   
             let r = await testDDR.delete('FirstName/DataDiscoveryTestRecord');                    
-            expect(r.res.status).toBe(204)
+            expect(r.res.status).toBe(204);
         }
         catch(e) {
-            throw Error(e)
+            throw Error(e);
         }
 
         // non-existent record - 404
         try {
-            let testDDR = new DataDiscoveryResource('Chinook','InvalidResource',liveClient)    
-            await testDDR.delete();   
+            let testDDR = new DataDiscoveryResource(SDB_TEST_DB_NAME,'InvalidResource',liveClient);
+            await testDDR.delete();
         }
         catch(e) {
             expect(e.message).toBe('404');
@@ -732,25 +740,28 @@ describe('DataDiscoveryResource() class tests', () => {
 
         // non-existent column in record - 400
         try {
-            let testDDR = new DataDiscoveryResource('Chinook','Customer',liveClient)    
-            await testDDR.delete('InvalidResource');   
+            let testDDR = new DataDiscoveryResource(SDB_TEST_DB_NAME,'Customer',liveClient);
+            await testDDR.delete('InvalidResource');
         }
         catch(e) {
             expect(e.message).toBe('400');
         }
 
-        // no auth to update record - 403
+        // no auth to delete record - 403
         try {
+            liveClient.logout();
             liveClient.apiKey = '';
-            let testDDR = new DataDiscoveryResource('/userdef','deleteme',liveClient) 
+            let testDDR = new DataDiscoveryResource('/userdef','deleteme',liveClient);
             testDDR.dbPrefix = '';
-            testDDR.resourceName = '';
-            await testDDR.delete('admin');               
+            testDDR.resourceName = 'admin.json';
+            await testDDR.delete(); 
         }
         catch(e) {
             expect(e.message).toBe('403');
         }            
-
+        finally {
+            liveClient.apiKey = LIVE_SDB_API_KEY;
+        }
     });            
 });
 

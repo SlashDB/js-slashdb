@@ -30,7 +30,8 @@
     
         <h2><span class="attribs"><span class="type-signature"></span></span>SQLPassThruQuery<span class="signature">(queryID, clientObj, methods<span class="signature-attributes">opt</span>, params<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
         
-            <div class="class-description">Executes HTTP requests for SlashDB SQL Pass-Thru functionality.  Extends the BaseRequestHandler classfor most methods.</div>
+            <div class="class-description"><p>Executes HTTP requests for SlashDB SQL Pass-Thru functionality.  Extends the <code>BaseRequestHandler</code> class<br>
+for most methods.</p></div>
         
     
 </header>
@@ -53,7 +54,7 @@
 
 
 <div class="description">
-    Create a SQLPassThruQuery object for a given SlashDB instance
+    <p>Create a <code>SQLPassThruQuery</code> object for a given SlashDB instance</p>
 </div>
 
 
@@ -121,7 +122,7 @@
                 </td>
             
 
-            <td class="description last">ID of the query to execute, as registered in the SlashDB instance</td>
+            <td class="description last"><p>ID of the query to execute, as registered in the SlashDB instance</p></td>
         </tr>
 
     
@@ -156,7 +157,7 @@
                 </td>
             
 
-            <td class="description last">a configured SlashDBClient object</td>
+            <td class="description last"><p>a configured <code>SlashDBClient</code> object</p></td>
         </tr>
 
     
@@ -195,7 +196,7 @@
                 </td>
             
 
-            <td class="description last">optional object of key/value pairs specifying which HTTP methods the query supports (e.g. {GET:true, POST:false})</td>
+            <td class="description last"><p>optional object of key/value pairs specifying which HTTP methods the query supports (e.g. <code>{GET:true, POST:false}</code>)</p></td>
         </tr>
 
     
@@ -234,7 +235,7 @@
                 </td>
             
 
-            <td class="description last">optional array of strings specifying names of parameters (e.g. ['FirstName','LastName'])</td>
+            <td class="description last"><p>optional array of strings specifying names of parameters (e.g. <code>['FirstName','LastName']</code>)</p></td>
         </tr>
 
     
@@ -305,7 +306,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        if queryID not a string
+        <p>if <code>queryID</code> not a string</p>
         </div>
     </dt>
     <dd></dd>
@@ -332,7 +333,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        if queryID contains '/' character
+        <p>if <code>queryID</code> contains '/' character</p>
         </div>
     </dt>
     <dd></dd>
@@ -359,7 +360,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        if queryID contains spaces or parses to number
+        <p>if <code>queryID</code> contains spaces or parses to number</p>
         </div>
     </dt>
     <dd></dd>
@@ -433,7 +434,7 @@
 
 
 <div class="description">
-    Builds the full endpoint to the requested resource.  Meant for internal use only.
+    <p>Builds the full endpoint to the requested resource.  Meant for internal use only.</p>
 </div>
 
 
@@ -500,7 +501,8 @@
 
             
 
-            <td class="description last">an optional string containing a URI fragment with SQL query parameters/values and URL query parameters (e.g. /FirstName/Tim?distinct=true), or a SQLPassThruFilter object that contains all the query details</td>
+            <td class="description last"><p>an optional string containing a URI segment with SQL query parameters/values and URL query parameters<br>
+(e.g. <code>/FirstName/Tim?distinct=true</code>), or a <code>SQLPassThruFilter</code> object that contains all the query details</p></td>
         </tr>
 
     
@@ -576,7 +578,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        if no SlashDBClient object is found attached to this object
+        <p>if no <code>SlashDBClient</code> object is found attached to this object</p>
         </div>
     </dt>
     <dd></dd>
@@ -603,7 +605,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        if path parameter is an empty string
+        <p>if <code>path</code> parameter is an empty string</p>
         </div>
     </dt>
     <dd></dd>
@@ -630,7 +632,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        if path parameter is neither a string or a SQLPassThruFilter object
+        <p>if <code>path</code> parameter is neither a string or a <code>SQLPassThruFilter</code> object</p>
         </div>
     </dt>
     <dd></dd>
@@ -658,7 +660,7 @@
 
         
 <div class="param-desc">
-    the full endpoint
+    <p>the full endpoint</p>
 </div>
 
 
@@ -695,7 +697,7 @@
 
 
 <div class="description">
-    Sets Accept header value for HTTP requests
+    <p>Sets Accept header value for HTTP requests</p>
 </div>
 
 
@@ -747,7 +749,7 @@
 
             
 
-            <td class="description last">a valid MIME type (e.g. 'application/json'), or a key value of the validMimeTypes property in this class (e.g. 'json','csv')</td>
+            <td class="description last"><p>a valid MIME type (e.g. <code>'application/json'</code>), or a key value of the validMimeTypes property in this class (e.g. <code>'json','csv'</code>)</p></td>
         </tr>
 
     
@@ -823,7 +825,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        if format missing
+        <p>if format missing</p>
         </div>
     </dt>
     <dd></dd>
@@ -850,7 +852,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        if format is not string
+        <p>if format is not string</p>
         </div>
     </dt>
     <dd></dd>
@@ -878,7 +880,7 @@
 
         
 <div class="param-desc">
-    this object
+    <p>this object</p>
 </div>
 
 
@@ -915,7 +917,7 @@
 
 
 <div class="description">
-    Sets Content-Type header value for HTTP POST/PUT requests
+    <p>Sets Content-Type header value for HTTP POST/PUT requests</p>
 </div>
 
 
@@ -967,7 +969,7 @@
 
             
 
-            <td class="description last">a valid MIME type (e.g. 'application/json'), or a key value of the validMimeTypes property in this class (e.g. 'json','csv')</td>
+            <td class="description last"><p>a valid MIME type (e.g. <code>'application/json'</code>), or a key value of the validMimeTypes property in this class (e.g. <code>'json','csv'</code>)</p></td>
         </tr>
 
     
@@ -1043,7 +1045,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        if format missing
+        <p>if format missing</p>
         </div>
     </dt>
     <dd></dd>
@@ -1070,7 +1072,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        if format is not string
+        <p>if format is not string</p>
         </div>
     </dt>
     <dd></dd>
@@ -1098,7 +1100,7 @@
 
         
 <div class="param-desc">
-    this object
+    <p>this object</p>
 </div>
 
 
@@ -1135,7 +1137,7 @@
 
 
 <div class="description">
-    Executes HTTP DELETE request
+    <p>Executes HTTP DELETE request</p>
 </div>
 
 
@@ -1205,7 +1207,8 @@
 
             
 
-            <td class="description last">an optional string containing a URI fragment with URL query parameters (e.g. /Customer/FirstName/Tim?distinct=true), or a DataDiscoveryFilter/SQLPassThruFilter object that contains all the query details</td>
+            <td class="description last"><p>an optional string containing a URI segment with URL query parameters<br>
+(e.g. <code>/Customer/FirstName/Tim?distinct=true</code>), or a <code>DataDiscoveryFilter/SQLPassThruFilter</code> object that contains all the query details</p></td>
         </tr>
 
     
@@ -1280,7 +1283,7 @@
 
         
 <div class="param-desc">
-    promise containing HTTP response status and data
+    <p>promise containing HTTP response status and data</p>
 </div>
 
 
@@ -1317,7 +1320,7 @@
 
 
 <div class="description">
-    Executes HTTP GET request
+    <p>Executes HTTP GET request</p>
 </div>
 
 
@@ -1387,7 +1390,8 @@
 
             
 
-            <td class="description last">an optional string containing a URI fragment with URL query parameters (e.g. /Customer/FirstName/Tim?distinct=true), or a DataDiscoveryFilter/SQLPassThruFilter object that contains all the query details</td>
+            <td class="description last"><p>an optional string containing a URI segment with URL query parameters<br>
+(e.g. <code>/Customer/FirstName/Tim?distinct=true</code>), or a <code>DataDiscoveryFilter/SQLPassThruFilter</code> object that contains all the query details</p></td>
         </tr>
 
     
@@ -1462,7 +1466,7 @@
 
         
 <div class="param-desc">
-    promise containing HTTP response status and data
+    <p>promise containing HTTP response status and data</p>
 </div>
 
 
@@ -1499,7 +1503,7 @@
 
 
 <div class="description">
-    Executes HTTP POST request
+    <p>Executes HTTP POST request</p>
 </div>
 
 
@@ -1564,7 +1568,7 @@
 
             
 
-            <td class="description last">an object or string containing data values to include in the POST request body.  Can be JSON, an object, or CSV/XML formatted string</td>
+            <td class="description last"><p>an object or string containing data values to include in the POST request body.  Can be JSON, an object, or CSV/XML formatted string</p></td>
         </tr>
 
     
@@ -1603,7 +1607,9 @@
 
             
 
-            <td class="description last">an optional string containing a URI fragment with URL query parameters (e.g. /Customer/FirstName/Tim?distinct=true), or a DataDiscoveryFilter/SQLPassThruFilter object that contains all the query details.  Not used under normalcircumstances.</td>
+            <td class="description last"><p>an optional string containing a URI segment with URL query parameters<br>
+(e.g. <code>/Customer/FirstName/Tim?distinct=true</code>), or a <code>DataDiscoveryFilter/SQLPassThruFilter</code> object that contains all the query details.  Not used under normal<br>
+circumstances.</p></td>
         </tr>
 
     
@@ -1678,7 +1684,7 @@
 
         
 <div class="param-desc">
-    promise containing HTTP response status and data
+    <p>promise containing HTTP response status and data</p>
 </div>
 
 
@@ -1715,7 +1721,7 @@
 
 
 <div class="description">
-    Executes HTTP PUT request
+    <p>Executes HTTP PUT request</p>
 </div>
 
 
@@ -1770,7 +1776,7 @@
 
             
 
-            <td class="description last">an object or string containing data values to include in the PUT request body.  Can be JSON, an object, or CSV/XML formatted string</td>
+            <td class="description last"><p>an object or string containing data values to include in the PUT request body.  Can be JSON, an object, or CSV/XML formatted string</p></td>
         </tr>
 
     
@@ -1805,7 +1811,9 @@
 
             
 
-            <td class="description last">a string containing a URI fragment with URL query parameters (e.g. /Customer/FirstName/Tim?distinct=true), or a DataDiscoveryFilter/SQLPassThruFilter object that contains all the query details.  Set to null or undefinedif not required.</td>
+            <td class="description last"><p>a string containing a URI segment with URL query parameters<br>
+(e.g. <code>/Customer/FirstName/Tim?distinct=true</code>), or a <code>DataDiscoveryFilter/SQLPassThruFilter</code> object that contains all the query details.  Set to null or undefined<br>
+if not required.</p></td>
         </tr>
 
     
@@ -1880,7 +1888,7 @@
 
         
 <div class="param-desc">
-    promise containing HTTP response status and data
+    <p>promise containing HTTP response status and data</p>
 </div>
 
 
@@ -1917,7 +1925,7 @@
 
 
 <div class="description">
-    Sets arbitrary custom header value for HTTP requests
+    <p>Sets arbitrary custom header value for HTTP requests</p>
 </div>
 
 
@@ -1969,7 +1977,7 @@
 
             
 
-            <td class="description last">an object containing key/value pairs of header properties</td>
+            <td class="description last"><p>an object containing key/value pairs of header properties</p></td>
         </tr>
 
     
@@ -2045,7 +2053,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        headersObj is not an object
+        <p><code>headersObj</code> is not an object</p>
         </div>
     </dt>
     <dd></dd>
@@ -2072,7 +2080,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        if the value of a key/value pair is not a string or number
+        <p>if the value of a key/value pair is not a string or number</p>
         </div>
     </dt>
     <dd></dd>
@@ -2100,7 +2108,7 @@
 
         
 <div class="param-desc">
-    this object
+    <p>this object</p>
 </div>
 
 
@@ -2139,13 +2147,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseFilter.html">BaseFilter</a></li><li><a href="BaseRequestHandler.html">BaseRequestHandler</a></li><li><a href="DataDiscoveryFilter.html">DataDiscoveryFilter</a></li><li><a href="DataDiscoveryResource.html">DataDiscoveryResource</a></li><li><a href="SlashDBClient.html">SlashDBClient</a></li><li><a href="SQLPassThruFilter.html">SQLPassThruFilter</a></li><li><a href="SQLPassThruQuery.html">SQLPassThruQuery</a></li></ul><h3>Global</h3><ul><li><a href="global.html#and">and</a></li><li><a href="global.html#any">any</a></li><li><a href="global.html#between">between</a></li><li><a href="global.html#eq">eq</a></li><li><a href="global.html#fetchWrapper">fetchWrapper</a></li><li><a href="global.html#gte">gte</a></li><li><a href="global.html#handleResponse">handleResponse</a></li><li><a href="global.html#lte">lte</a></li><li><a href="global.html#not">not</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseFilter.html">BaseFilter</a></li><li><a href="BaseRequestHandler.html">BaseRequestHandler</a></li><li><a href="DataDiscoveryFilter.html">DataDiscoveryFilter</a></li><li><a href="DataDiscoveryResource.html">DataDiscoveryResource</a></li><li><a href="SQLPassThruFilter.html">SQLPassThruFilter</a></li><li><a href="SQLPassThruQuery.html">SQLPassThruQuery</a></li><li><a href="SlashDBClient.html">SlashDBClient</a></li></ul><h3>Global</h3><ul><li><a href="global.html#and">and</a></li><li><a href="global.html#any">any</a></li><li><a href="global.html#between">between</a></li><li><a href="global.html#chgPlaceHolder">chgPlaceHolder</a></li><li><a href="global.html#eq">eq</a></li><li><a href="global.html#fetchWrapper">fetchWrapper</a></li><li><a href="global.html#gte">gte</a></li><li><a href="global.html#handleResponse">handleResponse</a></li><li><a href="global.html#lte">lte</a></li><li><a href="global.html#not">not</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.11</a> on Wed Oct 26 2022 17:51:36 GMT-0400 (Eastern Daylight Saving Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Thu Jun 22 2023 08:06:46 GMT-0400 (Eastern Daylight Saving Time)
 </footer>
 
 <script> prettyPrint(); </script>

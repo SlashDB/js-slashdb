@@ -27,10 +27,11 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>import { BaseFilter } from "./basefilter.js";
+import { SDB_NULLSTR } from "./filterfunctions.js";
 
 const SDB_SPTF_INVALID_PARAM_FORMAT = 'Parameters must be given as an object of key/value pairs';
 const SDB_SPTF_INVALID_PARAM_NAME = "Parameter name must be a non-empty string, cannot contain '/' character";
-const SDB_SPTF_INVALID_PARAM_VALUE = "Parameter value must be a non-empty string or integer, cannot contain '/'";
+const SDB_SPTF_INVALID_PARAM_VALUE = "Parameter value must be a non-empty string, integer, or null, cannot contain '/'";
 const SDB_SPTF_INVALID_XMLTYPE = "Parameter must be a non-empty string";
 
 /** 
@@ -39,7 +40,7 @@ const SDB_SPTF_INVALID_XMLTYPE = "Parameter must be a non-empty string";
 class SQLPassThruFilter extends BaseFilter {
 
    /**
-   * Create a SQLPassThruFilter object for making SlashDB-compatible URL strings
+   * Create a `SQLPassThruFilter` object for making SlashDB-compatible URL strings
    * @extends BaseFilter
    * @param {Object} [params] - optional object of key/value pairs representing SQL query parameters to instantiate this object with
    * @param {string} [urlPlaceholder] -  a string that contains a character(s) to set for the placeholder query parameter (used to indicate what character(s)
@@ -68,12 +69,12 @@ class SQLPassThruFilter extends BaseFilter {
 	* Adds SQL query parameters to this object and stores info about them
 	* @param {Object} params - an object of key/value pairs containing parameter names and values
 	* @returns {SQLPassThruFilter} this object
-	* @throws {SyntaxError} - if params parameter is not an object
-	* @throws {SyntaxError} - if any object keys parse to numbers
-	* @throws {TypeError} - if any object keys are not strings or contain spaces
-	* @throws {TypeError} - if any object keys contain '/' character
-	* @throws {TypeError} - if any object values are not strings or numbers, or are empty strings
-	* @throws {TypeError} - if any object values contain '/' character
+	* @throws {SyntaxError} - if `params` parameter is not an object
+	* @throws {SyntaxError} - if any of the `param` keys parse to numbers
+	* @throws {TypeError} - if any of the `param` keys are not strings or contain spaces
+	* @throws {TypeError} - if any of the `param` keys contain '/' character
+	* @throws {TypeError} - if any of the `param` values are not strings or numbers, or are empty strings
+	* @throws {TypeError} - if any of the `param` values contain '/' character
 	*/ 	
 	addParams(params) {
 
@@ -87,26 +88,32 @@ class SQLPassThruFilter extends BaseFilter {
 				throw SyntaxError(SDB_SPTF_INVALID_PARAM_NAME);
 			}
 
-			if (typeof(key) !== 'string' || key.indexOf(' ') !== -1) {
+			if (typeof(key) !== 'string' || key.indexOf(' ') > -1) {
 				throw TypeError(SDB_SPTF_INVALID_PARAM_NAME);
 			}
 	
-			if (key.indexOf('/') !== -1) {
-				throw TypeError(SDB_SPTF_INVALID_PARAM_NAME);
+			if (key.indexOf('/') > -1) {
+				throw SyntaxError(SDB_SPTF_INVALID_PARAM_NAME);
+			}
+
+			if (params[key] === null) {
+				params[key] = SDB_NULLSTR;
 			}
 
 			if (typeof(params[key]) !== 'number' &amp;&amp; (typeof(params[key]) !== 'string')) {
 				throw TypeError(SDB_SPTF_INVALID_PARAM_VALUE);
 			}
 
-			if ( typeof(params[key]) === 'string' &amp;&amp; params[key].indexOf('/') !== -1) {
-				throw TypeError(SDB_SPTF_INVALID_PARAM_VALUE);
+			if ( typeof(params[key]) === 'string' &amp;&amp; params[key].indexOf('/') > -1) {
+				throw SyntaxError(SDB_SPTF_INVALID_PARAM_VALUE);
 			}
 
-			// handle empty string values
-			if (typeof(params[key]) === 'string' &amp;&amp; params[key].trim() === '') {
-				params[key] = '/';
+			// update query parameter value if previously given
+			// TODO add tests for this
+			if (key in this.queryParams) {
+				this.pathString = this.pathString.replace(`/${key}/${this.queryParams[key]}`, '');
 			}
+
 			this.queryParams[key] = params[key];
 			this.pathString += `/${key}/${params[key]}`;
 			this.pathString = this.pathString.replace('///','//');		// if multiple empty string values are given, '///' can appear - remove the extra '/'
@@ -187,13 +194,13 @@ export { SDB_SPTF_INVALID_PARAM_FORMAT, SDB_SPTF_INVALID_PARAM_NAME, SDB_SPTF_IN
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseFilter.html">BaseFilter</a></li><li><a href="BaseRequestHandler.html">BaseRequestHandler</a></li><li><a href="DataDiscoveryFilter.html">DataDiscoveryFilter</a></li><li><a href="DataDiscoveryResource.html">DataDiscoveryResource</a></li><li><a href="SlashDBClient.html">SlashDBClient</a></li><li><a href="SQLPassThruFilter.html">SQLPassThruFilter</a></li><li><a href="SQLPassThruQuery.html">SQLPassThruQuery</a></li></ul><h3>Global</h3><ul><li><a href="global.html#and">and</a></li><li><a href="global.html#any">any</a></li><li><a href="global.html#between">between</a></li><li><a href="global.html#eq">eq</a></li><li><a href="global.html#fetchWrapper">fetchWrapper</a></li><li><a href="global.html#gte">gte</a></li><li><a href="global.html#handleResponse">handleResponse</a></li><li><a href="global.html#lte">lte</a></li><li><a href="global.html#not">not</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseFilter.html">BaseFilter</a></li><li><a href="BaseRequestHandler.html">BaseRequestHandler</a></li><li><a href="DataDiscoveryFilter.html">DataDiscoveryFilter</a></li><li><a href="DataDiscoveryResource.html">DataDiscoveryResource</a></li><li><a href="SQLPassThruFilter.html">SQLPassThruFilter</a></li><li><a href="SQLPassThruQuery.html">SQLPassThruQuery</a></li><li><a href="SlashDBClient.html">SlashDBClient</a></li></ul><h3>Global</h3><ul><li><a href="global.html#and">and</a></li><li><a href="global.html#any">any</a></li><li><a href="global.html#between">between</a></li><li><a href="global.html#chgPlaceHolder">chgPlaceHolder</a></li><li><a href="global.html#eq">eq</a></li><li><a href="global.html#fetchWrapper">fetchWrapper</a></li><li><a href="global.html#gte">gte</a></li><li><a href="global.html#handleResponse">handleResponse</a></li><li><a href="global.html#lte">lte</a></li><li><a href="global.html#not">not</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.11</a> on Wed Oct 26 2022 17:51:36 GMT-0400 (Eastern Daylight Saving Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Thu Jun 22 2023 08:06:46 GMT-0400 (Eastern Daylight Saving Time)
 </footer>
 
 <script> prettyPrint(); </script>

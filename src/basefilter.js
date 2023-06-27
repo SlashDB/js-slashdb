@@ -1,15 +1,18 @@
+import { SDB_NULLSTR } from "./filterfunctions.js";
+
 const SDB_BF_INVALID_SORT_COL = 'Column must be a non-empty string/cannot contain spaces/cannot begin with a number';
 const SDB_BF_LIMIT_TYPE = 'Limit row number must be a positive integer value';
 const SDB_BF_OFFSET_TYPE = 'Offset row number must be a positive integer value';
 const SDB_BF_INVALID_WILDCARD = 'URL string placeholder must be a string, cannot contain slash (/)';
+const SDB_BF_INVALID_NULLSTR = 'NULL string placeholder must be a string, cannot contain slash (/)'
 
 /** 
- * Filter class for creating SlashDB-compatible URL strings.  Base class for DataDiscoveryFilter and SQLPassThruFilter classes.
+ * Filter class for creating SlashDB-compatible URL strings.  Base class for `DataDiscoveryFilter` and `SQLPassThruFilter` classes.
  */
 class BaseFilter {
 
    /**
-   * Create a BaseFilter object for making SlashDB-compatible URL strings
+   * A class for creating SlashDB-compatible URL strings
    * @param {string} [urlPlaceholder] - a string that contains a character or string to set for the placeholder query parameter (used to indicate what char/string
    * was used to replace '/' character in values contained in the URL that may contain the '/' character);  default is '__'
    */	
@@ -22,10 +25,11 @@ class BaseFilter {
 			offset: { default: undefined, value: undefined },
 			transpose : { default: false, value: false },
 			nil_visible: { default: false, value: false },
+			nullStr: { default: '<null>', value: SDB_NULLSTR }	// SDB_NULLSTR can be changed using chgPlaceholder(null, value) - default is <null>
 		};
 	
 		if (urlPlaceholder !== undefined) {
-			if (typeof(urlPlaceholder) !== 'string' || urlPlaceholder.indexOf('/') !== -1  || urlPlaceholder.trim().length < 1) {
+			if (typeof(urlPlaceholder) !== 'string' || urlPlaceholder.indexOf('/') > -1  || urlPlaceholder.trim().length < 1) {
 				throw TypeError(SDB_BF_INVALID_WILDCARD);
 			}
 		}
@@ -40,7 +44,7 @@ class BaseFilter {
 	}
 
 	/**
-	 * Sets the placeholder query string parameter; only used internally
+	 * Sets the `placeholder` query string parameter; only used internally
 	* @returns {string} an empty string, or a query parameter string for the placeholder query parameter 
 	*/ 
 	_urlPlaceholderFn() {
@@ -50,7 +54,7 @@ class BaseFilter {
 		
 	/**
 	* Appends the URL with set of columns to return from request
-	* @param {...string} columns - a list of column names (e.g. 'FirstName','LastName','Email')
+	* @param {...string} columns - a list of column names (e.g. `'FirstName','LastName','Email'`)
 	* @returns this object	
 	*/ 
 	cols(...columns) {
@@ -60,7 +64,7 @@ class BaseFilter {
 
 	/**
 	* Set the sort query string parameter
-	* @param {...string} columns - a list of column names to sort by (e.g. 'FirstName','LastName','Email')
+	* @param {...string} columns - a list of column names to sort by (e.g. `'FirstName','LastName','Email'`)
 	* @returns this object	
 	*/ 
 	sort(...columns) {
@@ -69,9 +73,9 @@ class BaseFilter {
 	}
 
 	/**
-	* Mark a column as descending for sort() method.  Not used in class; exposed externally as its own function in this module
+	* Mark a column as descending for `sort()` method.  Not used in class; exposed externally as its own function in this module
 	* @param {string} col - a column name to mark as descending
-	* @returns {string} a column name that has been marked as descending for sort() method
+	* @returns {string} a column name that has been marked as descending for `sort()` method
 	* @throws {TypeError} if column name given is not a string
 	* @throws {SyntaxError} if column name given contains spaces or parses to a number
 	*/ 
@@ -80,7 +84,7 @@ class BaseFilter {
 		if (typeof(col) !== 'string') {
 			throw TypeError(SDB_BF_INVALID_SORT_COL);
 		}
-		if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1) {
+		if (!isNaN(parseInt(col[0])) || col.indexOf(' ') > -1) {
 			throw SyntaxError(SDB_BF_INVALID_SORT_COL);
 		}
 
@@ -88,10 +92,10 @@ class BaseFilter {
 	}
 
 	/**
-	* Mark a column as ascending for sort() method.  Not used in class; exposed externally as its own function in this module; note
+	* Mark a column as ascending for `sort()` method.  Not used in class; exposed externally as its own function in this module; note
 	* that this method doesn't do any modifications to the column name, it's here just so developers have an explicit method
 	* @param {string} col - a column name to mark as descending
-	* @returns {string} a column name that has been marked as ascending for sort() method (effectively, no changes to input)
+	* @returns {string} a column name that has been marked as ascending for `sort()` method (effectively, no changes to input)
 	* @throws {TypeError} if column name given is not a string
 	* @throws {SyntaxError} if column name given contains spaces or parses to a number
 	*/ 
@@ -100,7 +104,7 @@ class BaseFilter {
 		if (typeof(col) !== 'string') {
 			throw TypeError(SDB_BF_INVALID_SORT_COL);
 		}
-		if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1) {
+		if (!isNaN(parseInt(col[0])) || col.indexOf(' ') > -1) {
 			throw SyntaxError(SDB_BF_INVALID_SORT_COL);
 		}
 
@@ -108,8 +112,8 @@ class BaseFilter {
 	}	
 
 	/**
-	* Sets the distinct query string parameter
-	* @param {boolean} [toggle] - sets the distinct query string parameter if not provided; removes the query string parameter if set to false
+	* Sets the `distinct` query string parameter
+	* @param {boolean} [toggle] - sets the parameter if not provided; removes the parameter if set to false
 	* @returns this object
 	*/ 
 	distinct(toggle = true) {
@@ -120,8 +124,8 @@ class BaseFilter {
 	}
 
 	/**
-	* Sets the limit query string parameter
-	* @param {number | boolean} [numRows] - sets the limit query string parameter with the value provided;  removes the query string 
+	* Sets the `limit` query string parameter
+	* @param {number | boolean} [numRows] - sets the parameter with the value provided; removes the 
 	* parameter if not provided or set to false
 	* @returns this object	
 	* @throws {TypeError} if value provided is not an integer or < 1
@@ -137,8 +141,8 @@ class BaseFilter {
 	}
 
 	/**
-	* Sets the offset query string parameter
-	* @param {number | boolean} [numRows] - sets the offset query string parameter with the value provided; removes the query string
+	* Sets the `offset` query string parameter
+	* @param {number | boolean} [numRows] - sets the parameter with the value provided; removes the
 	* parameter if not provided or set to false
 	* @returns this object	
 	* @throws {TypeError} if value provided is not an integer or < 1
@@ -154,8 +158,28 @@ class BaseFilter {
 	}
 
 	/**
-	* Sets the transpose query string parameter
-	* @param {boolean} [toggle] - sets the transpose query string parameter if not provided; removes the query string parameter if set to false
+	* Sets the `nullStr` query string parameter
+	*
+	* When using the composable filter functions, if the `chgPlaceHolder` function is invoked to change the default
+	* `null` placeholder, any `BaseFilter`, `DataDiscoveryFilter`, and `SQLPassThruFilter` objects created after changing
+	* the placeholder will have the `nullStr` query string parameter automatically set to the value passed to `chgPlaceHolder`.
+	* @param {string} [nullString] - sets parameter with the value provided, resets to default if not given
+	* @returns this object	
+	* @throws {TypeError} if value provided is not a valid string
+	*/ 		
+	nullStr(nullString) {
+		if (arguments.length > 0) {
+			if ( typeof(nullString) !== 'string' || nullString.indexOf('/') > -1 ) {
+					throw TypeError(SDB_BF_INVALID_NULLSTR);
+				}
+		}
+		this.urlStringParams['nullStr']['value'] = arguments.length > 0 ? nullString : this.urlStringParams['nullStr']['default'];
+		return this.build();
+	}
+
+	/**
+	* Sets the `transpose` query string parameter
+	* @param {boolean} [toggle] - sets parameter if not provided; removes the parameter if set to false
 	* @returns this object	
 	*/ 	
 	transpose(toggle = true) {
@@ -166,8 +190,8 @@ class BaseFilter {
 	}
 
 	/**
-	* Sets the nil_visible query string parameter
-	* @param {boolean} [toggle] - sets the nil_visible query string parameter if not provided; removes the query string parameter if set to false
+	* Sets the `nil_visible` query string parameter
+	* @param {boolean} [toggle] - sets the parameter if not provided; removes the parameter if set to false
 	* @returns this object	
 	*/ 	
 	xmlNilVisible(toggle = true) {
@@ -176,9 +200,9 @@ class BaseFilter {
 	}	
 
 	/**
-	* Parses out column names; used by sort() and cols() methods.  Not called directly.
-	* @param {...string} columns - a comma delimited list of column names to parse (e.g. 'FirstName','LastName','Email')
-	* @returns {undefined} if one column given and value of column is false (resets sort/cols)
+	* Parses out column names; used by `sort()` and `cols()` methods.  Not called directly.
+	* @param {...string} columns - a comma delimited list of column names to parse (e.g. `'FirstName','LastName','Email'`)
+	* @returns {undefined} if one column given and value of column is false (resets `sort()`/`cols()`)
 	* @returns {string} string of column names separated by ','
 	* @throws {TypeError} if no columns given, or if any column names are not strings, or are empty strings
 	* @throws {SyntaxError} if any column names contain spaces, or parse to numbers
@@ -199,7 +223,7 @@ class BaseFilter {
 				if (typeof(col) !== 'string' || col.trim().length < 1) {
 					throw TypeError(SDB_BF_INVALID_SORT_COL);
 				}
-				if (!isNaN(parseInt(col[0])) || col.indexOf(' ') !== -1) {
+				if (!isNaN(parseInt(col[0])) || col.indexOf(' ') > -1) {
 					throw SyntaxError(SDB_BF_INVALID_SORT_COL);
 				}
 
@@ -237,7 +261,7 @@ class BaseFilter {
 	}
 
 	/**
-	* Returns the URL endpoint string in this class created by build()
+	* Returns the URL endpoint string in this class created by `build()`
 	* @returns {string} the URL endpoint string
 	*/ 	
 	str() {
@@ -250,4 +274,4 @@ const desc = BaseFilter.prototype._sort_desc;
 const asc = BaseFilter.prototype._sort_asc;
 
 export { BaseFilter, desc, asc }
-export { SDB_BF_INVALID_SORT_COL, SDB_BF_LIMIT_TYPE, SDB_BF_OFFSET_TYPE }
+export { SDB_BF_INVALID_SORT_COL, SDB_BF_LIMIT_TYPE, SDB_BF_OFFSET_TYPE, SDB_BF_INVALID_NULLSTR }

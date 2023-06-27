@@ -49,21 +49,22 @@ const SDB_DDR_INVALID_PATH_EMPTY = 'Empty path given';
 const SDB_DDR_INVALID_PATH_TYPE = 'Path is not a string or a DataDiscoveryFilter object';
 
 /** 
- * Executes HTTP requests for SlashDB Data Discovery functionality.  Extends the BaseRequestHandler class
+ * Executes HTTP requests for SlashDB Data Discovery functionality.  `Extends the BaseRequestHandler` class
  * for most methods.
  */
 class DataDiscoveryResource extends BaseRequestHandler {
 
    /**
-   * Create a DataDiscoveryResource object for a given SlashDB instance
+   * Create a `DataDiscoveryResource` object for a given SlashDB instance
    * @extends BaseRequestHandler
-   * @param {string | DataDiscoveryDatabase} db - name of database to interact with via this instance, or a previously configured DataDiscoveryDatabase object 
+   * @param {string | DataDiscoveryDatabase} db - name of database to interact with via this instance, or a previously configured `DataDiscoveryDatabase` object 
    * @param {string} resource - name of resource (table) to interact with via this instance
-   * @param {SlashDBClient} [clientObj] - an optional configured SlashDBClient object
-   * @throws {ReferenceError | TypeError} if db parameter is a DataDiscoveryObject that is missing dbName property or has invalid dbName property
-   * @throws {TypeError} if db parameter is: not a DataDiscoveryObject/not a string/parses to a number
-   * @throws {TypeError} if resource parameter is not a string or an empty string, or parses to a number
-   * @throws {ReferenceError} if no clientObj parameter was given, and a valid SlashDBClient object is not contained within db parameter, which must be a DataDiscoveryDatabase object if clientObj is omitted
+   * @param {SlashDBClient} [clientObj] - an optional configured `SlashDBClient` object
+   * @throws {ReferenceError | TypeError} if `db` parameter is a `DataDiscoveryObject` that is missing `dbName` property or has invalid `dbName` property
+   * @throws {TypeError} if `db` parameter is: not a `DataDiscoveryObject`/not a string/parses to a number
+   * @throws {TypeError} if `resource` parameter is not a string or an empty string, or parses to a number
+   * @throws {ReferenceError} if no `clientObj` parameter was given, and a valid `SlashDBClient` object is not contained within `db` parameter, 
+   * which must be a `DataDiscoveryDatabase` object if `clientObj` is omitted
    */    
     constructor(db, resourceName, clientObj) {
         super(clientObj);
@@ -118,12 +119,12 @@ class DataDiscoveryResource extends BaseRequestHandler {
 
     /**
      * Builds the full endpoint to the requested resource.  Meant for internal use only.
-     * @param {string | DataDiscoveryFilter} [path] - an optional string containing a URI fragment with SQL query parameters/values and URL query parameters 
-     * (e.g. /FirstName/Tim?distinct=true), or a DataDiscoveryFilter object that contains all the query details
+     * @param {string | DataDiscoveryFilter} [path] - an optional string containing a URI segment with SQL query parameters/values and URL query parameters 
+     * (e.g. `/FirstName/Tim?distinct=true`), or a `DataDiscoveryFilter` object that contains all the query details
      * @returns {string} the full endpoint
-     * @throws {ReferenceError} if no SlashDBClient object is found attached to this object
-     * @throws {SyntaxError} if path parameter is an empty string
-     * @throws {TypeError} if path parameter is neither a string or a DataDiscoveryFilter object
+     * @throws {ReferenceError} if no `SlashDBClient` object is found attached to this object
+     * @throws {SyntaxError} if `path` parameter is an empty string
+     * @throws {TypeError} if `path` parameter is neither a string or a `DataDiscoveryFilter` object
      */    
     _buildEndpointString(path) {
 

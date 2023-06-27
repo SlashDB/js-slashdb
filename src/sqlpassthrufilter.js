@@ -1,8 +1,9 @@
 import { BaseFilter } from "./basefilter.js";
+import { SDB_NULLSTR } from "./filterfunctions.js";
 
 const SDB_SPTF_INVALID_PARAM_FORMAT = 'Parameters must be given as an object of key/value pairs';
 const SDB_SPTF_INVALID_PARAM_NAME = "Parameter name must be a non-empty string, cannot contain '/' character";
-const SDB_SPTF_INVALID_PARAM_VALUE = "Parameter value must be a non-empty string or integer, cannot contain '/'";
+const SDB_SPTF_INVALID_PARAM_VALUE = "Parameter value must be a non-empty string, integer, or null, cannot contain '/'";
 const SDB_SPTF_INVALID_XMLTYPE = "Parameter must be a non-empty string";
 
 /** 
@@ -11,7 +12,7 @@ const SDB_SPTF_INVALID_XMLTYPE = "Parameter must be a non-empty string";
 class SQLPassThruFilter extends BaseFilter {
 
    /**
-   * Create a SQLPassThruFilter object for making SlashDB-compatible URL strings
+   * Create a `SQLPassThruFilter` object for making SlashDB-compatible URL strings
    * @extends BaseFilter
    * @param {Object} [params] - optional object of key/value pairs representing SQL query parameters to instantiate this object with
    * @param {string} [urlPlaceholder] -  a string that contains a character(s) to set for the placeholder query parameter (used to indicate what character(s)
@@ -40,12 +41,12 @@ class SQLPassThruFilter extends BaseFilter {
 	* Adds SQL query parameters to this object and stores info about them
 	* @param {Object} params - an object of key/value pairs containing parameter names and values
 	* @returns {SQLPassThruFilter} this object
-	* @throws {SyntaxError} - if params parameter is not an object
-	* @throws {SyntaxError} - if any object keys parse to numbers
-	* @throws {TypeError} - if any object keys are not strings or contain spaces
-	* @throws {TypeError} - if any object keys contain '/' character
-	* @throws {TypeError} - if any object values are not strings or numbers, or are empty strings
-	* @throws {TypeError} - if any object values contain '/' character
+	* @throws {SyntaxError} - if `params` parameter is not an object
+	* @throws {SyntaxError} - if any of the `param` keys parse to numbers
+	* @throws {TypeError} - if any of the `param` keys are not strings or contain spaces
+	* @throws {TypeError} - if any of the `param` keys contain '/' character
+	* @throws {TypeError} - if any of the `param` values are not strings or numbers, or are empty strings
+	* @throws {TypeError} - if any of the `param` values contain '/' character
 	*/ 	
 	addParams(params) {
 
@@ -59,26 +60,32 @@ class SQLPassThruFilter extends BaseFilter {
 				throw SyntaxError(SDB_SPTF_INVALID_PARAM_NAME);
 			}
 
-			if (typeof(key) !== 'string' || key.indexOf(' ') !== -1) {
+			if (typeof(key) !== 'string' || key.indexOf(' ') > -1) {
 				throw TypeError(SDB_SPTF_INVALID_PARAM_NAME);
 			}
 	
-			if (key.indexOf('/') !== -1) {
-				throw TypeError(SDB_SPTF_INVALID_PARAM_NAME);
+			if (key.indexOf('/') > -1) {
+				throw SyntaxError(SDB_SPTF_INVALID_PARAM_NAME);
+			}
+
+			if (params[key] === null) {
+				params[key] = SDB_NULLSTR;
 			}
 
 			if (typeof(params[key]) !== 'number' && (typeof(params[key]) !== 'string')) {
 				throw TypeError(SDB_SPTF_INVALID_PARAM_VALUE);
 			}
 
-			if ( typeof(params[key]) === 'string' && params[key].indexOf('/') !== -1) {
-				throw TypeError(SDB_SPTF_INVALID_PARAM_VALUE);
+			if ( typeof(params[key]) === 'string' && params[key].indexOf('/') > -1) {
+				throw SyntaxError(SDB_SPTF_INVALID_PARAM_VALUE);
 			}
 
-			// handle empty string values
-			if (typeof(params[key]) === 'string' && params[key].trim() === '') {
-				params[key] = '/';
+			// update query parameter value if previously given
+			// TODO add tests for this
+			if (key in this.queryParams) {
+				this.pathString = this.pathString.replace(`/${key}/${this.queryParams[key]}`, '');
 			}
+
 			this.queryParams[key] = params[key];
 			this.pathString += `/${key}/${params[key]}`;
 			this.pathString = this.pathString.replace('///','//');		// if multiple empty string values are given, '///' can appear - remove the extra '/'

@@ -20,7 +20,7 @@ afterEach( () => {
 afterAll( async () => {
     // delete the record created by the POST test
     try {
-        let r = await fetchWrapper("DELETE", `${LIVE_SDB_HOST}/db/Chinook/Customer/FirstName/SQLPassThruPOST`);
+        let r = await fetchWrapper("DELETE", `${LIVE_SDB_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/SQLPassThruPOST`);
     }
     catch(e) {
         null;
@@ -280,26 +280,18 @@ describe('SQLPassThruQuery() class tests', () => {
             expect(e.message).toBe('400');
         }
 
-        // // get a resource in a non-existent format - 406
-        // try {
-        //     let testDDR = new SQLPassThruQuery('/userdef/admin','deleteme',liveClient) 
-        //     testDDR.dbPrefix = '';
-        //     testDDR.resourceName = '';        
-        //     await testDDR.get()
-        // }
-        // catch(e) {
-        //     expect(e.message).toBe('406');
-        // }
-
         try {
+            liveClient.logout();
             liveClient.apiKey = '';
-            let testSPTQ = new SQLPassThruQuery('invoices-by-year',liveClient);  
-            await testSPTQ.get('/year/2010')
+            let testSPTQ = new SQLPassThruQuery('invoices-by-year',liveClient);
+            await testSPTQ.get('/year/2010');
         }
         catch(e) {
             expect(e.message).toBe('403');
-        }    
-
+        }
+        finally {
+            liveClient.apiKey = LIVE_SDB_API_KEY;
+        }
     });
 
 
@@ -381,21 +373,19 @@ describe('SQLPassThruQuery() class tests', () => {
             "Email": "user@testcompany.com",
         }
 
-     
-
         // valid query using POST
         try {
-            let testSPTQ = new SQLPassThruQuery('add-new-customer',liveClient) 
+            let testSPTQ = new SQLPassThruQuery('add-new-customer',liveClient);
             let r = await testSPTQ.post(newCustomer);
-            expect(r.res.status).toBe(200)
+            expect(r.res.status).toBe(200);
         }
         catch(e) {
-            throw Error(e)
+            throw Error(e);
         }
 
         // non-existent query - 404
         try {
-            let testSPTQ = new SQLPassThruQuery('InvalidQuery',liveClient) 
+            let testSPTQ = new SQLPassThruQuery('InvalidQuery',liveClient);
             let r = await testSPTQ.post(newCustomer);
         }
         catch(e) {
@@ -404,13 +394,17 @@ describe('SQLPassThruQuery() class tests', () => {
 
         // no auth for query - 403
         try {
+            liveClient.logout();
             liveClient.apiKey = '';
-            let testSPTQ = new SQLPassThruQuery('add-new-customer',liveClient) 
+            let testSPTQ = new SQLPassThruQuery('add-new-customer',liveClient);
             let r = await testSPTQ.post(newCustomer);
         }
         catch(e) {
             expect(e.message).toBe('403');
-        }               
+        }
+        finally {
+            liveClient.apiKey = LIVE_SDB_API_KEY;
+        }
     });    
 
     
@@ -444,14 +438,14 @@ describe('SQLPassThruQuery() class tests', () => {
     //     let testSPTQ = new SQLPassThruQuery('add-new-customer',liveClient) 
     //     let r = await testSPTQ.put('', updateCustomer);
     //     expect(r.res.status).toBe(201)
-    //     expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/Chinook/Customer/FirstName/POST`);
+    //     expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/POST`);
 
     //     // update a non-existent record - 404
     //     try {
     //         await testDDR.put('InvalidResource/FirstName/POST', updateCustomer);
     //     }
     //     catch(e) {
-    //         expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource/FirstName/POST`);
+    //         expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/InvalidResource/FirstName/POST`);
     //         expect(e.message).toBe('404');
     //     }
 
@@ -462,7 +456,7 @@ describe('SQLPassThruQuery() class tests', () => {
             
     //     }
     //     catch(e) {
-    //         expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/Chinook/Customer/FirstName/POST`);
+    //         expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/POST`);
     //         expect(e.message).toBe('403');
     //         mockClient.sdbConfig.apiKey = '1234';
     //     }
@@ -473,7 +467,7 @@ describe('SQLPassThruQuery() class tests', () => {
     //         await testDDR.put('FirstName/POST', updateCustomer);
     //     }
     //     catch(e) {
-    //         expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/Chinook/Customer/FirstName/POST`);
+    //         expect(fetchMock).toHaveLastPut(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/POST`);
     //         expect(e.message).toBe('400');
     //         updateCustomer['nonExistentField'] = undefined;
     //     }
@@ -498,7 +492,7 @@ describe('SQLPassThruQuery() class tests', () => {
 
     //     // valid resource to update
     //     try {
-    //         let testDDR = new SQLPassThruQuery('Chinook','Customer',liveClient)    
+    //         let testDDR = new SQLPassThruQuery(SDB_TEST_DB_NAME,'Customer',liveClient)    
     //         let r = await testDDR.put('FirstName/POST', updateCustomer);            
     //         expect(r.res.status).toBe(204)
     //     }
@@ -508,7 +502,7 @@ describe('SQLPassThruQuery() class tests', () => {
 
     //     // non-existent record - 404
     //     try {
-    //         let testDDR = new SQLPassThruQuery('Chinook','InvalidResource',liveClient)    
+    //         let testDDR = new SQLPassThruQuery(SDB_TEST_DB_NAME,'InvalidResource',liveClient)    
     //         let r = await testDDR.put('FirstName/POST', updateCustomer);  
     //     }
     //     catch(e) {
@@ -517,7 +511,7 @@ describe('SQLPassThruQuery() class tests', () => {
 
     //     // non-existent column in record - 400
     //     try {
-    //         let testDDR = new SQLPassThruQuery('Chinook','Customer',liveClient)    
+    //         let testDDR = new SQLPassThruQuery(SDB_TEST_DB_NAME,'Customer',liveClient)    
     //         let r = await testDDR.put('InvalidResource/POST', updateCustomer);  
     //     }
     //     catch(e) {
@@ -541,50 +535,50 @@ describe('SQLPassThruQuery() class tests', () => {
     // testIf(MOCK_TESTS_ENABLED, 'testing: delete() mock tests', async () => {
 
     //     fetchMock
-    //         .delete(`${MOCK_HOST}/db/Chinook/Customer/FirstName/PUT`, (url, options) => {
+    //         .delete(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/PUT`, (url, options) => {
     //             if (!options.headers.apiKey) {
     //                     return 403;
     //                 }
 
     //         return 204;
     //         })
-    //         .delete(`${MOCK_HOST}/db/Chinook/InvalidResource/FirstName/PUT`, 404)
-    //         .delete(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource/FirstName/PUT`, 400)
+    //         .delete(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/InvalidResource/FirstName/PUT`, 404)
+    //         .delete(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/InvalidResource/FirstName/PUT`, 400)
 
     //     // delete a record
-    //     let testDDR = new SQLPassThruQuery('Chinook','Customer',mockClient)    
+    //     let testDDR = new SQLPassThruQuery(SDB_TEST_DB_NAME,'Customer',mockClient)    
     //     let r = await testDDR.delete('FirstName/PUT');
     //     expect(r.res.status).toBe(204)
-    //     expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/Chinook/Customer/FirstName/PUT`);
+    //     expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/PUT`);
 
     //     // delete a non-existent record - 404
     //     try {
-    //         let testDDR = new SQLPassThruQuery('Chinook','InvalidResource',mockClient)    
+    //         let testDDR = new SQLPassThruQuery(SDB_TEST_DB_NAME,'InvalidResource',mockClient)    
     //         let r = await testDDR.delete('FirstName/PUT');
     //     }
     //     catch(e) {
-    //         expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/Chinook/InvalidResource/FirstName/PUT`);
+    //         expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/InvalidResource/FirstName/PUT`);
     //         expect(e.message).toBe('404');
     //     }
 
     //     // non-existent column in record - 400
     //     try {
-    //         let testDDR = new SQLPassThruQuery('Chinook','Customer',mockClient)    
+    //         let testDDR = new SQLPassThruQuery(SDB_TEST_DB_NAME,'Customer',mockClient)    
     //         let r = await testDDR.delete('InvalidResource/FirstName/PUT');
     //     }
     //     catch(e) {
-    //         //expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/Chinook/Customer/InvalidResource/FirstName/PUT`);
+    //         //expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/InvalidResource/FirstName/PUT`);
     //         expect(e.message).toBe('400');
     //     }
 
     //     // delete a record w/o auth - 403
     //     try {
     //         mockClient.apiKey = '';
-    //         let testDDR = new SQLPassThruQuery('Chinook','Customer',mockClient) 
+    //         let testDDR = new SQLPassThruQuery(SDB_TEST_DB_NAME,'Customer',mockClient) 
     //         await testDDR.delete('FirstName/PUT');
     //     }
     //     catch(e) {
-    //         expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/Chinook/Customer/FirstName/PUT`);
+    //         expect(fetchMock).toHaveLastDeleted(`${MOCK_HOST}/db/${SDB_TEST_DB_NAME}/Customer/FirstName/PUT`);
     //         expect(e.message).toBe('403');
     //         mockClient.apiKey = '1234';
     //     }
@@ -595,7 +589,7 @@ describe('SQLPassThruQuery() class tests', () => {
 
     //     // valid resource to delete
     //     try {
-    //         let testDDR = new SQLPassThruQuery('Chinook','Customer',liveClient)    
+    //         let testDDR = new SQLPassThruQuery(SDB_TEST_DB_NAME,'Customer',liveClient)    
     //         let r = await testDDR.delete('FirstName/PUT');                    
     //         expect(r.res.status).toBe(204)
     //     }
@@ -605,7 +599,7 @@ describe('SQLPassThruQuery() class tests', () => {
 
     //     // non-existent record - 404
     //     try {
-    //         let testDDR = new SQLPassThruQuery('Chinook','InvalidResource',liveClient)    
+    //         let testDDR = new SQLPassThruQuery(SDB_TEST_DB_NAME,'InvalidResource',liveClient)    
     //         await testDDR.delete();   
     //     }
     //     catch(e) {
@@ -614,7 +608,7 @@ describe('SQLPassThruQuery() class tests', () => {
 
     //     // non-existent column in record - 400
     //     try {
-    //         let testDDR = new SQLPassThruQuery('Chinook','Customer',liveClient)    
+    //         let testDDR = new SQLPassThruQuery(SDB_TEST_DB_NAME,'Customer',liveClient)    
     //         await testDDR.delete('InvalidResource');   
     //     }
     //     catch(e) {

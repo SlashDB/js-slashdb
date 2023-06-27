@@ -19,7 +19,7 @@ class SlashDBClient {
    * @param {string} [username] - optional username to use when connecting to SlashDB instance
    * @param {string} [apiKey] - optional API key associated with username
    */
-  // constructor(host, username, apiKey, password = undefined) {
+
   constructor(host, username, apiKey) {
 
     if (!host || typeof(host) !== 'string') {
@@ -32,22 +32,13 @@ class SlashDBClient {
 
     }
 
-    // if (!apiKey && !password) {
-    //   throw ReferenceError(SDB_SDBC_MISSING_AUTH);
-    // }
-
     if (apiKey && typeof(apiKey) !== 'string') {
       throw TypeError(SDB_SDBC_INVALID_APIKEY);
     }
 
-    // if (password && typeof(password) !== 'string') {
-    //   throw TypeError(SDB_SDBC_INVALID_PASSWORD);
-    // }
-
     this.host = host;
     this.username = username
     this.apiKey = apiKey;
-    // this.password = password;
 
     // create the special case BaseRequestHandler object for interacting with config endpoints
     this.sdbConfig = new BaseRequestHandler(this);
@@ -132,6 +123,9 @@ class SlashDBClient {
     }
   }
 
+  /**
+   * Logs out of SlashDB instance
+   */
   async logout() {
     try {
       await this.sdbConfig.get(this.logoutEP);
@@ -140,40 +134,79 @@ class SlashDBClient {
       console.error(e);
     }
   }
-  /* *** configuration endpoint getters/setters */
 
+  /**
+   * Retrieves host's SlashDB configuration info
+   * @returns {object} containing SlashDB configuration items
+   */
   async getSettings() {
     return (await this.sdbConfig.get(this.settingsEP)).data
   }
 
+  /**
+   * Retrieves SlashDB version number
+   * @returns {string} containing SlashDB version number
+   */
   async getVersion() {
     return (await this.sdbConfig.get(this.versionEP)).data;
   }
 
+  /**
+   * Enables connection to a database configured on SlashDB host
+   * @param {string} [dbName] - SlashDB ID of database to connect
+   * @returns {object} containing database configuration info and connection status
+   */
   async loadModel(dbName) {
     return (await this.sdbConfig.get(`${this.loadEP}/${dbName}`)).data;
   }
 
+  /**
+   * Disables connection to a database configured on SlashDB host
+   * @param {string} [dbName] - SlashDB ID of database to disconnect
+   * @returns {object} containing database configuration info and connection status
+   */
   async unloadModel(dbName) {
     return (await this.sdbConfig.get(`${this.unloadEP}/${dbName}`)).data;
   }
 
+    /**
+   * Returns current status of SlashDB connection to database
+   * @param {string | undefined} [dbName] - SlashDB ID of database to filter on; leave empty to retrieve all databases
+   * @returns {object} containing database connection status for all or selected databases
+   */
   async getReflectStatus(dbName = undefined) {
     const ep = (!dbName) ? this.reflectStatusEP : `${this.reflectStatusEP.split('.json')[0]}/${dbName}.json`;
     return (await this.sdbConfig.get(ep)).data;
   }
 
+  /**
+   * Returns configuration info about SlashDB users
+   * @param {string | undefined} [username] - SlashDB ID of user to filter on; leave empty to retrieve all users
+   * @returns {object} containing configuration info for all or selected users
+   */
   async getUser(username = undefined) {
     const ep = (!username) ? this.userEP : `${this.userEP}/${username}`;
     return (await this.sdbConfig.get(ep)).data;
   }
 
+  /**
+   * Returns configuration info about SlashDB databases
+   * @param {string | undefined} [dbName] - database ID of database to filter on; leave empty to retrieve all databases
+   * @param {boolean} [guiData] - returns additional info normally available in the GUI view when set to true
+   * @returns {object} containing configuration info for all or selected databases
+   */
   async getDbDef(dbName = undefined, guiData = false) {
     const guiParam = guiData ? '?guidata' : '';
     const ep = (!dbName) ? `${this.dbDefEP}${guiParam}` : `${this.dbDefEP}/${dbName}${guiParam}`;
     return (await this.sdbConfig.get(ep)).data;
   }  
 
+  /**
+   * Returns configuration info about SlashDB queries
+   * @param {string | undefined} [dbName] - SlashDB ID of query to filter on; leave empty to retrieve all databases
+   * @param {boolean} [guiData] - returns additional info normally available in the GUI view when set to true
+   * @returns {object} containing configuration info for all or selected queries
+   */
   async getQueryDef(queryName = undefined, guiData = false) {
     const guiParam = guiData ? '?guidata' : '';
     const ep = (!queryName) ? `${this.queryDefEP}${guiParam}` : `${this.queryDefEP}/${queryName}${guiParam}`;
@@ -182,8 +215,8 @@ class SlashDBClient {
 
   /**
    * Retrieve a list of databases that are configured on the SlashDB instance
-   * @returns {Object} databases - a key/value pair object keyed by database name, with
-   * a corresponding DataDiscoveryDatabase object for each key
+   * @returns {Object} databases - a key/value pair object keyed by database ID, with
+   * a corresponding `DataDiscoveryDatabase` object for each key
    */
   async getDatabases() {
     const databases = {};
@@ -196,9 +229,9 @@ class SlashDBClient {
 
   /**
    * Retrieve a list of SQL Pass-Thru queries that are configured on the SlashDB instance
-   * @param {string} [dbName] - database name; if specified, will only return queries associated with the given database
+   * @param {string} [dbName] - SlashDB database ID; if specified, will only return queries associated with the given database
    * @returns {object} queries - a key/value pair object keyed by query ID, with
-   * a corresponding SQLPassThruQuery object for each key
+   * a corresponding `SQLPassThruQuery` object for each key
    */
   async getQueries(dbName = undefined) {
     let queryList = await this.getQueryDef();

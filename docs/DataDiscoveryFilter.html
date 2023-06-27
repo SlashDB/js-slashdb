@@ -30,7 +30,7 @@
     
         <h2><span class="attribs"><span class="type-signature"></span></span>DataDiscoveryFilter<span class="signature">(filter<span class="signature-attributes">opt</span>, wildcard<span class="signature-attributes">opt</span>, separator<span class="signature-attributes">opt</span>, urlPlaceholder<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
         
-            <div class="class-description">Class for creating URL strings for SlashDB Data Discovery functionality</div>
+            <div class="class-description"><p>Class for creating URL strings for SlashDB Data Discovery functionality</p></div>
         
     
 </header>
@@ -53,7 +53,7 @@
 
 
 <div class="description">
-    Create a DataDiscoveryFilter object for making SlashDB-compatible URL strings
+    <p>Create a <code>DataDiscoveryFilter</code> object for making SlashDB-compatible URL strings</p>
 </div>
 
 
@@ -125,7 +125,7 @@
                 </td>
             
 
-            <td class="description last">optional filter string to instantiate object with; accepts strings created using filter expression functions</td>
+            <td class="description last"><p>optional filter string to instantiate object with; accepts strings created using filter expression functions</p></td>
         </tr>
 
     
@@ -164,7 +164,7 @@
                 </td>
             
 
-            <td class="description last">set if using a special wildcard character(s) in URL strings (default is '*')</td>
+            <td class="description last"><p>set if using a special wildcard character(s) in URL strings (default is <code>*</code>)</p></td>
         </tr>
 
     
@@ -203,7 +203,7 @@
                 </td>
             
 
-            <td class="description last">set if using a special separator character(s) in URL strings (default is ',')</td>
+            <td class="description last"><p>set if using a special separator character(s) in URL strings (default is <code>,</code>)</p></td>
         </tr>
 
     
@@ -242,7 +242,8 @@
                 </td>
             
 
-            <td class="description last">a string that contains a character(s) to set for the placeholder query parameter (used to indicate what character(s)was used to replace '/' character in values contained in the URL that may contain the '/' character);  default is '__'</td>
+            <td class="description last"><p>a string that contains a character(s) to set for the placeholder query parameter (used to indicate what character(s)<br>
+was used to replace '/' character in values contained in the URL that may contain the '/' character);  default is '__'</p></td>
         </tr>
 
     
@@ -313,7 +314,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        if wildcard or separator parameters are not strings, are empty strings, or contain '/' character
+        <p>if <code>wildcard</code> or <code>separator</code> parameters are not strings, are empty strings, or contain '/' character</p>
         </div>
     </dt>
     <dd></dd>
@@ -340,7 +341,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        if filter parameter  is not a string or an empty string
+        <p>if <code>filter</code> parameter  is not a string or an empty string</p>
         </div>
     </dt>
     <dd></dd>
@@ -367,7 +368,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        if filter does not contain '/' character
+        <p>if <code>filter</code> parameter does not contain '/' character</p>
         </div>
     </dt>
     <dd></dd>
@@ -441,7 +442,7 @@
 
 
 <div class="description">
-    Parses out column names; used by sort() and cols() methods.  Not called directly.
+    <p>Parses out column names; used by <code>sort()</code> and <code>cols()</code> methods.  Not called directly.</p>
 </div>
 
 
@@ -505,7 +506,7 @@
 
             
 
-            <td class="description last">a comma delimited list of column names to parse (e.g. 'FirstName','LastName','Email')</td>
+            <td class="description last"><p>a comma delimited list of column names to parse (e.g. <code>'FirstName','LastName','Email'</code>)</p></td>
         </tr>
 
     
@@ -551,7 +552,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="basefilter.js.html">basefilter.js</a>, <a href="basefilter.js.html#line186">line 186</a>
+        <a href="basefilter.js.html">basefilter.js</a>, <a href="basefilter.js.html#line210">line 210</a>
     </li></ul></dd>
     
 
@@ -581,7 +582,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        if no columns given, or if any column names are not strings, or are empty strings
+        <p>if no columns given, or if any column names are not strings, or are empty strings</p>
         </div>
     </dt>
     <dd></dd>
@@ -608,7 +609,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        if any column names contain spaces, or parse to numbers
+        <p>if any column names contain spaces, or parse to numbers</p>
         </div>
     </dt>
     <dd></dd>
@@ -636,7 +637,7 @@
 <ul>
         <li>
 <div class="param-desc">
-    if one column given and value of column is false (resets sort/cols)
+    <p>if one column given and value of column is false (resets <code>sort()</code>/<code>cols()</code>)</p>
 </div>
 
 
@@ -656,7 +657,7 @@
     
         <li>
 <div class="param-desc">
-    string of column names separated by ','
+    <p>string of column names separated by ','</p>
 </div>
 
 
@@ -693,7 +694,8 @@
 
 
 <div class="description">
-    Mark a column as ascending for sort() method.  Not used in class; exposed externally as its own function in this module; notethat this method doesn't do any modifications to the column name, it's here just so developers have an explicit method
+    <p>Mark a column as ascending for <code>sort()</code> method.  Not used in class; exposed externally as its own function in this module; note<br>
+that this method doesn't do any modifications to the column name, it's here just so developers have an explicit method</p>
 </div>
 
 
@@ -745,7 +747,7 @@
 
             
 
-            <td class="description last">a column name to mark as descending</td>
+            <td class="description last"><p>a column name to mark as descending</p></td>
         </tr>
 
     
@@ -791,7 +793,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="basefilter.js.html">basefilter.js</a>, <a href="basefilter.js.html#line98">line 98</a>
+        <a href="basefilter.js.html">basefilter.js</a>, <a href="basefilter.js.html#line102">line 102</a>
     </li></ul></dd>
     
 
@@ -821,7 +823,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        if column name given is not a string
+        <p>if column name given is not a string</p>
         </div>
     </dt>
     <dd></dd>
@@ -848,7 +850,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        if column name given contains spaces or parses to a number
+        <p>if column name given contains spaces or parses to a number</p>
         </div>
     </dt>
     <dd></dd>
@@ -876,7 +878,7 @@
 
         
 <div class="param-desc">
-    a column name that has been marked as ascending for sort() method (effectively, no changes to input)
+    <p>a column name that has been marked as ascending for <code>sort()</code> method (effectively, no changes to input)</p>
 </div>
 
 
@@ -913,7 +915,7 @@
 
 
 <div class="description">
-    Mark a column as descending for sort() method.  Not used in class; exposed externally as its own function in this module
+    <p>Mark a column as descending for <code>sort()</code> method.  Not used in class; exposed externally as its own function in this module</p>
 </div>
 
 
@@ -965,7 +967,7 @@
 
             
 
-            <td class="description last">a column name to mark as descending</td>
+            <td class="description last"><p>a column name to mark as descending</p></td>
         </tr>
 
     
@@ -1011,7 +1013,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="basefilter.js.html">basefilter.js</a>, <a href="basefilter.js.html#line78">line 78</a>
+        <a href="basefilter.js.html">basefilter.js</a>, <a href="basefilter.js.html#line82">line 82</a>
     </li></ul></dd>
     
 
@@ -1041,7 +1043,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        if column name given is not a string
+        <p>if column name given is not a string</p>
         </div>
     </dt>
     <dd></dd>
@@ -1068,7 +1070,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        if column name given contains spaces or parses to a number
+        <p>if column name given contains spaces or parses to a number</p>
         </div>
     </dt>
     <dd></dd>
@@ -1096,7 +1098,7 @@
 
         
 <div class="param-desc">
-    a column name that has been marked as descending for sort() method
+    <p>a column name that has been marked as descending for <code>sort()</code> method</p>
 </div>
 
 
@@ -1133,7 +1135,7 @@
 
 
 <div class="description">
-    Sets the placeholder query string parameter; only used internally
+    <p>Sets the <code>placeholder</code> query string parameter; only used internally</p>
 </div>
 
 
@@ -1182,7 +1184,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="basefilter.js.html">basefilter.js</a>, <a href="basefilter.js.html#line46">line 46</a>
+        <a href="basefilter.js.html">basefilter.js</a>, <a href="basefilter.js.html#line50">line 50</a>
     </li></ul></dd>
     
 
@@ -1211,7 +1213,7 @@
 
         
 <div class="param-desc">
-    an empty string, or a query parameter string for the placeholder query parameter
+    <p>an empty string, or a query parameter string for the placeholder query parameter</p>
 </div>
 
 
@@ -1248,7 +1250,7 @@
 
 
 <div class="description">
-    Add a filter string to this object and stores info about filter; accepts strings created using filter expression functions
+    <p>Add a filter string to this object and stores info about filter; accepts strings created using filter expression functions</p>
 </div>
 
 
@@ -1300,7 +1302,9 @@
 
             
 
-            <td class="description last">a filter string; can contain multiple filters (e.g. 'FirstName/Tim/LastName/Smith') or values created using filter expression functions e.g. and(eq('FirstName','Tim'),eq('LastName','Smith'))</td>
+            <td class="description last"><p>a filter string; can contain multiple filters (e.g. <code>'FirstName/Tim/LastName/Smith'</code>) or values<br>
+created using filter expression functions</p>
+<p>e.g. <code>and(eq('FirstName','Tim'),eq('LastName','Smith'))</code></p></td>
         </tr>
 
     
@@ -1371,7 +1375,9 @@
 <dl>
     <dt>
         <div class="param-desc">
-        - if filterString parameter is not a string or is an empty string
+        <ul>
+<li>if <code>filterString</code> parameter is not a string or is an empty string</li>
+</ul>
         </div>
     </dt>
     <dd></dd>
@@ -1398,7 +1404,9 @@
 <dl>
     <dt>
         <div class="param-desc">
-        - if filterString parameter does not contain '/' character
+        <ul>
+<li>if <code>filterString</code> parameter does not contain '/' character</li>
+</ul>
         </div>
     </dt>
     <dd></dd>
@@ -1426,7 +1434,7 @@
 
         
 <div class="param-desc">
-    this object
+    <p>this object</p>
 </div>
 
 
@@ -1463,7 +1471,8 @@
 
 
 <div class="description">
-    Builds the URL endpoint string from the filter strings provided to the class and the query string parameters that have been set;called at the end of most filter string methods and query string parameter methods
+    <p>Builds the URL endpoint string from the filter strings provided to the class and the query string parameters that have been set;<br>
+called at the end of most filter string methods and query string parameter methods</p>
 </div>
 
 
@@ -1541,7 +1550,7 @@
 
         
 <div class="param-desc">
-    this object
+    <p>this object</p>
 </div>
 
 
@@ -1578,7 +1587,7 @@
 
 
 <div class="description">
-    Appends the URL with set of columns to return from request
+    <p>Appends the URL with set of columns to return from request</p>
 </div>
 
 
@@ -1642,7 +1651,7 @@
 
             
 
-            <td class="description last">a list of column names (e.g. 'FirstName','LastName','Email')</td>
+            <td class="description last"><p>a list of column names (e.g. <code>'FirstName','LastName','Email'</code>)</p></td>
         </tr>
 
     
@@ -1688,7 +1697,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="basefilter.js.html">basefilter.js</a>, <a href="basefilter.js.html#line56">line 56</a>
+        <a href="basefilter.js.html">basefilter.js</a>, <a href="basefilter.js.html#line60">line 60</a>
     </li></ul></dd>
     
 
@@ -1717,7 +1726,7 @@
 
         
 <div class="param-desc">
-    this object
+    <p>this object</p>
 </div>
 
 
@@ -1742,7 +1751,7 @@
 
 
 <div class="description">
-    Sets the headers query string parameter; applies only to CSV formatted data
+    <p>Sets the <code>headers</code> query string parameter; applies only to CSV formatted data</p>
 </div>
 
 
@@ -1814,7 +1823,7 @@
                 </td>
             
 
-            <td class="description last">sets the headers query string parameter if not provided; removes the query string parameter if set to false.</td>
+            <td class="description last"><p>sets the parameter if not provided; removes the parameter if set to false.</p></td>
         </tr>
 
     
@@ -1884,7 +1893,7 @@
 
         
 <div class="param-desc">
-    this object
+    <p>this object</p>
 </div>
 
 
@@ -1921,7 +1930,7 @@
 
 
 <div class="description">
-    Sets the csvNullStr query string parameter; applies only to CSV formatted data
+    <p>Sets the <code>csvNullStr</code> query string parameter; applies only to CSV formatted data</p>
 </div>
 
 
@@ -1993,7 +2002,7 @@
                 </td>
             
 
-            <td class="description last">sets the csvNullStr query string parameter if not provided; removes the query string parameter if set to false.</td>
+            <td class="description last"><p>sets the parameter if not provided; removes the parameter if set to false.</p></td>
         </tr>
 
     
@@ -2063,7 +2072,7 @@
 
         
 <div class="param-desc">
-    this object
+    <p>this object</p>
 </div>
 
 
@@ -2100,7 +2109,7 @@
 
 
 <div class="description">
-    Sets the depth query string parameter
+    <p>Sets the <code>depth</code> query string parameter</p>
 </div>
 
 
@@ -2175,7 +2184,8 @@
                 </td>
             
 
-            <td class="description last">sets the depth query string parameter with the value provided; removes the query stringparameter if not provided or set to false</td>
+            <td class="description last"><p>sets the parameter with the value provided; removes the<br>
+parameter if not provided or set to false</p></td>
         </tr>
 
     
@@ -2246,7 +2256,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        if value provided is not an integer or < 1
+        <p>if value provided is not an integer or &lt; 1</p>
         </div>
     </dt>
     <dd></dd>
@@ -2274,7 +2284,7 @@
 
         
 <div class="param-desc">
-    this object
+    <p>this object</p>
 </div>
 
 
@@ -2311,7 +2321,7 @@
 
 
 <div class="description">
-    Sets the distinct query string parameter
+    <p>Sets the <code>distinct</code> query string parameter</p>
 </div>
 
 
@@ -2383,7 +2393,7 @@
                 </td>
             
 
-            <td class="description last">sets the distinct query string parameter if not provided; removes the query string parameter if set to false</td>
+            <td class="description last"><p>sets the parameter if not provided; removes the parameter if set to false</p></td>
         </tr>
 
     
@@ -2429,7 +2439,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="basefilter.js.html">basefilter.js</a>, <a href="basefilter.js.html#line115">line 115</a>
+        <a href="basefilter.js.html">basefilter.js</a>, <a href="basefilter.js.html#line119">line 119</a>
     </li></ul></dd>
     
 
@@ -2458,7 +2468,7 @@
 
         
 <div class="param-desc">
-    this object
+    <p>this object</p>
 </div>
 
 
@@ -2483,7 +2493,7 @@
 
 
 <div class="description">
-    Adds a resource to this object and stores info about it
+    <p>Adds a resource to this object and stores info about it</p>
 </div>
 
 
@@ -2535,7 +2545,7 @@
 
             
 
-            <td class="description last">resource name to add to object</td>
+            <td class="description last"><p>resource name to add to object</p></td>
         </tr>
 
     
@@ -2606,7 +2616,9 @@
 <dl>
     <dt>
         <div class="param-desc">
-        - if resource parameter is not a string or is an empty string
+        <ul>
+<li>if <code>resource</code> parameter is not a string or is an empty string</li>
+</ul>
         </div>
     </dt>
     <dd></dd>
@@ -2633,7 +2645,9 @@
 <dl>
     <dt>
         <div class="param-desc">
-        - if resource parameter contains '/' character
+        <ul>
+<li>if <code>resource</code> parameter contains '/' character</li>
+</ul>
         </div>
     </dt>
     <dd></dd>
@@ -2660,7 +2674,9 @@
 <dl>
     <dt>
         <div class="param-desc">
-        - if resource parameter parses to a number or contains a space
+        <ul>
+<li>if <code>resource</code> parameter parses to a number or contains a space</li>
+</ul>
         </div>
     </dt>
     <dd></dd>
@@ -2688,7 +2704,7 @@
 
         
 <div class="param-desc">
-    this object
+    <p>this object</p>
 </div>
 
 
@@ -2725,7 +2741,7 @@
 
 
 <div class="description">
-    Sets the href query string parameter; applies only to JSON formatted data
+    <p>Sets the <code>href</code> query string parameter; applies only to JSON/XML formatted data</p>
 </div>
 
 
@@ -2797,7 +2813,7 @@
                 </td>
             
 
-            <td class="description last">sets the href query string parameter if not provided; removes the query string parameter if set to false.</td>
+            <td class="description last"><p>sets the parameter if not provided; removes the parameter if set to false.</p></td>
         </tr>
 
     
@@ -2867,7 +2883,7 @@
 
         
 <div class="param-desc">
-    this object
+    <p>this object</p>
 </div>
 
 
@@ -2904,7 +2920,7 @@
 
 
 <div class="description">
-    Sets the limit query string parameter
+    <p>Sets the <code>limit</code> query string parameter</p>
 </div>
 
 
@@ -2979,7 +2995,8 @@
                 </td>
             
 
-            <td class="description last">sets the limit query string parameter with the value provided;  removes the query string parameter if not provided or set to false</td>
+            <td class="description last"><p>sets the parameter with the value provided; removes the<br>
+parameter if not provided or set to false</p></td>
         </tr>
 
     
@@ -3025,7 +3042,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="basefilter.js.html">basefilter.js</a>, <a href="basefilter.js.html#line129">line 129</a>
+        <a href="basefilter.js.html">basefilter.js</a>, <a href="basefilter.js.html#line133">line 133</a>
     </li></ul></dd>
     
 
@@ -3055,7 +3072,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        if value provided is not an integer or < 1
+        <p>if value provided is not an integer or &lt; 1</p>
         </div>
     </dt>
     <dd></dd>
@@ -3083,7 +3100,203 @@
 
         
 <div class="param-desc">
-    this object
+    <p>this object</p>
+</div>
+
+
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="nullStr"><span class="type-signature"></span>nullStr<span class="signature">(nullString<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Sets the <code>nullStr</code> query string parameter</p>
+<p>When using the composable filter functions, if the <code>chgPlaceHolder</code> function is invoked to change the default<br>
+<code>null</code> placeholder, any <code>BaseFilter</code>, <code>DataDiscoveryFilter</code>, and <code>SQLPassThruFilter</code> objects created after changing<br>
+the placeholder will have the <code>nullStr</code> query string parameter automatically set to the value passed to <code>chgPlaceHolder</code>.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>nullString</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>sets parameter with the value provided, resets to default if not given</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="BaseFilter.html#nullStr">BaseFilter#nullStr</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="basefilter.js.html">basefilter.js</a>, <a href="basefilter.js.html#line170">line 170</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        <p>if value provided is not a valid string</p>
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">TypeError</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+
+    
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>this object</p>
 </div>
 
 
@@ -3108,7 +3321,7 @@
 
 
 <div class="description">
-    Sets the offset query string parameter
+    <p>Sets the <code>offset</code> query string parameter</p>
 </div>
 
 
@@ -3183,7 +3396,8 @@
                 </td>
             
 
-            <td class="description last">sets the offset query string parameter with the value provided; removes the query stringparameter if not provided or set to false</td>
+            <td class="description last"><p>sets the parameter with the value provided; removes the<br>
+parameter if not provided or set to false</p></td>
         </tr>
 
     
@@ -3229,7 +3443,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="basefilter.js.html">basefilter.js</a>, <a href="basefilter.js.html#line146">line 146</a>
+        <a href="basefilter.js.html">basefilter.js</a>, <a href="basefilter.js.html#line150">line 150</a>
     </li></ul></dd>
     
 
@@ -3259,7 +3473,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        if value provided is not an integer or < 1
+        <p>if value provided is not an integer or &lt; 1</p>
         </div>
     </dt>
     <dd></dd>
@@ -3287,7 +3501,7 @@
 
         
 <div class="param-desc">
-    this object
+    <p>this object</p>
 </div>
 
 
@@ -3312,7 +3526,7 @@
 
 
 <div class="description">
-    Set the sort query string parameter
+    <p>Set the sort query string parameter</p>
 </div>
 
 
@@ -3376,7 +3590,7 @@
 
             
 
-            <td class="description last">a list of column names to sort by (e.g. 'FirstName','LastName','Email')</td>
+            <td class="description last"><p>a list of column names to sort by (e.g. <code>'FirstName','LastName','Email'</code>)</p></td>
         </tr>
 
     
@@ -3422,7 +3636,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="basefilter.js.html">basefilter.js</a>, <a href="basefilter.js.html#line66">line 66</a>
+        <a href="basefilter.js.html">basefilter.js</a>, <a href="basefilter.js.html#line70">line 70</a>
     </li></ul></dd>
     
 
@@ -3451,7 +3665,7 @@
 
         
 <div class="param-desc">
-    this object
+    <p>this object</p>
 </div>
 
 
@@ -3476,7 +3690,7 @@
 
 
 <div class="description">
-    Returns the URL endpoint string in this class created by build()
+    <p>Returns the URL endpoint string in this class created by <code>build()</code></p>
 </div>
 
 
@@ -3525,7 +3739,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="basefilter.js.html">basefilter.js</a>, <a href="basefilter.js.html#line243">line 243</a>
+        <a href="basefilter.js.html">basefilter.js</a>, <a href="basefilter.js.html#line267">line 267</a>
     </li></ul></dd>
     
 
@@ -3554,7 +3768,7 @@
 
         
 <div class="param-desc">
-    the URL endpoint string
+    <p>the URL endpoint string</p>
 </div>
 
 
@@ -3591,7 +3805,7 @@
 
 
 <div class="description">
-    Sets the stream query string parameter
+    <p>Sets the <code>stream</code> query string parameter</p>
 </div>
 
 
@@ -3663,7 +3877,7 @@
                 </td>
             
 
-            <td class="description last">sets the stream query string parameter if not provided; removes the query string parameter if set to false</td>
+            <td class="description last"><p>sets the parameter if not provided; removes the parameter if set to false</p></td>
         </tr>
 
     
@@ -3733,7 +3947,7 @@
 
         
 <div class="param-desc">
-    this object
+    <p>this object</p>
 </div>
 
 
@@ -3770,7 +3984,7 @@
 
 
 <div class="description">
-    Sets the transpose query string parameter
+    <p>Sets the <code>transpose</code> query string parameter</p>
 </div>
 
 
@@ -3842,7 +4056,7 @@
                 </td>
             
 
-            <td class="description last">sets the transpose query string parameter if not provided; removes the query string parameter if set to false</td>
+            <td class="description last"><p>sets parameter if not provided; removes the parameter if set to false</p></td>
         </tr>
 
     
@@ -3888,7 +4102,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="basefilter.js.html">basefilter.js</a>, <a href="basefilter.js.html#line161">line 161</a>
+        <a href="basefilter.js.html">basefilter.js</a>, <a href="basefilter.js.html#line185">line 185</a>
     </li></ul></dd>
     
 
@@ -3917,7 +4131,7 @@
 
         
 <div class="param-desc">
-    this object
+    <p>this object</p>
 </div>
 
 
@@ -3942,7 +4156,7 @@
 
 
 <div class="description">
-    Sets the wantarray query string parameter
+    <p>Sets the <code>wantarray</code> query string parameter</p>
 </div>
 
 
@@ -4014,7 +4228,7 @@
                 </td>
             
 
-            <td class="description last">sets the wantarray query string parameter if not provided; removes the query string parameter if set to false</td>
+            <td class="description last"><p>sets the parameter if not provided; removes the parameter if set to false</p></td>
         </tr>
 
     
@@ -4084,7 +4298,7 @@
 
         
 <div class="param-desc">
-    this object
+    <p>this object</p>
 </div>
 
 
@@ -4121,7 +4335,7 @@
 
 
 <div class="description">
-    Sets the nil_visible query string parameter
+    <p>Sets the <code>nil_visible</code> query string parameter</p>
 </div>
 
 
@@ -4193,7 +4407,7 @@
                 </td>
             
 
-            <td class="description last">sets the nil_visible query string parameter if not provided; removes the query string parameter if set to false</td>
+            <td class="description last"><p>sets the parameter if not provided; removes the parameter if set to false</p></td>
         </tr>
 
     
@@ -4239,7 +4453,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="basefilter.js.html">basefilter.js</a>, <a href="basefilter.js.html#line173">line 173</a>
+        <a href="basefilter.js.html">basefilter.js</a>, <a href="basefilter.js.html#line197">line 197</a>
     </li></ul></dd>
     
 
@@ -4268,7 +4482,7 @@
 
         
 <div class="param-desc">
-    this object
+    <p>this object</p>
 </div>
 
 
@@ -4293,7 +4507,7 @@
 
 
 <div class="description">
-    Sets the cardinality query string parameter; applies only to XSD formatted data
+    <p>Sets the <code>cardinality</code> query string parameter; applies only to XSD formatted data</p>
 </div>
 
 
@@ -4365,7 +4579,7 @@
                 </td>
             
 
-            <td class="description last">the value for the cardinality parameter (default is 'unbounded'); removes the query string parameter if set to false</td>
+            <td class="description last"><p>the value for the parameter (default is <code>'unbounded'</code>); removes the parameter if set to false</p></td>
         </tr>
 
     
@@ -4436,7 +4650,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        if value parameter is an empty string
+        <p>if <code>value</code> parameter is an empty string</p>
         </div>
     </dt>
     <dd></dd>
@@ -4463,7 +4677,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        if value parameter is not an integer or < 0
+        <p>if <code>value</code> parameter is not an integer or &lt; 0</p>
         </div>
     </dt>
     <dd></dd>
@@ -4491,7 +4705,7 @@
 
         
 <div class="param-desc">
-    this object
+    <p>this object</p>
 </div>
 
 
@@ -4530,13 +4744,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseFilter.html">BaseFilter</a></li><li><a href="BaseRequestHandler.html">BaseRequestHandler</a></li><li><a href="DataDiscoveryFilter.html">DataDiscoveryFilter</a></li><li><a href="DataDiscoveryResource.html">DataDiscoveryResource</a></li><li><a href="SlashDBClient.html">SlashDBClient</a></li><li><a href="SQLPassThruFilter.html">SQLPassThruFilter</a></li><li><a href="SQLPassThruQuery.html">SQLPassThruQuery</a></li></ul><h3>Global</h3><ul><li><a href="global.html#and">and</a></li><li><a href="global.html#any">any</a></li><li><a href="global.html#between">between</a></li><li><a href="global.html#eq">eq</a></li><li><a href="global.html#fetchWrapper">fetchWrapper</a></li><li><a href="global.html#gte">gte</a></li><li><a href="global.html#handleResponse">handleResponse</a></li><li><a href="global.html#lte">lte</a></li><li><a href="global.html#not">not</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseFilter.html">BaseFilter</a></li><li><a href="BaseRequestHandler.html">BaseRequestHandler</a></li><li><a href="DataDiscoveryFilter.html">DataDiscoveryFilter</a></li><li><a href="DataDiscoveryResource.html">DataDiscoveryResource</a></li><li><a href="SQLPassThruFilter.html">SQLPassThruFilter</a></li><li><a href="SQLPassThruQuery.html">SQLPassThruQuery</a></li><li><a href="SlashDBClient.html">SlashDBClient</a></li></ul><h3>Global</h3><ul><li><a href="global.html#and">and</a></li><li><a href="global.html#any">any</a></li><li><a href="global.html#between">between</a></li><li><a href="global.html#chgPlaceHolder">chgPlaceHolder</a></li><li><a href="global.html#eq">eq</a></li><li><a href="global.html#fetchWrapper">fetchWrapper</a></li><li><a href="global.html#gte">gte</a></li><li><a href="global.html#handleResponse">handleResponse</a></li><li><a href="global.html#lte">lte</a></li><li><a href="global.html#not">not</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.11</a> on Wed Oct 26 2022 17:51:36 GMT-0400 (Eastern Daylight Saving Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Thu Jun 22 2023 08:06:46 GMT-0400 (Eastern Daylight Saving Time)
 </footer>
 
 <script> prettyPrint(); </script>

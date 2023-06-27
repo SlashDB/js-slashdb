@@ -9,13 +9,13 @@ const SDB_BRH_INVALID_HEADER_OBJ = 'Invalid header parameter - must be an object
 const SDB_BRH_INVALID_HEADER_VALUE = 'Invalid header value - must be string or number';
 
 /** 
- * Executes HTTP requests for SlashDB.  Base class for DataDiscoveryResource and SQLPassThruQuery classes.
+ * Executes HTTP requests for SlashDB.  Base class for `DataDiscoveryResource` and `SQLPassThruQuery` classes.
  */
 class BaseRequestHandler {
 
    /**
-   * Create a BaseRequestHandler object for a given SlashDB instance
-   * @param {SlashDBClient} [clientObj] - a configured SlashDBClient object
+   * Create a `BaseRequestHandler` object for a given SlashDB instance
+   * @param {SlashDBClient} [clientObj] - a configured `SlashDBClient` object
    */
     constructor(clientObj = null) {
 
@@ -43,7 +43,7 @@ class BaseRequestHandler {
 
    /**
    * Sets Accept header value for HTTP requests
-   * @param {string} format - a valid MIME type (e.g. 'application/json'), or a key value of the validMimeTypes property in this class (e.g. 'json','csv')
+   * @param {string} format - a valid MIME type (e.g. `'application/json'`), or a key value of the validMimeTypes property in this class (e.g. `'json','csv'`)
    * @throws {TypeError} if format missing
    * @throws {TypeError} if format is not string
    * @returns {BaseRequestHandler} this object
@@ -80,7 +80,7 @@ class BaseRequestHandler {
 
    /**
    * Sets Content-Type header value for HTTP POST/PUT requests
-   * @param {string} format - a valid MIME type (e.g. 'application/json'), or a key value of the validMimeTypes property in this class (e.g. 'json','csv')
+   * @param {string} format - a valid MIME type (e.g. `'application/json'`), or a key value of the validMimeTypes property in this class (e.g. `'json','csv'`)
    * @throws {TypeError} if format missing
    * @throws {TypeError} if format is not string
    * @returns {BaseRequestHandler} this object
@@ -118,7 +118,7 @@ class BaseRequestHandler {
    /**
    * Sets arbitrary custom header value for HTTP requests
    * @param {object} headersObj - an object containing key/value pairs of header properties
-   * @throws {TypeError} headersObj is not an object
+   * @throws {TypeError} `headersObj` is not an object
    * @throws {TypeError} if the value of a key/value pair is not a string or number
    * @returns {BaseRequestHandler} this object
    */
@@ -140,8 +140,8 @@ class BaseRequestHandler {
 
    /**
    * Executes HTTP GET request
-   * @param {string | DataDiscoveryFilter | SQLPassThruFilter} [path] - an optional string containing a URI fragment with URL query parameters 
-     * (e.g. /Customer/FirstName/Tim?distinct=true), or a DataDiscoveryFilter/SQLPassThruFilter object that contains all the query details 
+   * @param {string | DataDiscoveryFilter | SQLPassThruFilter} [path] - an optional string containing a URI segment with URL query parameters 
+     * (e.g. `/Customer/FirstName/Tim?distinct=true`), or a `DataDiscoveryFilter/SQLPassThruFilter` object that contains all the query details 
    * @returns {Promise} promise containing HTTP response status and data
    */    
     async get(path) {
@@ -169,8 +169,8 @@ class BaseRequestHandler {
    /**
    * Executes HTTP POST request
    * @param {string | object} data - an object or string containing data values to include in the POST request body.  Can be JSON, an object, or CSV/XML formatted string
-   * @param {string | DataDiscoveryFilter | SQLPassThruFilter} [path] - an optional string containing a URI fragment with URL query parameters 
-     * (e.g. /Customer/FirstName/Tim?distinct=true), or a DataDiscoveryFilter/SQLPassThruFilter object that contains all the query details.  Not used under normal
+   * @param {string | DataDiscoveryFilter | SQLPassThruFilter} [path] - an optional string containing a URI segment with URL query parameters 
+     * (e.g. `/Customer/FirstName/Tim?distinct=true`), or a `DataDiscoveryFilter/SQLPassThruFilter` object that contains all the query details.  Not used under normal
      * circumstances.
    * @returns {Promise} promise containing HTTP response status and data
    */  
@@ -208,8 +208,8 @@ class BaseRequestHandler {
    /**
    * Executes HTTP PUT request
    * @param {string | object} data - an object or string containing data values to include in the PUT request body.  Can be JSON, an object, or CSV/XML formatted string
-   * @param {string | DataDiscoveryFilter | SQLPassThruFilter | null | undefined} path - a string containing a URI fragment with URL query parameters 
-     * (e.g. /Customer/FirstName/Tim?distinct=true), or a DataDiscoveryFilter/SQLPassThruFilter object that contains all the query details.  Set to null or undefined
+   * @param {string | DataDiscoveryFilter | SQLPassThruFilter | null | undefined} path - a string containing a URI segment with URL query parameters 
+     * (e.g. `/Customer/FirstName/Tim?distinct=true`), or a `DataDiscoveryFilter/SQLPassThruFilter` object that contains all the query details.  Set to null or undefined
      * if not required.
    * @returns {Promise} promise containing HTTP response status and data
    */      
@@ -242,8 +242,8 @@ class BaseRequestHandler {
 
    /**
    * Executes HTTP DELETE request
-   * @param {string | DataDiscoveryFilter | SQLPassThruFilter} [path] - an optional string containing a URI fragment with URL query parameters 
-     * (e.g. /Customer/FirstName/Tim?distinct=true), or a DataDiscoveryFilter/SQLPassThruFilter object that contains all the query details 
+   * @param {string | DataDiscoveryFilter | SQLPassThruFilter} [path] - an optional string containing a URI segment with URL query parameters 
+     * (e.g. `/Customer/FirstName/Tim?distinct=true`), or a `DataDiscoveryFilter/SQLPassThruFilter` object that contains all the query details 
    * @returns {Promise} promise containing HTTP response status and data
    */       
     async delete(path) {
@@ -269,13 +269,13 @@ class BaseRequestHandler {
 
 
     /**
-     * Builds the full endpoint to the requested resource.  Meant for internal use only.  Overloaded in DataDiscoveryResource/SQLPassThruQuery
-     * @param {string} [path] - an optional string containing a URI fragment with SQL query parameters/values and URL query parameters 
-     * (e.g. /FirstName/Tim?distinct=true)
+     * Builds the full endpoint to the requested resource.  Meant for internal use only.  Overloaded in `DataDiscoveryResource/SQLPassThruQuery`
+     * @param {string} [path] - an optional string containing a URI segment with SQL query parameters/values and URL query parameters 
+     * (e.g. `/FirstName/Tim?distinct=true`)
      * @returns {string} the full endpoint
-     * @throws {ReferenceError} if no SlashDBClient object is found attached to this object
+     * @throws {ReferenceError} if no `SlashDBClient` object is found attached to this object
      * @throws {SyntaxError} if path parameter is an empty string
-     * @throws {TypeError} if path parameter is neither a string or a SQLPassThruFilter object
+     * @throws {TypeError} if path parameter is neither a string or a `SQLPassThruFilter` object
      */    
     _buildEndpointString(path) {
 

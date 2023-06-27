@@ -1,9 +1,10 @@
 import { SQLPassThruFilter } from '../src/sqlpassthrufilter.js';
+import { SDB_NULLSTR, chgPlaceHolder } from '../src/filterfunctions.js';
 
 import { SDB_SPTF_INVALID_PARAM_FORMAT, SDB_SPTF_INVALID_PARAM_NAME, SDB_SPTF_INVALID_PARAM_VALUE, SDB_SPTF_INVALID_XMLTYPE } from '../src/sqlpassthrufilter.js'
 
-import { desc, asc } from "../src/basefilter.js";
-import { SDB_BF_INVALID_SORT_COL, SDB_BF_LIMIT_TYPE, SDB_BF_OFFSET_TYPE, } from "../src/basefilter.js";
+import { desc, asc } from '../src/basefilter.js';
+import { SDB_BF_INVALID_SORT_COL, SDB_BF_LIMIT_TYPE, SDB_BF_OFFSET_TYPE, } from '../src/basefilter.js';
 
 
 
@@ -123,18 +124,57 @@ describe('SQLPassThruFilter class tests', () => {
         let result;
     
         result = new SQLPassThruFilter();
-        result.addParams({[validParam]:strVal_1, [validParam2]:intVal_1})
+        result.addParams({[validParam]:strVal_1, [validParam2]:intVal_1});
         expect(result.queryParams).toHaveProperty(validParam);
         expect(result.queryParams).toHaveProperty(validParam2);
         expect(result.queryParams[validParam]).toBe(strVal_1);
         expect(result.queryParams[validParam2]).toBe(intVal_1);
         expect(result).toHaveProperty('pathString');
-        expect(result.pathString).toBe(`/${validParam}/${strVal_1}/${validParam2}/${intVal_1}`);           
-        expect(result).toHaveProperty('endpoint');        
+        expect(result.pathString).toBe(`/${validParam}/${strVal_1}/${validParam2}/${intVal_1}`);
+        expect(result).toHaveProperty('endpoint');
         expect(result.endpoint).toBe(`/${validParam}/${strVal_1}/${validParam2}/${intVal_1}`);           
 
 
+        // empty string handling
+        result = new SQLPassThruFilter();
+        result.addParams({[validParam]:strVal_1, [validParam2]:''});
+        expect(result.endpoint).toBe(`/${validParam}/${strVal_1}/${validParam2}/`); 
+
+        result = new SQLPassThruFilter();
+        result.addParams({[validParam]:'', [validParam2]:strVal_2});
+        expect(result.endpoint).toBe(`/${validParam}//${validParam2}/${strVal_2}`); 
+
+        // param updating
+        result = new SQLPassThruFilter();
+        result.addParams({[validParam]:strVal_1, [validParam2]:intVal_1});
+        expect(result.queryParams[validParam]).toBe(strVal_1);
+        expect(result.endpoint).toBe(`/${validParam}/${strVal_1}/${validParam2}/${intVal_1}`);
+        result.addParams({[validParam]:'newValue'});
+        expect(result.endpoint).toBe(`/${validParam2}/${intVal_1}/${validParam}/newValue`);
+        
+        // test NULL Handling
+        // default NULL string
+        expect(SDB_NULLSTR).toBe('<null>');
+        
+        result = new SQLPassThruFilter();
+        result.addParams({[validParam]:null});
+        expect(result.queryParams[validParam]).toBe(SDB_NULLSTR);
+        expect(result.endpoint).toBe(`/${validParam}/<null>`);
+
+        // change the placeholder
+        chgPlaceHolder(null,'@NEWNULL@');
+        expect(SDB_NULLSTR).toBe('@NEWNULL@');
+        
+        result = new SQLPassThruFilter();
+        result.addParams({[validParam]:null});
+        expect(result.queryParams[validParam]).toBe(SDB_NULLSTR);
+        expect(result.endpoint).toBe(`/${validParam}/@NEWNULL@?nullStr=@NEWNULL@`);
+        chgPlaceHolder();
+
+
         // ERROR TESTS
+        result = new SQLPassThruFilter();
+
         // bad filter argument
         // not passing a key/value pair object
         expect(() => {
