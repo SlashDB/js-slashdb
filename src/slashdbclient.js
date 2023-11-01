@@ -1,6 +1,7 @@
 import { DataDiscoveryDatabase } from './datadiscovery.js'
 import { SQLPassThruQuery } from './sqlpassthru.js'
 import { BaseRequestHandler } from './baserequesthandler.js';
+import { validateSSOredirect } from './SSOlogin.js';
 
 const SDB_SDBC_INVALID_HOSTNAME = 'Invalid hostname parameter, must be string';
 const SDB_SDBC_INVALID_USERNAME = 'Invalid username parameter, must be string';
@@ -20,7 +21,7 @@ class SlashDBClient {
    * @param {string} [apiKey] - optional API key associated with username
    */
 
-  constructor(host, username, apiKey) {
+  constructor(host, username, apiKey, pcke) {
 
     if (!host || typeof(host) !== 'string') {
       throw TypeError(SDB_SDBC_INVALID_HOSTNAME);
@@ -36,8 +37,19 @@ class SlashDBClient {
       throw TypeError(SDB_SDBC_INVALID_APIKEY);
     }
 
+    if (pcke){
+
+      this.pcke = pcke;
+      const urlParams = new URLSearchParams(window.location.search);
+
+      if (validateSSOredirect(urlParams)){
+        this.ssoParams = urlParams;
+      }
+
+    }
+
     this.host = host;
-    this.username = username
+    this.username = username;
     this.apiKey = apiKey;
 
     // create the special case BaseRequestHandler object for interacting with config endpoints
