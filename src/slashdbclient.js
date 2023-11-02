@@ -149,11 +149,9 @@ class SlashDBClient {
       pkce.codeVerifier = sessionStorage.getItem('ssoApp.code_verifier');
 
       pkce.exchangeForAccessToken(url).then((resp) => {
-          const token = resp.access_token;
-          console.log(resp);
-          this.idToken = btoa(resp.id_token);
-          this.idpId = idpId;
-          // Do stuff with the access token.
+        console.log(resp);
+        this.idToken = btoa(resp.id_token);
+        this.idpId = idpId;
       });
     } else {
       
