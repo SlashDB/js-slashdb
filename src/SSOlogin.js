@@ -1,17 +1,20 @@
-import PKCE from 'js-pkce';
+import { PKCE } from './pkce.js';
 
-import { generateCodeChallenge, generateRandomString } from "./utils";
+import { generateCodeChallenge, generateRandomString } from "./utils.js";
 
-function validateSSOredirect(ssoParams) {
+function isObjectEmpty(objectName) {
+    return Object.keys(objectName).length === 0
+}
 
-    const idpId = ssoParams.get('idp_id');
-    const state = ssoParams.get('state');
-    const sessionState = ssoParams.get('session_state');
-    const code = ssoParams.get('code');
+function isSSOredirect(ssoParams) {
 
-    if (!idpId || typeof(idpId) !== 'string') {
-        return false
+    if (isObjectEmpty(ssoParams)){
+        return false;
     }
+
+    const state = ssoParams.state;
+    const sessionState = ssoParams.session_state;
+    const code = ssoParams.code;
 
     if (!state || typeof(state) !== 'string') {
         return false
@@ -31,41 +34,35 @@ function validateSSOredirect(ssoParams) {
 
 function getSDBAuthSettings(SDBConfig) {
 
-    
+
 
 }
 
 function SSOlogin(ssoConfig) {
     let state = generateRandomString(128);
     let nonce = generateRandomString(128);
-    let code_challenge_method = 'S256';
-    let code_verifier = generateRandomString(128);
-    let code_challenge = generateCodeChallenge(code_verifier);
+    let codeChallengeMethod = 'S256';
+    let codeVerifier = generateRandomString(128);
+    let codeChallenge = generateCodeChallenge(codeVerifier);
+    let idpId = ssoConfig.idp_id;
 
-    let qs = {
-        'client_id': ssoConfig.client_id,
-        'redirect_uri': utils.getRedirectUri(idp_id),
-        'response_type': ssoConfig.response_type,
-        'response_mode': 'fragment',
-        'state': state,
-        'nonce': nonce,
-        'scope': ssoConfig.scope
+    const pkce = new PKCE(ssoConfig);
+
+    const additionalParams = {
+        code_challenge: codeChallenge,
+        code_challenge_method: codeChallengeMethod,
+        nonce: nonce,
+        response_mode: 'fragment',
+        response_type: 'code',
+        state: state
     };
 
-    if (ssoConfig.response_type === 'code') {
-        qs['code_challenge'] = code_challenge;
-        qs['code_challenge_method'] = code_challenge_method;
-    }
-
-    const pkce = new PKCE({
-        client_id: 'myclientid',
-        redirect_uri: 'http://localhost:8080/auth',
-        authorization_endpoint: 'https://authserver.com/oauth/authorize',
-        token_endpoint: 'https://authserver.com/oauth/token',
-        requested_scopes: '*',
-    });
-
-    const additionalParams = {test_param: 'testing'};
+    sessionStorage.setItem('ssoApp.idp_id', idpId);
+    sessionStorage.setItem('ssoApp.state', state);
+    sessionStorage.setItem('ssoApp.nonce', nonce);
+    sessionStorage.setItem('ssoApp.code_challenge_method', codeChallengeMethod);
+    sessionStorage.setItem('ssoApp.code_verifier', codeVerifier);
+    sessionStorage.setItem('ssoApp.code_challenge', codeChallenge);
 
     window.location.replace(pkce.authorizeUrl(additionalParams));
 
@@ -75,4 +72,4 @@ function JWTAuthentication(){
 
 }
 
-export { validateSSOredirect }
+export { isSSOredirect, SSOlogin }

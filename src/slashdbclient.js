@@ -1,7 +1,9 @@
 import { DataDiscoveryDatabase } from './datadiscovery.js'
 import { SQLPassThruQuery } from './sqlpassthru.js'
 import { BaseRequestHandler } from './baserequesthandler.js';
-import { validateSSOredirect } from './SSOlogin.js';
+import { isSSOredirect, SSOlogin } from './SSOlogin.js';
+import { PKCE } from './pkce.js';
+import { getUrlParms } from './utils.js';
 
 const SDB_SDBC_INVALID_HOSTNAME = 'Invalid hostname parameter, must be string';
 const SDB_SDBC_INVALID_USERNAME = 'Invalid username parameter, must be string';
@@ -21,7 +23,7 @@ class SlashDBClient {
    * @param {string} [apiKey] - optional API key associated with username
    */
 
-  constructor(host, username, apiKey, pcke) {
+  constructor(host, username, apiKey) {
 
     if (!host || typeof(host) !== 'string') {
       throw TypeError(SDB_SDBC_INVALID_HOSTNAME);
@@ -35,17 +37,6 @@ class SlashDBClient {
 
     if (apiKey && typeof(apiKey) !== 'string') {
       throw TypeError(SDB_SDBC_INVALID_APIKEY);
-    }
-
-    if (pcke){
-
-      this.pcke = pcke;
-      const urlParams = new URLSearchParams(window.location.search);
-
-      if (validateSSOredirect(urlParams)){
-        this.ssoParams = urlParams;
-      }
-
     }
 
     this.host = host;
@@ -112,6 +103,61 @@ class SlashDBClient {
     catch(e) {
       throw Error(e);
     }
+  }
+
+  /**
+   * Logs in to SlashDB instance.  Only required when using SSO.
+   * @returns {true} true - on successful login
+   * @throws {Error} on invalid login or error in login process
+   */
+  async login_sso(idpId, redirectUri) {
+
+    let response = (await this.sdbConfig.get(this.settingsEP)).data
+
+    const jwtSettings = response.auth_settings.authentication_policies.jwt
+    const idpSettings = jwtSettings.identity_providers[idpId]
+
+    const clientId = idpSettings.client_id;
+    const authorizationEndpoint = idpSettings.authorization_endpoint;
+    const tokenEndpoint = idpSettings.token_endpoint;
+    const requestedScopes = idpSettings.scope;
+
+    if (!redirectUri || typeof(redirectUri) !== 'string') {
+      redirectUri = idpSettings.redirect_uri;
+    }
+
+    const ssoConfig = {
+      idp_id: idpId,
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      authorization_endpoint: authorizationEndpoint,
+      token_endpoint: tokenEndpoint,
+      requested_scopes: requestedScopes,
+    }
+
+    
+
+    // const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = getUrlParms();
+
+    if (isSSOredirect(urlParams)){
+      const url = window.location.href;
+      const pkce = new PKCE(ssoConfig);
+      pkce.codeVerifier = sessionStorage.getItem('ssoApp.code_verifier');
+
+      pkce.exchangeForAccessToken(url).then((resp) => {
+          const token = resp.access_token;
+          console.log(resp);
+          console.log(btoa(resp.id_token));
+          // Do stuff with the access token.
+      });
+    } else {
+      
+      const pkce = new PKCE(ssoConfig);
+      SSOlogin(ssoConfig);
+
+    }
+  
   }
 
   /**
