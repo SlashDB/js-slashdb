@@ -154,8 +154,20 @@ class BaseRequestHandler {
                 Accept: this.acceptHeader,
                 ...this.extraHeaders
             };
-        }
-        else {
+        } else if (this.sdbClient.basic) {
+            headers = { 
+                Authorization: "Basic " + this.sdbClient.basic, 
+                Accept: this.acceptHeader,
+                ...this.extraHeaders
+            };
+        } else if (this.sdbClient.idToken) {
+            headers = { 
+                Authorization: "Bearer " + this.sdbClient.idToken,
+                "X-Identity-Provider-Id": this.sdbClient.idpId, 
+                Accept: this.acceptHeader,
+                ...this.extraHeaders
+            };
+        } else {
             headers = { 
                 Accept: this.acceptHeader,
                 ...this.extraHeaders
@@ -188,15 +200,25 @@ class BaseRequestHandler {
         if (this.sdbClient.apiKey) {
             headers = { 
                 apiKey: this.sdbClient.apiKey, 
-                'Content-Type': this.contentTypeHeader,                
                 Accept: this.acceptHeader,
                 ...this.extraHeaders
             };
-        }
-        else {
+        } else if (this.sdbClient.basic) {
+            headers = { 
+                Authorization: "Basic " + this.sdbClient.basic, 
+                Accept: this.acceptHeader,
+                ...this.extraHeaders
+            };
+        } else if (this.sdbClient.idToken) {
+            headers = { 
+                Authorization: "Bearer " + this.sdbClient.idToken,
+                "X-Identity-Provider-Id": this.sdbClient.idpId, 
+                Accept: this.acceptHeader,
+                ...this.extraHeaders
+            };
+        } else {
             headers = { 
                 Accept: this.acceptHeader,
-                'Content-Type': this.contentTypeHeader,                
                 ...this.extraHeaders
             };
         }

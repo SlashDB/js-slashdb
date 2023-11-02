@@ -43,6 +43,11 @@ class SlashDBClient {
     this.username = username;
     this.apiKey = apiKey;
 
+    this.basic = null;
+
+    this.idpId = null;
+    this.idToken = null;
+
     // create the special case BaseRequestHandler object for interacting with config endpoints
     this.sdbConfig = new BaseRequestHandler(this);
 
@@ -92,7 +97,8 @@ class SlashDBClient {
 
     const body = { login: this.username, password: password };
     try {
-      let response = (await this.sdbConfig.post(body, this.loginEP)).res
+      let response = (await this.sdbConfig.post(body, this.loginEP)).res;
+      this.basic = btoa(this.username + ":" + password);
       if (response.ok === true) {
         return true;
       }
@@ -135,9 +141,6 @@ class SlashDBClient {
       requested_scopes: requestedScopes,
     }
 
-    
-
-    // const urlParams = new URLSearchParams(window.location.search);
     const urlParams = getUrlParms();
 
     if (isSSOredirect(urlParams)){
@@ -148,7 +151,8 @@ class SlashDBClient {
       pkce.exchangeForAccessToken(url).then((resp) => {
           const token = resp.access_token;
           console.log(resp);
-          console.log(btoa(resp.id_token));
+          this.idToken = btoa(resp.id_token);
+          this.idpId = idpId;
           // Do stuff with the access token.
       });
     } else {
