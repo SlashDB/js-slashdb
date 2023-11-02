@@ -46,7 +46,7 @@ class SlashDBClient {
     this.basic = null;
 
     this.idpId = null;
-    this.idToken = null;
+    this.ssoCredentials = null;
 
     // create the special case BaseRequestHandler object for interacting with config endpoints
     this.sdbConfig = new BaseRequestHandler(this);
@@ -150,8 +150,9 @@ class SlashDBClient {
 
       pkce.exchangeForAccessToken(url).then((resp) => {
         console.log(resp);
-        this.idToken = btoa(resp.id_token);
+        // this.idToken = btoa(resp.id_token);
         this.idpId = idpId;
+        this.ssoCredentials = resp;
       });
     } else {
       

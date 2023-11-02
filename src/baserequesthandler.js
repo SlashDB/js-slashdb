@@ -160,9 +160,10 @@ class BaseRequestHandler {
                 Accept: this.acceptHeader,
                 ...this.extraHeaders
             };
-        } else if (this.sdbClient.idToken) {
+        } else if (this.sdbClient.ssoCredentials) {
+            const token = btoa(this.sdbClient.ssoCredentials.id_token)
             headers = { 
-                Authorization: "Bearer " + this.sdbClient.idToken,
+                Authorization: "Bearer " + token,
                 "X-Identity-Provider-Id": this.sdbClient.idpId, 
                 Accept: this.acceptHeader,
                 ...this.extraHeaders
@@ -209,9 +210,10 @@ class BaseRequestHandler {
                 Accept: this.acceptHeader,
                 ...this.extraHeaders
             };
-        } else if (this.sdbClient.idToken) {
+        } else if (this.sdbClient.ssoCredentials) {
+            const token = btoa(this.sdbClient.ssoCredentials.id_token)
             headers = { 
-                Authorization: "Bearer " + this.sdbClient.idToken,
+                Authorization: "Bearer " + token,
                 "X-Identity-Provider-Id": this.sdbClient.idpId, 
                 Accept: this.acceptHeader,
                 ...this.extraHeaders
