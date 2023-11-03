@@ -238,7 +238,7 @@ class SlashDBClient {
         }
         if (!popupWindow || !popupWindow.closed) return;
         clearInterval(checkPopup);
-    }, 1000);
+    }, 250);
   
   }
 
