@@ -1,0 +1,46 @@
+<html>
+<head>
+    <title>SlashDB JavaScript SDK Login Demo</title>
+    <style>
+
+
+    </style>
+
+<script type="module">
+    import { SlashDBClient, DataDiscoveryDatabase, DataDiscoveryResource, DataDiscoveryFilter, SQLPassThruQuery, SQLPassThruFilter,
+             eq, any, between, gte, lte, not, and, asc, desc, chgPlaceHolder } from '../src/index.js';
+
+    // make methods, modules, available to console for testing
+    window.DataDiscoveryFilter = DataDiscoveryFilter
+    window.SlashDBClient = SlashDBClient
+    window.DataDiscoveryResource = DataDiscoveryResource
+    window.DataDiscoveryDatabase = DataDiscoveryDatabase
+    window.SQLPassThruFilter = SQLPassThruFilter
+    window.SQLPassThruQuery = SQLPassThruQuery
+    window.eq = eq
+    window.any = any
+    window.gte = gte
+    window.lte = lte
+    window.between = between
+    window.not = not
+    window.and = and
+    window.desc = desc
+    window.asc = asc
+    window.chgPlaceHolder = chgPlaceHolder;
+
+</script>
+
+</head>
+<body>
+
+    <script>
+
+    </script>
+
+    <div>
+        <p>SDK Login Demo</p>
+    </div>    
+    
+</body>
+
+</html>
