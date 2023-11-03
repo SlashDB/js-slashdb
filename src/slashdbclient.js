@@ -1,9 +1,9 @@
 import { DataDiscoveryDatabase } from './datadiscovery.js'
 import { SQLPassThruQuery } from './sqlpassthru.js'
 import { BaseRequestHandler } from './baserequesthandler.js';
-import { isSSOredirect, SSOlogin } from './SSOlogin.js';
+import { isSSOredirect, SSOlogin, SSOloginPopup } from './SSOlogin.js';
 import { PKCE } from './pkce.js';
-import { getUrlParms } from './utils.js';
+import { generateCodeChallenge, generateRandomString, getUrlParms, popupCenter } from "./utils.js";
 
 const SDB_SDBC_INVALID_HOSTNAME = 'Invalid hostname parameter, must be string';
 const SDB_SDBC_INVALID_USERNAME = 'Invalid username parameter, must be string';
@@ -164,6 +164,85 @@ class SlashDBClient {
   }
 
   /**
+   * Logs in to SlashDB instance.  Only required when using SSO with a Pop Up window.
+   * @returns {true} true - on successful login
+   * @throws {Error} on invalid login or error in login process
+   */
+  async login_sso_popup(idpId, redirectUri) {
+
+    let response = (await this.sdbConfig.get(this.settingsEP)).data
+
+    const jwtSettings = response.auth_settings.authentication_policies.jwt
+    const idpSettings = jwtSettings.identity_providers[idpId]
+
+    const clientId = idpSettings.client_id;
+    const authorizationEndpoint = idpSettings.authorization_endpoint;
+    const tokenEndpoint = idpSettings.token_endpoint;
+    const requestedScopes = idpSettings.scope;
+
+    if (!redirectUri || typeof(redirectUri) !== 'string') {
+      redirectUri = idpSettings.redirect_uri;
+    }
+
+    const ssoConfig = {
+      idp_id: idpId,
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      authorization_endpoint: authorizationEndpoint,
+      token_endpoint: tokenEndpoint,
+      requested_scopes: requestedScopes,
+    }
+
+    let state = generateRandomString(128);
+    let nonce = generateRandomString(128);
+    let codeChallengeMethod = 'S256';
+    let codeVerifier = generateRandomString(128);
+    let codeChallenge = generateCodeChallenge(codeVerifier);
+
+    const pkce = new PKCE(ssoConfig);
+
+    const additionalParams = {
+        code_challenge: codeChallenge,
+        code_challenge_method: codeChallengeMethod,
+        nonce: nonce,
+        response_mode: 'fragment',
+        response_type: 'code',
+        state: state
+    };
+
+    sessionStorage.setItem('ssoApp.idp_id', idpId);
+    sessionStorage.setItem('ssoApp.state', state);
+    sessionStorage.setItem('ssoApp.nonce', nonce);
+    sessionStorage.setItem('ssoApp.code_challenge_method', codeChallengeMethod);
+    sessionStorage.setItem('ssoApp.code_verifier', codeVerifier);
+    sessionStorage.setItem('ssoApp.code_challenge', codeChallenge);
+
+    const width = 500;
+    const height = 600;
+    
+    const popupWindow = popupCenter(pkce.authorizeUrl(additionalParams), "login", width, height);
+    let self = this;
+
+    const checkPopup = setInterval(() => {
+        const popUpHref = popupWindow.window.location.href;
+        console.log(popUpHref);
+        if (popUpHref.startsWith(window.location.origin)) {
+            popupWindow.close();
+            const pkce = new PKCE(ssoConfig);
+            pkce.codeVerifier = sessionStorage.getItem('ssoApp.code_verifier');
+            pkce.exchangeForAccessToken(popUpHref).then((resp) => {
+                console.log(resp);
+                self.idpId = idpId;
+                self.ssoCredentials = resp;
+            });
+        }
+        if (!popupWindow || !popupWindow.closed) return;
+        clearInterval(checkPopup);
+    }, 1000);
+  
+  }
+
+  /**
    * Checks whether SlashDB client is authenticated against instance.  
    * @returns {boolean} boolean - to indicate if currently authenticated
    */  
@@ -190,6 +269,9 @@ class SlashDBClient {
   async logout() {
     try {
       await this.sdbConfig.get(this.logoutEP);
+      if (this.ssoCredentials){
+        this.ssoCredentials = null;
+      }
     }
     catch(e) {
       console.error(e);

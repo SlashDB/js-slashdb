@@ -1,8 +1,10 @@
 import { SHA256 } from './crypto-js/sha256.js';
 import { Base64 } from './crypto-js/enc-base64.js';
 
-function getUrlParms(){
-    let url = window.location.hash;
+function getUrlParms(url){
+    if (!url){
+        url = window.location.hash;
+    }
 
     if (!url){
         return {}
@@ -33,4 +35,30 @@ function generateCodeChallenge(code_verifier) {
     return base64URL(SHA256(code_verifier));
 }
 
-export { generateRandomString, generateCodeChallenge, getUrlParms }
+const popupCenter = (url, title, w, h) => {
+    // Fixes dual-screen position                             Most browsers      Firefox
+    const dualScreenLeft = window.screenLeft !==  undefined ? window.screenLeft : window.screenX;
+    const dualScreenTop = window.screenTop !==  undefined   ? window.screenTop  : window.screenY;
+
+    const width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+    const height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+    const systemZoom = width / window.screen.availWidth;
+    const left = (width - w) / 2 / systemZoom + dualScreenLeft
+    const top = (height - h) / 2 / systemZoom + dualScreenTop
+    const newWindow = window.open(url, title, 
+      `
+      scrollbars=yes,
+      width=${w / systemZoom}, 
+      height=${h / systemZoom}, 
+      top=${top}, 
+      left=${left}
+      `
+    )
+
+    if (window.focus) newWindow.focus();
+
+    return newWindow;
+}
+
+export { generateRandomString, generateCodeChallenge, getUrlParms, popupCenter }
