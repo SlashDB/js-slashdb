@@ -100,7 +100,7 @@ class SlashDBClient {
   }
 
   /**
-   * Logs in to SlashDB instance.  Only required when using password-based login.
+   * Logs in to SlashDB instance.  Only required when using password-based or SSO login.
    * @returns {true} true - on successful login
    * @throws {Error} on invalid login or error in login process
    */
@@ -110,22 +110,13 @@ class SlashDBClient {
     let body = {};
     
     try {
-      if (this.apiKey) {
-        let response = (await this.sdbConfig.post(body, this.loginEP)).res;
-
-        if (response.ok === true) {
-          return true;
-        }
-        else {
-          return false;
-        }
-      } else if (this.password) {
-        this.basic = btoa(this.username + ":" + password);
+      if (this.password) {
         body = { login: this.username, password: password };
         let response = (await this.sdbConfig.post(body, this.loginEP)).res;
-        this.password = null;
         
         if (response.ok === true) {
+          this.basic = btoa(this.username + ":" + password);
+          this.password = null;
           return true;
         }
         else {
