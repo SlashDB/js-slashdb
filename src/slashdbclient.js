@@ -9,6 +9,8 @@ const SDB_SDBC_INVALID_HOSTNAME = 'Invalid hostname parameter, must be string';
 const SDB_SDBC_INVALID_USERNAME = 'Invalid username parameter, must be string';
 const SDB_SDBC_INVALID_APIKEY = 'Invalid apiKey parameter, must be string';
 const SDB_SDBC_INVALID_PASSWORD = 'Invalid password parameter, must be string';
+const SDB_SDBC_INVALID_IDPID = 'Invalid identity provider parameter, must be string';
+const SDB_SDBC_INVALID_REDIRECT_URI = 'Invalid redirect uri parameter, must be string';
 const SDB_SDBC_INVALID_USERNAME_MISMATCH = 'Login username must match object username';
 
 /** 
@@ -23,7 +25,11 @@ class SlashDBClient {
    * @param {string} [apiKey] - optional API key associated with username
    */
 
-  constructor(host, username, apiKey) {
+  // constructor(host, username, apiKey) {
+  constructor(config) {
+
+    const host = config.host;
+    const username = config.username;
 
     if (!host || typeof(host) !== 'string') {
       throw TypeError(SDB_SDBC_INVALID_HOSTNAME);
@@ -35,17 +41,43 @@ class SlashDBClient {
 
     }
 
-    if (apiKey && typeof(apiKey) !== 'string') {
-      throw TypeError(SDB_SDBC_INVALID_APIKEY);
-    }
-
     this.host = host;
     this.username = username;
-    this.apiKey = apiKey;
 
+    this.apiKey = null;
+    this.password = null;
     this.basic = null;
-
     this.idpId = null;
+    this.redirectUri = null;
+    this.popUp = false;
+
+    if (config.hasOwnProperty('apiKey')) {
+      const apiKey = config.apiKey;
+      if (apiKey && typeof(apiKey) !== 'string') {
+        throw TypeError(SDB_SDBC_INVALID_APIKEY);
+      }
+      this.apiKey;
+    } else if (config.hasOwnProperty('password')){
+      const password = config.password;
+      if (password && typeof(password) !== 'string') {
+        throw TypeError(SDB_SDBC_INVALID_PASSWORD);
+      }
+      this.password = password;
+    } else if (config.hasOwnProperty('sso')) {
+      const idpId = config.sso.idpId;
+      const redirectUri = config.sso.idIp;
+
+      if (idpId && typeof(idpId) !== 'string') {
+        throw TypeError(SDB_SDBC_INVALID_IDPID);
+      }
+      if (redirectUri && typeof(redirectUri) !== 'string') {
+        throw TypeError(SDB_SDBC_INVALID_REDIRECT_URI);
+      }
+      this.idpId = idpId;
+      this.redirectUri = redirectUri;
+      this.popPup = config.sso.popUp;
+    }
+
     this.ssoCredentials = null;
 
     // create the special case BaseRequestHandler object for interacting with config endpoints
@@ -72,39 +104,42 @@ class SlashDBClient {
    * @returns {true} true - on successful login
    * @throws {Error} on invalid login or error in login process
    */
-  async login(username, password) {
+  async login() {
 
-    if (typeof(username) !== 'string') {
-      throw TypeError(SDB_SDBC_INVALID_USERNAME);
-
-    }
-
-    if (this.username && this.username !== username) {
-      throw Error(SDB_SDBC_INVALID_USERNAME_MISMATCH);
-    }
+    let headers = {};
+    let body = {};
     
-    else {
-      this.username = username;
-    }
-
-    if (typeof(password) !== 'string') {
-       throw TypeError(SDB_SDBC_INVALID_PASSWORD);
-    }
-
-    if (this.apiKey) {
-       console.warn('API key and password provided, API key will take precedence over session cookie');
-    }
-
-    const body = { login: this.username, password: password };
     try {
-      let response = (await this.sdbConfig.post(body, this.loginEP)).res;
-      this.basic = btoa(this.username + ":" + password);
-      if (response.ok === true) {
-        return true;
+      if (this.apiKey) {
+        let response = (await this.sdbConfig.post(body, this.loginEP)).res;
+
+        if (response.ok === true) {
+          return true;
+        }
+        else {
+          return false;
+        }
+      } else if (this.password) {
+        this.basic = btoa(this.username + ":" + password);
+        body = { login: this.username, password: password };
+        let response = (await this.sdbConfig.post(body, this.loginEP)).res;
+        this.password = null;
+        
+        if (response.ok === true) {
+          return true;
+        }
+        else {
+          return false;
+        }
+      } else if (this.idpId && this.redirectUri) {
+        if (this.popPup) {
+          let response = this.login_sso(this.idpId, this.redirectUri);
+        } else {
+          let response = this.login_sso_popup(this.idpId, this.redirectUri);
+        }
+        return response;
       }
-      else {
-        return false;
-      }
+      
     }
     catch(e) {
       throw Error(e);
@@ -154,6 +189,8 @@ class SlashDBClient {
         this.idpId = idpId;
         this.ssoCredentials = resp;
       });
+
+      return true;
     } else {
       
       const pkce = new PKCE(ssoConfig);
