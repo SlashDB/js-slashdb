@@ -67,7 +67,7 @@ class SlashDBClient {
       this.password = password;
     } else if (config.hasOwnProperty('sso')) {
       const idpId = config.sso.idpId;
-      const redirectUri = config.sso.idIp;
+      const redirectUri = config.sso.redirectUri;
 
       if (idpId && typeof(idpId) !== 'string') {
         throw TypeError(SDB_SDBC_INVALID_IDPID);
@@ -75,7 +75,13 @@ class SlashDBClient {
       if (redirectUri && typeof(redirectUri) !== 'string') {
         throw TypeError(SDB_SDBC_INVALID_REDIRECT_URI);
       }
-      this.sso = config.sso;
+
+      if (config.sso.hasOwnProperty('popUp')) {
+        this.sso.popUp = config.sso.popUp;  
+      }
+
+      this.sso.idpId = idpId;
+      this.sso.redirectUri = redirectUri;
     }
 
     this.ssoCredentials = null;
@@ -124,12 +130,12 @@ class SlashDBClient {
           return false;
         }
       } else if (sso.idpId && sso.redirectUri) {
-        if (sso.popPup) {
-          let response = this.loginSSO(sso.idpId, sso.redirectUri);
+        if (sso.popUp) {
+          this.loginSSOPopUp(sso.idpId, sso.redirectUri);
         } else {
-          let response = this.loginSSOPopUp(sso.idpId, sso.redirectUri);
+          this.loginSSO(sso.idpId, sso.redirectUri);
         }
-        return response;
+        return true;
       }
       
     }
@@ -177,11 +183,8 @@ class SlashDBClient {
 
       pkce.exchangeForAccessToken(url).then((resp) => {
         console.log(resp);
-        this.idpId = idpId;
         this.ssoCredentials = resp;
       });
-
-      return true;
     } else {
       
       const pkce = new PKCE(ssoConfig);
