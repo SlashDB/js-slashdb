@@ -118,11 +118,11 @@ class SlashDBClient {
     
     try {
       if (this.password) {
-        body = { login: this.username, password: password };
+        body = { login: this.username, password: this.password };
         let response = (await this.sdbConfig.post(body, this.loginEP)).res;
         
         if (response.ok === true) {
-          this.basic = btoa(this.username + ":" + password);
+          this.basic = btoa(this.username + ":" + this.password);
           this.password = null;
           return true;
         }
