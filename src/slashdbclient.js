@@ -58,7 +58,7 @@ class SlashDBClient {
       if (apiKey && typeof(apiKey) !== 'string') {
         throw TypeError(SDB_SDBC_INVALID_APIKEY);
       }
-      this.apiKey;
+      this.apiKey = apiKey;
     } else if (config.hasOwnProperty('password')){
       const password = config.password;
       if (password && typeof(password) !== 'string') {

@@ -152,12 +152,14 @@ class BaseRequestHandler {
             headers = { 
                 apiKey: this.sdbClient.apiKey, 
                 Accept: this.acceptHeader,
+                'Content-Type': this.contentTypeHeader,
                 ...this.extraHeaders
             };
         } else if (this.sdbClient.basic) {
             headers = { 
                 Authorization: "Basic " + this.sdbClient.basic, 
                 Accept: this.acceptHeader,
+                'Content-Type': this.contentTypeHeader,
                 ...this.extraHeaders
             };
         } else if (this.sdbClient.ssoCredentials) {
@@ -166,11 +168,13 @@ class BaseRequestHandler {
                 Authorization: "Bearer " + token,
                 "X-Identity-Provider-Id": this.sdbClient.idpId, 
                 Accept: this.acceptHeader,
+                'Content-Type': this.contentTypeHeader,
                 ...this.extraHeaders
             };
         } else {
             headers = { 
                 Accept: this.acceptHeader,
+                'Content-Type': this.contentTypeHeader,
                 ...this.extraHeaders
             };
         }
@@ -202,25 +206,29 @@ class BaseRequestHandler {
             headers = { 
                 apiKey: this.sdbClient.apiKey, 
                 Accept: this.acceptHeader,
+                'Content-Type': this.contentTypeHeader,
                 ...this.extraHeaders
             };
         } else if (this.sdbClient.basic) {
             headers = { 
                 Authorization: "Basic " + this.sdbClient.basic, 
                 Accept: this.acceptHeader,
+                'Content-Type': this.contentTypeHeader,
                 ...this.extraHeaders
             };
         } else if (this.sdbClient.ssoCredentials) {
             const token = btoa(this.sdbClient.ssoCredentials.id_token)
             headers = { 
                 Authorization: "Bearer " + token,
-                "X-Identity-Provider-Id": this.sdbClient.idpId, 
+                "X-Identity-Provider-Id": this.sdbClient.idpId,
                 Accept: this.acceptHeader,
+                'Content-Type': this.contentTypeHeader,
                 ...this.extraHeaders
             };
         } else {
             headers = { 
                 Accept: this.acceptHeader,
+                'Content-Type': this.contentTypeHeader,
                 ...this.extraHeaders
             };
         }
@@ -248,15 +256,30 @@ class BaseRequestHandler {
         if (this.sdbClient.apiKey) {
             headers = { 
                 apiKey: this.sdbClient.apiKey, 
-                'Content-Type': this.contentTypeHeader,                
                 Accept: this.acceptHeader,
+                'Content-Type': this.contentTypeHeader,
                 ...this.extraHeaders
             };
-        }
-        else {
+        } else if (this.sdbClient.basic) {
+            headers = { 
+                Authorization: "Basic " + this.sdbClient.basic, 
+                Accept: this.acceptHeader,
+                'Content-Type': this.contentTypeHeader,
+                ...this.extraHeaders
+            };
+        } else if (this.sdbClient.ssoCredentials) {
+            const token = btoa(this.sdbClient.ssoCredentials.id_token)
+            headers = { 
+                Authorization: "Bearer " + token,
+                "X-Identity-Provider-Id": this.sdbClient.idpId,
+                Accept: this.acceptHeader,
+                'Content-Type': this.contentTypeHeader,
+                ...this.extraHeaders
+            };
+        } else {
             headers = { 
                 Accept: this.acceptHeader,
-                'Content-Type': this.contentTypeHeader,                
+                'Content-Type': this.contentTypeHeader,
                 ...this.extraHeaders
             };
         }
