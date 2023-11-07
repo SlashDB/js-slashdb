@@ -47,9 +47,11 @@ class SlashDBClient {
     this.apiKey = null;
     this.password = null;
     this.basic = null;
-    this.idpId = null;
-    this.redirectUri = null;
-    this.popUp = false;
+    this.sso = {
+      idpId: null,
+      redirectUri: null,
+      popUp: false
+    }
 
     if (config.hasOwnProperty('apiKey')) {
       const apiKey = config.apiKey;
@@ -73,9 +75,7 @@ class SlashDBClient {
       if (redirectUri && typeof(redirectUri) !== 'string') {
         throw TypeError(SDB_SDBC_INVALID_REDIRECT_URI);
       }
-      this.idpId = idpId;
-      this.redirectUri = redirectUri;
-      this.popPup = config.sso.popUp;
+      this.sso = config.sso;
     }
 
     this.ssoCredentials = null;
@@ -108,6 +108,7 @@ class SlashDBClient {
 
     let headers = {};
     let body = {};
+    let sso = this.sso;
     
     try {
       if (this.password) {
@@ -122,11 +123,11 @@ class SlashDBClient {
         else {
           return false;
         }
-      } else if (this.idpId && this.redirectUri) {
-        if (this.popPup) {
-          let response = this.login_sso(this.idpId, this.redirectUri);
+      } else if (sso.idpId && sso.redirectUri) {
+        if (sso.popPup) {
+          let response = this.loginSSO(sso.idpId, sso.redirectUri);
         } else {
-          let response = this.login_sso_popup(this.idpId, this.redirectUri);
+          let response = this.loginSSOPopUp(sso.idpId, sso.redirectUri);
         }
         return response;
       }
@@ -142,7 +143,7 @@ class SlashDBClient {
    * @returns {true} true - on successful login
    * @throws {Error} on invalid login or error in login process
    */
-  async login_sso(idpId, redirectUri) {
+  async loginSSO(idpId, redirectUri) {
 
     let response = (await this.sdbConfig.get(this.settingsEP)).data
 
@@ -176,7 +177,6 @@ class SlashDBClient {
 
       pkce.exchangeForAccessToken(url).then((resp) => {
         console.log(resp);
-        // this.idToken = btoa(resp.id_token);
         this.idpId = idpId;
         this.ssoCredentials = resp;
       });
@@ -196,7 +196,7 @@ class SlashDBClient {
    * @returns {true} true - on successful login
    * @throws {Error} on invalid login or error in login process
    */
-  async login_sso_popup(idpId, redirectUri) {
+  async loginSSOPopUp(idpId, redirectUri) {
 
     let response = (await this.sdbConfig.get(this.settingsEP)).data
 
