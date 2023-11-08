@@ -111,8 +111,6 @@ class SlashDBClient {
    * @throws {Error} on invalid login or error in login process
    */
   async login() {
-
-    let headers = {};
     let body = {};
     let sso = this.sso;
     
