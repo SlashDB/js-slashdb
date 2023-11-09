@@ -28,12 +28,12 @@ import {
 
 Or import them separately:
 ```js
-`import { SlashDBClient } from '@slashdb/js-slashdb/src/slashdbclient.js';`
-`import { DataDiscoveryResource, DataDiscoveryDatabase } from '@slashdb/js-slashdb/src/datadiscovery.js';`
-`import { DataDiscoveryFilter } from '@slashdb/js-slashdb/src/datadiscoveryfilter.js';`
-`import { SQLPassThruQuery } from '@slashdb/js-slashdb/src/sqlpassthru.js';`
-`import { SQLPassThruFilter } from '@slashdb/js-slashdb/src/sqlpassthrufilter.js';`
-`import { eq, any, between, gte, lte, not, and, chgPlaceHolder, asc, desc } from '@slashdb/js-slashdb/src/filterfunctions.js';`
+import { SlashDBClient } from '@slashdb/js-slashdb/src/slashdbclient.js';
+import { DataDiscoveryResource, DataDiscoveryDatabase } from '@slashdb/js-slashdb/src/datadiscovery.js';
+import { DataDiscoveryFilter } from '@slashdb/js-slashdb/src/datadiscoveryfilter.js';
+import { SQLPassThruQuery } from '@slashdb/js-slashdb/src/sqlpassthru.js';
+import { SQLPassThruFilter } from '@slashdb/js-slashdb/src/sqlpassthrufilter.js';
+import { eq, any, between, gte, lte, not, and, chgPlaceHolder, asc, desc } from '@slashdb/js-slashdb/src/filterfunctions.js';
 ```
 
 If you aren't using `npm`, just reference the files in the `src` folder, e.g.:  
@@ -70,7 +70,7 @@ const sdbConfig = {
   host: 'https://demo.slashdb.com',
   username: 'test',
   password: '********'
-}
+}                                                                     // configuration object to initialize the SlashDB client
 const sdbClient = new SlashDBClient();                                // create a SlashDB client to connect to a SlashDB instance
 sdbClient.login();                                                    // login to host SlashDB server (Not required if api key is provided)
 const db = new DataDiscoveryDatabase(sdb1,'Chinook');                 // access the Chinook Database that is on the SlashDB instance

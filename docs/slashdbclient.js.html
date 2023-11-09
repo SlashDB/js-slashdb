@@ -29,11 +29,16 @@
             <pre class="prettyprint source linenums"><code>import { DataDiscoveryDatabase } from './datadiscovery.js'
 import { SQLPassThruQuery } from './sqlpassthru.js'
 import { BaseRequestHandler } from './baserequesthandler.js';
+import { isSSOredirect, SSOlogin, SSOloginPopup } from './SSOlogin.js';
+import { PKCE } from './pkce.js';
+import { generateCodeChallenge, generateRandomString, getUrlParms, popupCenter } from "./utils.js";
 
 const SDB_SDBC_INVALID_HOSTNAME = 'Invalid hostname parameter, must be string';
 const SDB_SDBC_INVALID_USERNAME = 'Invalid username parameter, must be string';
 const SDB_SDBC_INVALID_APIKEY = 'Invalid apiKey parameter, must be string';
 const SDB_SDBC_INVALID_PASSWORD = 'Invalid password parameter, must be string';
+const SDB_SDBC_INVALID_IDPID = 'Invalid identity provider parameter, must be string';
+const SDB_SDBC_INVALID_REDIRECT_URI = 'Invalid redirect uri parameter, must be string';
 const SDB_SDBC_INVALID_USERNAME_MISMATCH = 'Login username must match object username';
 
 /** 
@@ -42,13 +47,22 @@ const SDB_SDBC_INVALID_USERNAME_MISMATCH = 'Login username must match object use
 class SlashDBClient {
 
   /** 
-   * Creates a SlashDB client to connect to a SlashDB instance. 
-   * @param {string} host - hostname/IP address of the SlashDB instance, including protocol and port number (e.g. http://192.168.1.1:8080)
-   * @param {string} [username] - optional username to use when connecting to SlashDB instance
-   * @param {string} [apiKey] - optional API key associated with username
+   * Creates a SlashDB client to connect to a SlashDB instance.
+   * @param {Object} config
+   * @param {string} config.host - hostname/IP address of the SlashDB instance, including protocol and port number (e.g. http://192.168.1.1:8080)
+   * @param {string} config.username - optional username to use when connecting to SlashDB instance using password based login
+   * @param {string} config.password - optional password associated with username
+   * @param {string} config.apiKey - optional API key associated with username
+   * @param {Object} config.sso - optional settings to login with Single Sign-On
+   * @param {string} config.sso.idpId - optional identity provider id configured in SlashDB
+   * @param {string} config.sso.redirectUri - optional redirect uri to redirect browser after sign in
+   * @param {boolean} config.sso.popUp - optional flag to sign in against the identity provider with a Pop Up window (false by default)
    */
 
-  constructor(host, username, apiKey) {
+  constructor(config) {
+
+    const host = config.host;
+    const username = config.username;
 
     if (!host || typeof(host) !== 'string') {
       throw TypeError(SDB_SDBC_INVALID_HOSTNAME);
@@ -60,13 +74,50 @@ class SlashDBClient {
 
     }
 
-    if (apiKey &amp;&amp; typeof(apiKey) !== 'string') {
-      throw TypeError(SDB_SDBC_INVALID_APIKEY);
+    this.host = host;
+    this.username = username;
+
+    this.apiKey = null;
+    this.password = null;
+    this.basic = null;
+    this.sso = {
+      idpId: null,
+      redirectUri: null,
+      popUp: false
     }
 
-    this.host = host;
-    this.username = username
-    this.apiKey = apiKey;
+    if (config.hasOwnProperty('apiKey')) {
+      const apiKey = config.apiKey;
+      if (apiKey &amp;&amp; typeof(apiKey) !== 'string') {
+        throw TypeError(SDB_SDBC_INVALID_APIKEY);
+      }
+      this.apiKey = apiKey;
+    } else if (config.hasOwnProperty('password')){
+      const password = config.password;
+      if (password &amp;&amp; typeof(password) !== 'string') {
+        throw TypeError(SDB_SDBC_INVALID_PASSWORD);
+      }
+      this.password = password;
+    } else if (config.hasOwnProperty('sso')) {
+      const idpId = config.sso.idpId;
+      const redirectUri = config.sso.redirectUri;
+
+      if (idpId &amp;&amp; typeof(idpId) !== 'string') {
+        throw TypeError(SDB_SDBC_INVALID_IDPID);
+      }
+      if (redirectUri &amp;&amp; typeof(redirectUri) !== 'string') {
+        throw TypeError(SDB_SDBC_INVALID_REDIRECT_URI);
+      }
+
+      if (config.sso.hasOwnProperty('popUp')) {
+        this.sso.popUp = config.sso.popUp;  
+      }
+
+      this.sso.idpId = idpId;
+      this.sso.redirectUri = redirectUri;
+    }
+
+    this.ssoCredentials = null;
 
     // create the special case BaseRequestHandler object for interacting with config endpoints
     this.sdbConfig = new BaseRequestHandler(this);
@@ -88,46 +139,167 @@ class SlashDBClient {
   }
 
   /**
-   * Logs in to SlashDB instance.  Only required when using password-based login.
+   * Logs in to SlashDB instance.  Only required when using password-based or SSO login.
    * @returns {true} true - on successful login
    * @throws {Error} on invalid login or error in login process
    */
-  async login(username, password) {
-
-    if (typeof(username) !== 'string') {
-      throw TypeError(SDB_SDBC_INVALID_USERNAME);
-
-    }
-
-    if (this.username &amp;&amp; this.username !== username) {
-      throw Error(SDB_SDBC_INVALID_USERNAME_MISMATCH);
-    }
+  async login() {
+    let body = {};
+    let sso = this.sso;
     
-    else {
-      this.username = username;
-    }
-
-    if (typeof(password) !== 'string') {
-       throw TypeError(SDB_SDBC_INVALID_PASSWORD);
-    }
-
-    if (this.apiKey) {
-       console.warn('API key and password provided, API key will take precedence over session cookie');
-    }
-
-    const body = { login: this.username, password: password };
     try {
-      let response = (await this.sdbConfig.post(body, this.loginEP)).res
-      if (response.ok === true) {
+      if (this.password) {
+        body = { login: this.username, password: this.password };
+        let response = (await this.sdbConfig.post(body, this.loginEP)).res;
+        
+        if (response.ok === true) {
+          this.basic = btoa(this.username + ":" + this.password);
+          this.password = null;
+          return true;
+        }
+        else {
+          return false;
+        }
+      } else if (sso.idpId &amp;&amp; sso.redirectUri) {
+        if (sso.popUp) {
+          this.loginSSOPopUp(sso.idpId, sso.redirectUri);
+        } else {
+          this.loginSSO(sso.idpId, sso.redirectUri);
+        }
         return true;
       }
-      else {
-        return false;
-      }
+      
     }
     catch(e) {
       throw Error(e);
     }
+  }
+
+  /**
+   * Logs in to SlashDB instance.  Only required when using SSO.
+   * @ignore
+   */
+  async loginSSO(idpId, redirectUri) {
+
+    let response = (await this.sdbConfig.get(this.settingsEP)).data
+
+    const jwtSettings = response.auth_settings.authentication_policies.jwt
+    const idpSettings = jwtSettings.identity_providers[idpId]
+
+    const clientId = idpSettings.client_id;
+    const authorizationEndpoint = idpSettings.authorization_endpoint;
+    const tokenEndpoint = idpSettings.token_endpoint;
+    const requestedScopes = idpSettings.scope;
+
+    if (!redirectUri || typeof(redirectUri) !== 'string') {
+      redirectUri = idpSettings.redirect_uri;
+    }
+
+    const ssoConfig = {
+      idp_id: idpId,
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      authorization_endpoint: authorizationEndpoint,
+      token_endpoint: tokenEndpoint,
+      requested_scopes: requestedScopes,
+    }
+
+    const urlParams = getUrlParms();
+
+    if (isSSOredirect(urlParams)){
+      const url = window.location.href;
+      const pkce = new PKCE(ssoConfig);
+      pkce.codeVerifier = sessionStorage.getItem('ssoApp.code_verifier');
+
+      pkce.exchangeForAccessToken(url).then((resp) => {
+        console.log(resp);
+        this.ssoCredentials = resp;
+      });
+    } else {
+      
+      const pkce = new PKCE(ssoConfig);
+      SSOlogin(ssoConfig);
+
+    }
+  
+  }
+
+  /**
+   * Logs in to SlashDB instance.  Only required when using SSO with a Pop Up window.
+   * @ignore
+   */
+  async loginSSOPopUp(idpId, redirectUri) {
+
+    let response = (await this.sdbConfig.get(this.settingsEP)).data
+
+    const jwtSettings = response.auth_settings.authentication_policies.jwt
+    const idpSettings = jwtSettings.identity_providers[idpId]
+
+    const clientId = idpSettings.client_id;
+    const authorizationEndpoint = idpSettings.authorization_endpoint;
+    const tokenEndpoint = idpSettings.token_endpoint;
+    const requestedScopes = idpSettings.scope;
+
+    if (!redirectUri || typeof(redirectUri) !== 'string') {
+      redirectUri = idpSettings.redirect_uri;
+    }
+
+    const ssoConfig = {
+      idp_id: idpId,
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      authorization_endpoint: authorizationEndpoint,
+      token_endpoint: tokenEndpoint,
+      requested_scopes: requestedScopes,
+    }
+
+    let state = generateRandomString(128);
+    let nonce = generateRandomString(128);
+    let codeChallengeMethod = 'S256';
+    let codeVerifier = generateRandomString(128);
+    let codeChallenge = generateCodeChallenge(codeVerifier);
+
+    const pkce = new PKCE(ssoConfig);
+
+    const additionalParams = {
+        code_challenge: codeChallenge,
+        code_challenge_method: codeChallengeMethod,
+        nonce: nonce,
+        response_mode: 'fragment',
+        response_type: 'code',
+        state: state
+    };
+
+    sessionStorage.setItem('ssoApp.idp_id', idpId);
+    sessionStorage.setItem('ssoApp.state', state);
+    sessionStorage.setItem('ssoApp.nonce', nonce);
+    sessionStorage.setItem('ssoApp.code_challenge_method', codeChallengeMethod);
+    sessionStorage.setItem('ssoApp.code_verifier', codeVerifier);
+    sessionStorage.setItem('ssoApp.code_challenge', codeChallenge);
+
+    const width = 500;
+    const height = 600;
+    
+    const popupWindow = popupCenter(pkce.authorizeUrl(additionalParams), "login", width, height);
+    let self = this;
+
+    const checkPopup = setInterval(() => {
+        const popUpHref = popupWindow.window.location.href;
+        console.log(popUpHref);
+        if (popUpHref.startsWith(window.location.origin)) {
+            popupWindow.close();
+            const pkce = new PKCE(ssoConfig);
+            pkce.codeVerifier = sessionStorage.getItem('ssoApp.code_verifier');
+            pkce.exchangeForAccessToken(popUpHref).then((resp) => {
+                console.log(resp);
+                self.idpId = idpId;
+                self.ssoCredentials = resp;
+            });
+        }
+        if (!popupWindow || !popupWindow.closed) return;
+        clearInterval(checkPopup);
+    }, 250);
+  
   }
 
   /**
@@ -157,6 +329,9 @@ class SlashDBClient {
   async logout() {
     try {
       await this.sdbConfig.get(this.logoutEP);
+      if (this.ssoCredentials){
+        this.ssoCredentials = null;
+      }
     }
     catch(e) {
       console.error(e);
@@ -324,7 +499,7 @@ export { SlashDBClient }
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Thu Jun 22 2023 08:06:46 GMT-0400 (Eastern Daylight Saving Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Wed Nov 08 2023 20:24:45 GMT-0400 (Venezuela Time)
 </footer>
 
 <script> prettyPrint(); </script>

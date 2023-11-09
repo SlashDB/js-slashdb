@@ -2,6 +2,9 @@ import { SHA256 } from "./crypto-js/sha256.js"
 import { Base64 } from "./crypto-js/enc-base64.js"
 import { WordArray } from "./crypto-js/core.js"
 
+/**
+ * @ignore
+ */
 class PKCE {
   state = ""
   codeVerifier = ""

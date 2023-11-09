@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>SlashDBClient<span class="signature">(host, username<span class="signature-attributes">opt</span>, apiKey<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>SlashDBClient<span class="signature">(config)</span><span class="type-signature"></span></h2>
         
             <div class="class-description"><p>Stores parameters necessary to communicate with a SlashDB instance and provides methods for retrieving metadata from the instance.</p></div>
         
@@ -45,7 +45,7 @@
     
 
     
-    <h4 class="name" id="SlashDBClient"><span class="type-signature"></span>new SlashDBClient<span class="signature">(host, username<span class="signature-attributes">opt</span>, apiKey<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="SlashDBClient"><span class="type-signature"></span>new SlashDBClient<span class="signature">(config)</span><span class="type-signature"></span></h4>
     
 
     
@@ -77,7 +77,47 @@
         <th>Type</th>
 
         
-        <th>Attributes</th>
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>config</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
         
 
         
@@ -104,14 +144,6 @@
             </td>
 
             
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
 
             
 
@@ -135,20 +167,33 @@
             </td>
 
             
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
 
-                
+            
 
+            <td class="description last"><p>optional username to use when connecting to SlashDB instance using password based login</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>password</code></td>
+            
+
+            <td class="type">
+            
                 
-                </td>
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
             
 
             
 
-            <td class="description last"><p>optional username to use when connecting to SlashDB instance</p></td>
+            <td class="description last"><p>optional password associated with username</p></td>
         </tr>
 
     
@@ -168,20 +213,135 @@
             </td>
 
             
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
 
             
 
             <td class="description last"><p>optional API key associated with username</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>sso</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>optional settings to login with Single Sign-On</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>idpId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>optional identity provider id configured in SlashDB</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>redirectUri</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>optional redirect uri to redirect browser after sign in</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>popUp</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>optional flag to sign in against the identity provider with a Pop Up window (false by default)</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -222,7 +382,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line14">line 14</a>
+        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line19">line 19</a>
     </li></ul></dd>
     
 
@@ -330,7 +490,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line221">line 221</a>
+        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line396">line 396</a>
     </li></ul></dd>
     
 
@@ -550,7 +710,7 @@ a corresponding <code>DataDiscoveryDatabase</code> object for each key</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line198">line 198</a>
+        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line373">line 373</a>
     </li></ul></dd>
     
 
@@ -721,7 +881,7 @@ a corresponding <code>DataDiscoveryDatabase</code> object for each key</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line236">line 236</a>
+        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line411">line 411</a>
     </li></ul></dd>
     
 
@@ -929,7 +1089,7 @@ a corresponding <code>SQLPassThruQuery</code> object for each key</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line210">line 210</a>
+        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line385">line 385</a>
     </li></ul></dd>
     
 
@@ -1103,7 +1263,7 @@ a corresponding <code>SQLPassThruQuery</code> object for each key</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line177">line 177</a>
+        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line352">line 352</a>
     </li></ul></dd>
     
 
@@ -1213,7 +1373,7 @@ a corresponding <code>SQLPassThruQuery</code> object for each key</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line142">line 142</a>
+        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line317">line 317</a>
     </li></ul></dd>
     
 
@@ -1387,7 +1547,7 @@ a corresponding <code>SQLPassThruQuery</code> object for each key</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line187">line 187</a>
+        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line362">line 362</a>
     </li></ul></dd>
     
 
@@ -1497,7 +1657,7 @@ a corresponding <code>SQLPassThruQuery</code> object for each key</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line150">line 150</a>
+        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line325">line 325</a>
     </li></ul></dd>
     
 
@@ -1607,7 +1767,7 @@ a corresponding <code>SQLPassThruQuery</code> object for each key</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line109">line 109</a>
+        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line281">line 281</a>
     </li></ul></dd>
     
 
@@ -1778,7 +1938,7 @@ a corresponding <code>SQLPassThruQuery</code> object for each key</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line159">line 159</a>
+        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line334">line 334</a>
     </li></ul></dd>
     
 
@@ -1844,7 +2004,7 @@ a corresponding <code>SQLPassThruQuery</code> object for each key</p>
 
 
 <div class="description">
-    <p>Logs in to SlashDB instance.  Only required when using password-based login.</p>
+    <p>Logs in to SlashDB instance.  Only required when using password-based or SSO login.</p>
 </div>
 
 
@@ -1888,7 +2048,7 @@ a corresponding <code>SQLPassThruQuery</code> object for each key</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line67">line 67</a>
+        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line118">line 118</a>
     </li></ul></dd>
     
 
@@ -2027,7 +2187,7 @@ a corresponding <code>SQLPassThruQuery</code> object for each key</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line129">line 129</a>
+        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line301">line 301</a>
     </li></ul></dd>
     
 
@@ -2176,7 +2336,7 @@ a corresponding <code>SQLPassThruQuery</code> object for each key</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line168">line 168</a>
+        <a href="slashdbclient.js.html">slashdbclient.js</a>, <a href="slashdbclient.js.html#line343">line 343</a>
     </li></ul></dd>
     
 
@@ -2250,7 +2410,7 @@ a corresponding <code>SQLPassThruQuery</code> object for each key</p>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Thu Jun 22 2023 08:06:46 GMT-0400 (Eastern Daylight Saving Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Wed Nov 08 2023 20:24:45 GMT-0400 (Venezuela Time)
 </footer>
 
 <script> prettyPrint(); </script>

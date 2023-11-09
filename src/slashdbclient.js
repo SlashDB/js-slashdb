@@ -19,13 +19,18 @@ const SDB_SDBC_INVALID_USERNAME_MISMATCH = 'Login username must match object use
 class SlashDBClient {
 
   /** 
-   * Creates a SlashDB client to connect to a SlashDB instance. 
-   * @param {string} host - hostname/IP address of the SlashDB instance, including protocol and port number (e.g. http://192.168.1.1:8080)
-   * @param {string} [username] - optional username to use when connecting to SlashDB instance
-   * @param {string} [apiKey] - optional API key associated with username
+   * Creates a SlashDB client to connect to a SlashDB instance.
+   * @param {Object} config
+   * @param {string} config.host - hostname/IP address of the SlashDB instance, including protocol and port number (e.g. http://192.168.1.1:8080)
+   * @param {string} config.username - optional username to use when connecting to SlashDB instance using password based login
+   * @param {string} config.password - optional password associated with username
+   * @param {string} config.apiKey - optional API key associated with username
+   * @param {Object} config.sso - optional settings to login with Single Sign-On
+   * @param {string} config.sso.idpId - optional identity provider id configured in SlashDB
+   * @param {string} config.sso.redirectUri - optional redirect uri to redirect browser after sign in
+   * @param {boolean} config.sso.popUp - optional flag to sign in against the identity provider with a Pop Up window (false by default)
    */
 
-  // constructor(host, username, apiKey) {
   constructor(config) {
 
     const host = config.host;
@@ -144,8 +149,7 @@ class SlashDBClient {
 
   /**
    * Logs in to SlashDB instance.  Only required when using SSO.
-   * @returns {true} true - on successful login
-   * @throws {Error} on invalid login or error in login process
+   * @ignore
    */
   async loginSSO(idpId, redirectUri) {
 
@@ -194,8 +198,7 @@ class SlashDBClient {
 
   /**
    * Logs in to SlashDB instance.  Only required when using SSO with a Pop Up window.
-   * @returns {true} true - on successful login
-   * @throws {Error} on invalid login or error in login process
+   * @ignore
    */
   async loginSSOPopUp(idpId, redirectUri) {
 
