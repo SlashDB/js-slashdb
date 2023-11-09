@@ -134,9 +134,9 @@ class SlashDBClient {
         }
       } else if (sso.idpId && sso.redirectUri) {
         if (sso.popUp) {
-          this.loginSSOPopUp(sso.idpId, sso.redirectUri);
+          await this.loginSSOPopUp(sso.idpId, sso.redirectUri);
         } else {
-          this.loginSSO(sso.idpId, sso.redirectUri);
+          await this.loginSSO(sso.idpId, sso.redirectUri);
         }
         return true;
       }
