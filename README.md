@@ -27,12 +27,14 @@ import {
 ```
 
 Or import them separately:
-* `import { SlashDBClient } from '@slashdb/js-slashdb/src/slashdbclient.js';`
-* `import { DataDiscoveryResource, DataDiscoveryDatabase } from '@slashdb/js-slashdb/src/datadiscovery.js';`
-* `import { DataDiscoveryFilter } from '@slashdb/js-slashdb/src/datadiscoveryfilter.js';`
-* `import { SQLPassThruQuery } from '@slashdb/js-slashdb/src/sqlpassthru.js';`
-* `import { SQLPassThruFilter } from '@slashdb/js-slashdb/src/sqlpassthrufilter.js';`
-* `import { eq, any, between, gte, lte, not, and, chgPlaceHolder, asc, desc } from '@slashdb/js-slashdb/src/filterfunctions.js';`
+```js
+`import { SlashDBClient } from '@slashdb/js-slashdb/src/slashdbclient.js';`
+`import { DataDiscoveryResource, DataDiscoveryDatabase } from '@slashdb/js-slashdb/src/datadiscovery.js';`
+`import { DataDiscoveryFilter } from '@slashdb/js-slashdb/src/datadiscoveryfilter.js';`
+`import { SQLPassThruQuery } from '@slashdb/js-slashdb/src/sqlpassthru.js';`
+`import { SQLPassThruFilter } from '@slashdb/js-slashdb/src/sqlpassthrufilter.js';`
+`import { eq, any, between, gte, lte, not, and, chgPlaceHolder, asc, desc } from '@slashdb/js-slashdb/src/filterfunctions.js';`
+```
 
 If you aren't using `npm`, just reference the files in the `src` folder, e.g.:  
 
@@ -46,6 +48,7 @@ import {
 ```
 
 A brief explanation of each module:
+
 * `src/slashdbclient.js` : contains a class for connecting to SlashDB and retrieving configuration information
 * `src/datadiscovery.js` : contains classes for making Data Discovery REST calls
 * `src/datadiscoveryfilter.js` : contains a class for creating Data Discovery URL endpoints, including all the Data Discovery options
@@ -62,8 +65,14 @@ A brief explanation of each module:
 ## SDK Quick Start
 To get up and running with the SDK, here's a quick example:
 
-```
-const sdbClient = new SlashDBClient('https://demo.slashdb.com');      // create a SlashDB client to connect to a SlashDB instance
+```js
+const sdbConfig = {
+  host: 'https://demo.slashdb.com',
+  username: 'test',
+  password: '********'
+}
+const sdbClient = new SlashDBClient();                                // create a SlashDB client to connect to a SlashDB instance
+sdbClient.login();                                                    // login to host SlashDB server (Not required if api key is provided)
 const db = new DataDiscoveryDatabase(sdb1,'Chinook');                 // access the Chinook Database that is on the SlashDB instance
 const customerTable = new DataDiscoveryResource(db,'Customer');       // access the Customer table in the Chinook database
 const query = new SQLPassThruQuery('invoices-total-range',sdbClient); // access the invoices-total-range query that is on the SlashDB instance
@@ -92,12 +101,11 @@ All the [DataDiscovery/SQL Pass-Thru options in the documentation](https://docs.
 There is a small demo application in this repository.  To use it _(assumes using Node, v18+ recommended)_ :
 * Clone this repository to your system and open a shell in the repo folder 
 * Run `npm install`
-* Run `npm run localserver` _(starts an HTTP server on port 8080)_
-* Navigate in a browser to http://localhost:8080/examples/demo.html
+* Run `npm run localserver` _(starts an HTTP server on port 8081)_
+* Navigate in a browser to http://localhost:8081/examples/demo.html
 * Open the developer console to see a few more operations in the demo.  You can also use any of the classes/functions in the developer console.
 
 Note that administrative features of the demo will be limited if you're using https://demo.slashdb.com as the host.  You can [set up your own SlashDB instance using Docker](https://docs.slashdb.com/user-guide/getting-slashdb/docker/), or there's a [number of other platforms that are also supported](https://docs.slashdb.com/user-guide/getting-slashdb/) if you want to try all the features.
-
 
 ## SlashDB - REST API to Databases for Reading & Writing
 
