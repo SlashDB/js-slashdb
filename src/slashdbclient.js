@@ -258,8 +258,9 @@ class SlashDBClient {
     return new Promise((resolve, reject) => {
       const checkPopup = setInterval(() => {
           const pkce = new PKCE(ssoConfig);
+          const popUpHref = "";
           try {
-            const popUpHref = popupWindow.window.location.href;
+            popUpHref = popupWindow.window.location.href;
           } catch (e) {
             console.warn(e);
           }
