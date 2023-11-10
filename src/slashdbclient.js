@@ -134,7 +134,10 @@ class SlashDBClient {
         }
       } else if (sso.idpId && sso.redirectUri) {
         if (sso.popUp) {
-          await this.loginSSOPopUp(sso.idpId, sso.redirectUri);
+          await this.loginSSOPopUp(sso.idpId, sso.redirectUri).then((resp) => {
+            console.log(resp);
+            this.ssoCredentials = resp;
+          });
         } else {
           await this.loginSSO(sso.idpId, sso.redirectUri);
         }
@@ -188,10 +191,7 @@ class SlashDBClient {
         this.ssoCredentials = resp;
       });
     } else {
-      
-      const pkce = new PKCE(ssoConfig);
       SSOlogin(ssoConfig);
-
     }
   
   }
@@ -255,22 +255,29 @@ class SlashDBClient {
     const popupWindow = popupCenter(pkce.authorizeUrl(additionalParams), "login", width, height);
     let self = this;
 
-    const checkPopup = setInterval(() => {
-        const popUpHref = popupWindow.window.location.href;
-        console.log(popUpHref);
-        if (popUpHref.startsWith(window.location.origin)) {
-            popupWindow.close();
-            const pkce = new PKCE(ssoConfig);
-            pkce.codeVerifier = sessionStorage.getItem('ssoApp.code_verifier');
-            pkce.exchangeForAccessToken(popUpHref).then((resp) => {
-                console.log(resp);
-                self.idpId = idpId;
-                self.ssoCredentials = resp;
-            });
-        }
-        if (!popupWindow || !popupWindow.closed) return;
-        clearInterval(checkPopup);
-    }, 250);
+    return new Promise((resolve, reject) => {
+      const checkPopup = setInterval(() => {
+          const pkce = new PKCE(ssoConfig);
+          const popUpHref = popupWindow.window.location.href;
+          console.log(popUpHref);
+          if (popUpHref.startsWith(window.location.origin)) {
+              popupWindow.close();
+              
+              pkce.codeVerifier = sessionStorage.getItem('ssoApp.code_verifier');
+              // pkce.exchangeForAccessToken(popUpHref).then((resp) => {
+              //    console.log(resp);
+              //    self.idpId = idpId;
+              //    self.ssoCredentials = resp;
+              // });
+          }
+          if (!popupWindow || !popupWindow.closed) return;
+          clearInterval(checkPopup);
+          pkce.exchangeForAccessToken(popUpHref).then((resp) => {
+            resolve(resp)
+          });
+          
+      }, 250);
+    });
   
   }
 
