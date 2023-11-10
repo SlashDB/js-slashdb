@@ -166,7 +166,7 @@ class BaseRequestHandler {
             const token = btoa(this.sdbClient.ssoCredentials.id_token)
             headers = { 
                 Authorization: "Bearer " + token,
-                "X-Identity-Provider-Id": this.sdbClient.idpId, 
+                "X-Identity-Provider-Id": this.sdbClient.sso.idpId, 
                 Accept: this.acceptHeader,
                 'Content-Type': this.contentTypeHeader,
                 ...this.extraHeaders
@@ -220,7 +220,7 @@ class BaseRequestHandler {
             const token = btoa(this.sdbClient.ssoCredentials.id_token)
             headers = { 
                 Authorization: "Bearer " + token,
-                "X-Identity-Provider-Id": this.sdbClient.idpId,
+                "X-Identity-Provider-Id": this.sdbClient.sso.idpId,
                 Accept: this.acceptHeader,
                 'Content-Type': this.contentTypeHeader,
                 ...this.extraHeaders
@@ -271,7 +271,7 @@ class BaseRequestHandler {
             const token = btoa(this.sdbClient.ssoCredentials.id_token)
             headers = { 
                 Authorization: "Bearer " + token,
-                "X-Identity-Provider-Id": this.sdbClient.idpId,
+                "X-Identity-Provider-Id": this.sdbClient.sso.idpId,
                 Accept: this.acceptHeader,
                 'Content-Type': this.contentTypeHeader,
                 ...this.extraHeaders
