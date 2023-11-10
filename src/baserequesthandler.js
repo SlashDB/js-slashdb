@@ -301,12 +301,29 @@ class BaseRequestHandler {
             headers = { 
                 apiKey: this.sdbClient.apiKey, 
                 Accept: this.acceptHeader,
+                'Content-Type': this.contentTypeHeader,
                 ...this.extraHeaders
             };
-        }
-        else {
+        } else if (this.sdbClient.basic) {
+            headers = { 
+                Authorization: "Basic " + this.sdbClient.basic, 
+                Accept: this.acceptHeader,
+                'Content-Type': this.contentTypeHeader,
+                ...this.extraHeaders
+            };
+        } else if (this.sdbClient.ssoCredentials) {
+            const token = btoa(this.sdbClient.ssoCredentials.id_token)
+            headers = { 
+                Authorization: "Bearer " + token,
+                "X-Identity-Provider-Id": this.sdbClient.sso.idpId, 
+                Accept: this.acceptHeader,
+                'Content-Type': this.contentTypeHeader,
+                ...this.extraHeaders
+            };
+        } else {
             headers = { 
                 Accept: this.acceptHeader,
+                'Content-Type': this.contentTypeHeader,
                 ...this.extraHeaders
             };
         }
