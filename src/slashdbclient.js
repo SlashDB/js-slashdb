@@ -22,8 +22,6 @@ class SlashDBClient {
    * Creates a SlashDB client to connect to a SlashDB instance.
    * @param {Object} config
    * @param {string} config.host - hostname/IP address of the SlashDB instance, including protocol and port number (e.g. http://192.168.1.1:8080)
-   * @param {string} config.username - optional username to use when connecting to SlashDB instance using password based login
-   * @param {string} config.password - optional password associated with username
    * @param {string} config.apiKey - optional API key associated with username
    * @param {Object} config.sso - optional settings to login with Single Sign-On
    * @param {string} config.sso.idpId - optional identity provider id configured in SlashDB
@@ -34,23 +32,15 @@ class SlashDBClient {
   constructor(config) {
 
     const host = config.host;
-    const username = config.username;
 
     if (!host || typeof(host) !== 'string') {
       throw TypeError(SDB_SDBC_INVALID_HOSTNAME);
-
-    }
-
-    if (username && typeof(username) !== 'string') {
-      throw TypeError(SDB_SDBC_INVALID_USERNAME);
-
     }
 
     this.host = host;
-    this.username = username;
 
+    this.username = null;
     this.apiKey = null;
-    this.password = null;
     this.basic = null;
     this.sso = {
       idpId: null,
@@ -64,12 +54,6 @@ class SlashDBClient {
         throw TypeError(SDB_SDBC_INVALID_APIKEY);
       }
       this.apiKey = apiKey;
-    } else if (config.hasOwnProperty('password')){
-      const password = config.password;
-      if (password && typeof(password) !== 'string') {
-        throw TypeError(SDB_SDBC_INVALID_PASSWORD);
-      }
-      this.password = password;
     } else if (config.hasOwnProperty('sso')) {
       const idpId = config.sso.idpId;
       const redirectUri = config.sso.redirectUri;
@@ -112,21 +96,23 @@ class SlashDBClient {
 
   /**
    * Logs in to SlashDB instance.  Only required when using password-based or SSO login.
+   * @param {string} username - optional username to use when connecting to SlashDB instance using password based login
+   * @param {string} password - optional password associated with username
    * @returns {true} true - on successful login
    * @throws {Error} on invalid login or error in login process
    */
-  async login() {
+  async login(username, password) {
+
     let body = {};
     let sso = this.sso;
     
     try {
-      if (this.password) {
-        body = { login: this.username, password: this.password };
+      if (password) {
+        body = { login: username, password: password };
         let response = (await this.sdbConfig.post(body, this.loginEP)).res;
         
         if (response.ok === true) {
-          this.basic = btoa(this.username + ":" + this.password);
-          this.password = null;
+          this.basic = btoa(username + ":" + password);
           return true;
         }
         else {
@@ -269,11 +255,6 @@ class SlashDBClient {
               popupWindow.close();
               
               pkce.codeVerifier = sessionStorage.getItem('ssoApp.code_verifier');
-              // pkce.exchangeForAccessToken(popUpHref).then((resp) => {
-              //    console.log(resp);
-              //    self.idpId = idpId;
-              //    self.ssoCredentials = resp;
-              // });
           }
           if (!popupWindow || !popupWindow.closed) return;
           clearInterval(checkPopup);
