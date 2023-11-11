@@ -1,7 +1,3 @@
-import { PKCE } from './pkce.js';
-
-import { generateCodeChallenge, generateRandomString, getUrlParms, popupCenter } from "./utils.js";
-
 function isObjectEmpty(objectName) {
     return Object.keys(objectName).length === 0
 }
