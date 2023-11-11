@@ -115,6 +115,43 @@ class BaseRequestHandler {
         return this;
     }
 
+    /**
+    * Gets authentication common header for HTTP requests
+    */
+    getHeaders(){
+        let headers = {};
+        if (this.sdbClient.apiKey) {
+            headers = { 
+                apiKey: this.sdbClient.apiKey, 
+                Accept: this.acceptHeader,
+                'Content-Type': this.contentTypeHeader,
+                ...this.extraHeaders
+            };
+        } else if (this.sdbClient.basic) {
+            headers = { 
+                Authorization: "Basic " + this.sdbClient.basic, 
+                Accept: this.acceptHeader,
+                'Content-Type': this.contentTypeHeader,
+                ...this.extraHeaders
+            };
+        } else if (this.sdbClient.ssoCredentials) {
+            const token = btoa(this.sdbClient.ssoCredentials.id_token)
+            headers = { 
+                Authorization: "Bearer " + token,
+                "X-Identity-Provider-Id": this.sdbClient.sso.idpId, 
+                Accept: this.acceptHeader,
+                'Content-Type': this.contentTypeHeader,
+                ...this.extraHeaders
+            };
+        } else {
+            headers = { 
+                Accept: this.acceptHeader,
+                'Content-Type': this.contentTypeHeader,
+                ...this.extraHeaders
+            };
+        }
+    }
+
    /**
    * Sets arbitrary custom header value for HTTP requests
    * @param {object} headersObj - an object containing key/value pairs of header properties
@@ -146,38 +183,7 @@ class BaseRequestHandler {
    */    
     async get(path) {
         const url = this._buildEndpointString(path);
-
-        let headers = {};
-        if (this.sdbClient.apiKey) {
-            headers = { 
-                apiKey: this.sdbClient.apiKey, 
-                Accept: this.acceptHeader,
-                'Content-Type': this.contentTypeHeader,
-                ...this.extraHeaders
-            };
-        } else if (this.sdbClient.basic) {
-            headers = { 
-                Authorization: "Basic " + this.sdbClient.basic, 
-                Accept: this.acceptHeader,
-                'Content-Type': this.contentTypeHeader,
-                ...this.extraHeaders
-            };
-        } else if (this.sdbClient.ssoCredentials) {
-            const token = btoa(this.sdbClient.ssoCredentials.id_token)
-            headers = { 
-                Authorization: "Bearer " + token,
-                "X-Identity-Provider-Id": this.sdbClient.sso.idpId, 
-                Accept: this.acceptHeader,
-                'Content-Type': this.contentTypeHeader,
-                ...this.extraHeaders
-            };
-        } else {
-            headers = { 
-                Accept: this.acceptHeader,
-                'Content-Type': this.contentTypeHeader,
-                ...this.extraHeaders
-            };
-        }
+        let headers = this.getHeaders();
 
         return fetchWrapper('GET', url, undefined, headers);
     }
@@ -200,38 +206,7 @@ class BaseRequestHandler {
         }        
 
         const url = this._buildEndpointString(path);
-
-        let headers = {};
-        if (this.sdbClient.apiKey) {
-            headers = { 
-                apiKey: this.sdbClient.apiKey, 
-                Accept: this.acceptHeader,
-                'Content-Type': this.contentTypeHeader,
-                ...this.extraHeaders
-            };
-        } else if (this.sdbClient.basic) {
-            headers = { 
-                Authorization: "Basic " + this.sdbClient.basic, 
-                Accept: this.acceptHeader,
-                'Content-Type': this.contentTypeHeader,
-                ...this.extraHeaders
-            };
-        } else if (this.sdbClient.ssoCredentials) {
-            const token = btoa(this.sdbClient.ssoCredentials.id_token)
-            headers = { 
-                Authorization: "Bearer " + token,
-                "X-Identity-Provider-Id": this.sdbClient.sso.idpId,
-                Accept: this.acceptHeader,
-                'Content-Type': this.contentTypeHeader,
-                ...this.extraHeaders
-            };
-        } else {
-            headers = { 
-                Accept: this.acceptHeader,
-                'Content-Type': this.contentTypeHeader,
-                ...this.extraHeaders
-            };
-        }
+        let headers = this.getHeaders();
 
         return fetchWrapper('POST', url, data, headers);
     }
@@ -251,38 +226,7 @@ class BaseRequestHandler {
         }    
 
         const url = this._buildEndpointString(path);
-
-        let headers = {};
-        if (this.sdbClient.apiKey) {
-            headers = { 
-                apiKey: this.sdbClient.apiKey, 
-                Accept: this.acceptHeader,
-                'Content-Type': this.contentTypeHeader,
-                ...this.extraHeaders
-            };
-        } else if (this.sdbClient.basic) {
-            headers = { 
-                Authorization: "Basic " + this.sdbClient.basic, 
-                Accept: this.acceptHeader,
-                'Content-Type': this.contentTypeHeader,
-                ...this.extraHeaders
-            };
-        } else if (this.sdbClient.ssoCredentials) {
-            const token = btoa(this.sdbClient.ssoCredentials.id_token)
-            headers = { 
-                Authorization: "Bearer " + token,
-                "X-Identity-Provider-Id": this.sdbClient.sso.idpId,
-                Accept: this.acceptHeader,
-                'Content-Type': this.contentTypeHeader,
-                ...this.extraHeaders
-            };
-        } else {
-            headers = { 
-                Accept: this.acceptHeader,
-                'Content-Type': this.contentTypeHeader,
-                ...this.extraHeaders
-            };
-        }
+        let headers = this.getHeaders();
 
         return fetchWrapper('PUT', url, data, headers);
     }    
@@ -295,38 +239,7 @@ class BaseRequestHandler {
    */       
     async delete(path) {
         const url = this._buildEndpointString(path);
-        
-        let headers = {};
-        if (this.sdbClient.apiKey) {
-            headers = { 
-                apiKey: this.sdbClient.apiKey, 
-                Accept: this.acceptHeader,
-                'Content-Type': this.contentTypeHeader,
-                ...this.extraHeaders
-            };
-        } else if (this.sdbClient.basic) {
-            headers = { 
-                Authorization: "Basic " + this.sdbClient.basic, 
-                Accept: this.acceptHeader,
-                'Content-Type': this.contentTypeHeader,
-                ...this.extraHeaders
-            };
-        } else if (this.sdbClient.ssoCredentials) {
-            const token = btoa(this.sdbClient.ssoCredentials.id_token)
-            headers = { 
-                Authorization: "Bearer " + token,
-                "X-Identity-Provider-Id": this.sdbClient.sso.idpId, 
-                Accept: this.acceptHeader,
-                'Content-Type': this.contentTypeHeader,
-                ...this.extraHeaders
-            };
-        } else {
-            headers = { 
-                Accept: this.acceptHeader,
-                'Content-Type': this.contentTypeHeader,
-                ...this.extraHeaders
-            };
-        }
+        let headers = this.getHeaders();
 
         return fetchWrapper('DELETE', url, undefined, headers);
     }
