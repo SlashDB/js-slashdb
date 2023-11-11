@@ -103,9 +103,10 @@ class SlashDBClient {
    */
 
   async updateSSO(sso) {
-    this.sso = sso;
+    this.sso.idpId = sso.idpId ? sso.idpId : this.sso.idpId;
+    this.sso.redirectUri = sso.redirectUri ? sso.redirectUri : this.sso.redirectUri;
+    this.sso.popUp = sso.popUp ? sso.popUp : this.sso.popUp;
   }
-
   /**
    * Logs in to SlashDB instance.  Only required when using password-based or SSO login.
    * @param {string} username - optional username to use when connecting to SlashDB instance using password based login
