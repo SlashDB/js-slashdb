@@ -1,7 +1,7 @@
 import { DataDiscoveryDatabase } from './datadiscovery.js'
 import { SQLPassThruQuery } from './sqlpassthru.js'
 import { BaseRequestHandler } from './baserequesthandler.js';
-import { isSSOredirect, SSOlogin, SSOloginPopup } from './SSOlogin.js';
+import { isSSOredirect, SSOlogin } from './sso.js';
 import { PKCE } from './pkce.js';
 import { generateCodeChallenge, generateRandomString, getUrlParms, popupCenter } from "./utils.js";
 
@@ -94,6 +94,18 @@ class SlashDBClient {
               
   }
 
+  /** 
+   * Updates a SlashDB SSO settings.
+   * @param {Object} sso - optional settings to login with Single Sign-On
+   * @param {string} sso.idpId - optional identity provider id configured in SlashDB
+   * @param {string} sso.redirectUri - optional redirect uri to redirect browser after sign in
+   * @param {boolean} sso.popUp - optional flag to sign in against the identity provider with a Pop Up window (false by default)
+   */
+
+  async updateSSO(sso) {
+    this.sso = sso;
+  }
+
   /**
    * Logs in to SlashDB instance.  Only required when using password-based or SSO login.
    * @param {string} username - optional username to use when connecting to SlashDB instance using password based login
@@ -113,6 +125,7 @@ class SlashDBClient {
         
         if (response.ok === true) {
           this.basic = btoa(username + ":" + password);
+          this.username = username;
           return true;
         }
         else {
