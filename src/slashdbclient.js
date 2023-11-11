@@ -1,9 +1,9 @@
 import { DataDiscoveryDatabase } from './datadiscovery.js'
 import { SQLPassThruQuery } from './sqlpassthru.js'
 import { BaseRequestHandler } from './baserequesthandler.js';
-import { isSSOredirect, SSOlogin } from './sso.js';
+import { isSSOredirect } from './sso.js';
 import { PKCE } from './pkce.js';
-import { generateCodeChallenge, generateRandomString, getUrlParms, popupCenter } from "./utils.js";
+import { generateCodeChallenge, generateRandomString, getUrlParms } from "./utils.js";
 
 const SDB_SDBC_INVALID_HOSTNAME = 'Invalid hostname parameter, must be string';
 const SDB_SDBC_INVALID_USERNAME = 'Invalid username parameter, must be string';
@@ -93,20 +93,6 @@ class SlashDBClient {
     this.queryDefEP = '/querydef';  
               
   }
-
-  /** 
-   * Updates a SlashDB SSO settings.
-   * @param {Object} sso - optional settings to login with Single Sign-On
-   * @param {string} sso.idpId - optional identity provider id configured in SlashDB
-   * @param {string} sso.redirectUri - optional redirect uri to redirect browser after sign in
-   * @param {boolean} sso.popUp - optional flag to sign in against the identity provider with a Pop Up window (false by default)
-   */
-
-  async updateSSO(sso) {
-    this.sso.idpId = sso.idpId ? sso.idpId : this.sso.idpId;
-    this.sso.redirectUri = sso.redirectUri ? sso.redirectUri : this.sso.redirectUri;
-    this.sso.popUp = sso.popUp ? sso.popUp : this.sso.popUp;
-  }
   /**
    * Logs in to SlashDB instance.  Only required when using password-based or SSO login.
    * @param {string} username - optional username to use when connecting to SlashDB instance using password based login
@@ -138,15 +124,6 @@ class SlashDBClient {
           this.ssoCredentials = resp;
         });
         return true;
-        // if (sso.popUp) {
-        //   await this.loginSSOPopUp(sso.idpId, sso.redirectUri).then((resp) => {
-        //     console.log(resp);
-        //     this.ssoCredentials = resp;
-        //   });
-        // } else {
-        //   await this.loginSSO(sso.idpId, sso.redirectUri);
-        // }
-        // return true;
       }
       
     }
@@ -155,6 +132,23 @@ class SlashDBClient {
     }
   }
 
+  /** 
+   * Updates a SlashDB SSO settings.
+   * @param {Object} sso - optional settings to login with Single Sign-On
+   * @param {string} sso.idpId - optional identity provider id configured in SlashDB
+   * @param {string} sso.redirectUri - optional redirect uri to redirect browser after sign in
+   * @param {boolean} sso.popUp - optional flag to sign in against the identity provider with a Pop Up window (false by default)
+   */
+
+  async updateSSO(sso) {
+    this.sso.idpId = sso.idpId ? sso.idpId : this.sso.idpId;
+    this.sso.redirectUri = sso.redirectUri ? sso.redirectUri : this.sso.redirectUri;
+    this.sso.popUp = sso.popUp ? sso.popUp : this.sso.popUp;
+  }
+
+  /** 
+   * Builds a SSO session from a redirect url, this method must be used in the redirect page handler.
+   */
   async buildSSORedirect(){
     
     const urlParams = getUrlParms();
@@ -165,15 +159,17 @@ class SlashDBClient {
       this.sso.idpId = sessionStorage.getItem('ssoApp.idp_id');
       pkce.codeVerifier = sessionStorage.getItem('ssoApp.code_verifier');
 
-      pkce.exchangeForAccessToken(url).then((resp) => {
-        console.log(resp);
-        this.ssoCredentials = resp;
+      return new Promise((resolve, reject) => {
+        pkce.exchangeForAccessToken(url).then((resp) => {
+          console.log(resp);
+          this.ssoCredentials = resp;
+        });
       });
     }
   }
 
   /**
-   * Logs in to SlashDB instance.  Only required when using SSO.
+   * Logs in to SlashDB instance. Only required when using SSO.
    * @ignore
    */
   async loginSSO(popUp) {
@@ -185,6 +181,11 @@ class SlashDBClient {
     if (!popUp) {
       window.location.replace(pkce.authorizeUrl(additionalParams));
     }
+
+    const width = 500;
+    const height = 600;
+    
+    const popupWindow = popupCenter(pkce.authorizeUrl(additionalParams), "login", width, height);
 
     return new Promise((resolve, reject) => {
       const checkPopup = setInterval(() => {
@@ -204,7 +205,7 @@ class SlashDBClient {
           if (!popupWindow || !popupWindow.closed) return;
           clearInterval(checkPopup);
           pkce.exchangeForAccessToken(popUpHref).then((resp) => {
-            resolve(resp)
+            resolve(resp);
           });
           
       }, 250);
