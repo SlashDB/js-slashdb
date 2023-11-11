@@ -3,7 +3,7 @@ import { SQLPassThruQuery } from './sqlpassthru.js'
 import { BaseRequestHandler } from './baserequesthandler.js';
 import { isSSOredirect } from './sso.js';
 import { PKCE } from './pkce.js';
-import { generateCodeChallenge, generateRandomString, getUrlParms } from "./utils.js";
+import { generateCodeChallenge, generateRandomString, getUrlParms, popupCenter } from "./utils.js";
 
 const SDB_SDBC_INVALID_HOSTNAME = 'Invalid hostname parameter, must be string';
 const SDB_SDBC_INVALID_USERNAME = 'Invalid username parameter, must be string';
