@@ -150,6 +150,7 @@ class BaseRequestHandler {
                 ...this.extraHeaders
             };
         }
+        return headers;
     }
 
    /**

@@ -105,7 +105,7 @@ class SlashDBClient {
     let body = {};
     let sso = this.sso;
     
-    try {
+    // try {
       if (password) {
         body = { login: username, password: password };
         let response = (await this.sdbConfig.post(body, this.loginEP)).res;
@@ -126,10 +126,10 @@ class SlashDBClient {
         return true;
       }
       
-    }
-    catch(e) {
-      throw Error(e);
-    }
+    // }
+    // catch(e) {
+    //   throw Error(e);
+    // }
   }
 
   /** 
@@ -153,7 +153,7 @@ class SlashDBClient {
     
     const urlParams = getUrlParms();
     if (isSSOredirect(urlParams)){
-      const ssoConfig = (await this._getSsoConfig()).data;
+      const ssoConfig = await this._getSsoConfig();
       const url = window.location.href;
       const pkce = new PKCE(ssoConfig);
       this.sso.idpId = sessionStorage.getItem('ssoApp.idp_id');
@@ -163,6 +163,7 @@ class SlashDBClient {
         pkce.exchangeForAccessToken(url).then((resp) => {
           console.log(resp);
           this.ssoCredentials = resp;
+          resolve(true);
         });
       });
     }
@@ -174,7 +175,7 @@ class SlashDBClient {
    */
   async loginSSO(popUp) {
 
-    const ssoConfig = (await this._getSsoConfig()).data;
+    const ssoConfig = await this._getSsoConfig();
     const pkce = new PKCE(ssoConfig);
     const additionalParams = this._buildSession();
 
@@ -390,7 +391,9 @@ class SlashDBClient {
   }
 
   async _getSsoConfig() {
-    let response = this.getSettings();
+    let response = (await this.sdbConfig.get(this.settingsEP)).data;
+    let idpId = this.sso.idpId;
+    let redirectUri = this.sso.redirectUri;
 
     const jwtSettings = response.auth_settings.authentication_policies.jwt
     const idpSettings = jwtSettings.identity_providers[this.sso.idpId]
@@ -422,9 +425,7 @@ class SlashDBClient {
     let codeChallengeMethod = 'S256';
     let codeVerifier = generateRandomString(128);
     let codeChallenge = generateCodeChallenge(codeVerifier);
-    let idpId = ssoConfig.idp_id;
-
-    const pkce = new PKCE(ssoConfig);
+    let idpId = this.sso.idpId;
 
     const additionalParams = {
         code_challenge: codeChallenge,
