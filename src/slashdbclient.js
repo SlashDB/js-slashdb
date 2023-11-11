@@ -133,15 +133,20 @@ class SlashDBClient {
           return false;
         }
       } else if (sso.idpId && sso.redirectUri) {
-        if (sso.popUp) {
-          await this.loginSSOPopUp(sso.idpId, sso.redirectUri).then((resp) => {
-            console.log(resp);
-            this.ssoCredentials = resp;
-          });
-        } else {
-          await this.loginSSO(sso.idpId, sso.redirectUri);
-        }
+        await this.loginSSO(sso.popUp).then((resp) => {
+          console.log(resp);
+          this.ssoCredentials = resp;
+        });
         return true;
+        // if (sso.popUp) {
+        //   await this.loginSSOPopUp(sso.idpId, sso.redirectUri).then((resp) => {
+        //     console.log(resp);
+        //     this.ssoCredentials = resp;
+        //   });
+        // } else {
+        //   await this.loginSSO(sso.idpId, sso.redirectUri);
+        // }
+        // return true;
       }
       
     }
@@ -150,110 +155,36 @@ class SlashDBClient {
     }
   }
 
-  /**
-   * Logs in to SlashDB instance.  Only required when using SSO.
-   * @ignore
-   */
-  async loginSSO(idpId, redirectUri) {
-
-    let response = (await this.sdbConfig.get(this.settingsEP)).data
-
-    const jwtSettings = response.auth_settings.authentication_policies.jwt
-    const idpSettings = jwtSettings.identity_providers[idpId]
-
-    const clientId = idpSettings.client_id;
-    const authorizationEndpoint = idpSettings.authorization_endpoint;
-    const tokenEndpoint = idpSettings.token_endpoint;
-    const requestedScopes = idpSettings.scope;
-
-    if (!redirectUri || typeof(redirectUri) !== 'string') {
-      redirectUri = idpSettings.redirect_uri;
-    }
-
-    const ssoConfig = {
-      idp_id: idpId,
-      client_id: clientId,
-      redirect_uri: redirectUri,
-      authorization_endpoint: authorizationEndpoint,
-      token_endpoint: tokenEndpoint,
-      requested_scopes: requestedScopes,
-    }
-
+  async buildSSORedirect(){
+    
     const urlParams = getUrlParms();
-
     if (isSSOredirect(urlParams)){
+      const ssoConfig = (await this._getSsoConfig()).data;
       const url = window.location.href;
       const pkce = new PKCE(ssoConfig);
+      this.sso.idpId = sessionStorage.getItem('ssoApp.idp_id');
       pkce.codeVerifier = sessionStorage.getItem('ssoApp.code_verifier');
 
       pkce.exchangeForAccessToken(url).then((resp) => {
         console.log(resp);
         this.ssoCredentials = resp;
       });
-    } else {
-      SSOlogin(ssoConfig);
     }
-  
   }
 
   /**
-   * Logs in to SlashDB instance.  Only required when using SSO with a Pop Up window.
+   * Logs in to SlashDB instance.  Only required when using SSO.
    * @ignore
    */
-  async loginSSOPopUp(idpId, redirectUri) {
+  async loginSSO(popUp) {
 
-    let response = (await this.sdbConfig.get(this.settingsEP)).data
-
-    const jwtSettings = response.auth_settings.authentication_policies.jwt
-    const idpSettings = jwtSettings.identity_providers[idpId]
-
-    const clientId = idpSettings.client_id;
-    const authorizationEndpoint = idpSettings.authorization_endpoint;
-    const tokenEndpoint = idpSettings.token_endpoint;
-    const requestedScopes = idpSettings.scope;
-
-    if (!redirectUri || typeof(redirectUri) !== 'string') {
-      redirectUri = idpSettings.redirect_uri;
-    }
-
-    const ssoConfig = {
-      idp_id: idpId,
-      client_id: clientId,
-      redirect_uri: redirectUri,
-      authorization_endpoint: authorizationEndpoint,
-      token_endpoint: tokenEndpoint,
-      requested_scopes: requestedScopes,
-    }
-
-    let state = generateRandomString(128);
-    let nonce = generateRandomString(128);
-    let codeChallengeMethod = 'S256';
-    let codeVerifier = generateRandomString(128);
-    let codeChallenge = generateCodeChallenge(codeVerifier);
-
+    const ssoConfig = (await this._getSsoConfig()).data;
     const pkce = new PKCE(ssoConfig);
+    const additionalParams = this._buildSession();
 
-    const additionalParams = {
-        code_challenge: codeChallenge,
-        code_challenge_method: codeChallengeMethod,
-        nonce: nonce,
-        response_mode: 'fragment',
-        response_type: 'code',
-        state: state
-    };
-
-    sessionStorage.setItem('ssoApp.idp_id', idpId);
-    sessionStorage.setItem('ssoApp.state', state);
-    sessionStorage.setItem('ssoApp.nonce', nonce);
-    sessionStorage.setItem('ssoApp.code_challenge_method', codeChallengeMethod);
-    sessionStorage.setItem('ssoApp.code_verifier', codeVerifier);
-    sessionStorage.setItem('ssoApp.code_challenge', codeChallenge);
-
-    const width = 500;
-    const height = 600;
-    
-    const popupWindow = popupCenter(pkce.authorizeUrl(additionalParams), "login", width, height);
-    let self = this;
+    if (!popUp) {
+      window.location.replace(pkce.authorizeUrl(additionalParams));
+    }
 
     return new Promise((resolve, reject) => {
       const checkPopup = setInterval(() => {
@@ -278,7 +209,6 @@ class SlashDBClient {
           
       }, 250);
     });
-  
   }
 
   /**
@@ -308,9 +238,8 @@ class SlashDBClient {
   async logout() {
     try {
       await this.sdbConfig.get(this.logoutEP);
-      if (this.ssoCredentials){
-        this.ssoCredentials = null;
-      }
+      this.ssoCredentials = null;
+      this._clearSession();
     }
     catch(e) {
       console.error(e);
@@ -457,6 +386,71 @@ class SlashDBClient {
     }
     
     return queries;
+  }
+
+  async _getSsoConfig() {
+    let response = this.getSettings();
+
+    const jwtSettings = response.auth_settings.authentication_policies.jwt
+    const idpSettings = jwtSettings.identity_providers[this.sso.idpId]
+
+    const clientId = idpSettings.client_id;
+    const authorizationEndpoint = idpSettings.authorization_endpoint;
+    const tokenEndpoint = idpSettings.token_endpoint;
+    const requestedScopes = idpSettings.scope;
+
+    if (!redirectUri || typeof(redirectUri) !== 'string') {
+      redirectUri = idpSettings.redirect_uri;
+    }
+
+    const ssoConfig = {
+      idp_id: idpId,
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      authorization_endpoint: authorizationEndpoint,
+      token_endpoint: tokenEndpoint,
+      requested_scopes: requestedScopes,
+    }
+
+    return ssoConfig;
+  }
+
+  _buildSession() {
+    let state = generateRandomString(128);
+    let nonce = generateRandomString(128);
+    let codeChallengeMethod = 'S256';
+    let codeVerifier = generateRandomString(128);
+    let codeChallenge = generateCodeChallenge(codeVerifier);
+    let idpId = ssoConfig.idp_id;
+
+    const pkce = new PKCE(ssoConfig);
+
+    const additionalParams = {
+        code_challenge: codeChallenge,
+        code_challenge_method: codeChallengeMethod,
+        nonce: nonce,
+        response_mode: 'fragment',
+        response_type: 'code',
+        state: state
+    };
+
+    sessionStorage.setItem('ssoApp.idp_id', idpId);
+    sessionStorage.setItem('ssoApp.state', state);
+    sessionStorage.setItem('ssoApp.nonce', nonce);
+    sessionStorage.setItem('ssoApp.code_challenge_method', codeChallengeMethod);
+    sessionStorage.setItem('ssoApp.code_verifier', codeVerifier);
+    sessionStorage.setItem('ssoApp.code_challenge', codeChallenge);
+
+    return additionalParams;
+  }
+
+  _clearSession(){
+    sessionStorage.removeItem('ssoApp.idp_id');
+    sessionStorage.removeItem('ssoApp.state');
+    sessionStorage.removeItem('ssoApp.nonce');
+    sessionStorage.removeItem('ssoApp.code_challenge_method');
+    sessionStorage.removeItem('ssoApp.code_verifier');
+    sessionStorage.removeItem('ssoApp.code_challenge');
   }
 }
 
