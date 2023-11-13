@@ -210,6 +210,24 @@ class SlashDBClient {
   }
 
   /**
+   * Refreshes the SSO access token.
+   */
+
+  async refreshSSOToken(){
+
+    const ssoConfig = await this._getSsoConfig();
+    const pkce = new PKCE(ssoConfig);
+    const refreshToken = this.ssoCredentials.refresh_token;
+
+    pkce.refreshAccessToken(refreshToken).then((resp) => {
+      // Do stuff with the access & refresh token.
+      console.log(resp);
+      this.ssoCredentials = resp;
+    });
+
+  }
+
+  /**
    * Checks whether SlashDB client is authenticated against instance.  
    * @returns {boolean} boolean - to indicate if currently authenticated
    */  
