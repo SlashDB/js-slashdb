@@ -106,7 +106,7 @@ const sdbConfig = {
 const sdbClient = new SlashDBClient();                                // create a SlashDB client to connect to a SlashDB instance
 const username = "<username>";
 const password = "<password>";
-sdbClient.login(username, password);                                                    // login to host SlashDB server
+sdbClient.login(username, password);                                  // login to host SlashDB server
 ```
 
 ## SSO Login
