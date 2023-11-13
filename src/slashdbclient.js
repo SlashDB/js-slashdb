@@ -93,7 +93,7 @@ class SlashDBClient {
               
   }
   /**
-   * Logs in to SlashDB instance.  Only required when using password-based or SSO login.
+   * Logs in to SlashDB instance.  Only required when using username/password based crendentials. if not provided will try SSO login.
    * @param {string} username - optional username to use when connecting to SlashDB instance using password based login
    * @param {string} password - optional password associated with username
    * @returns {true} true - on successful login
@@ -124,15 +124,10 @@ class SlashDBClient {
         });
         return true;
       }
-      
-    // }
-    // catch(e) {
-    //   throw Error(e);
-    // }
   }
 
   /** 
-   * Updates a SlashDB SSO settings.
+   * Updates a SlashDB client instance SSO settings.
    * @param {Object} sso - optional settings to login with Single Sign-On
    * @param {string} sso.idpId - optional identity provider id configured in SlashDB
    * @param {string} sso.redirectUri - optional redirect uri to redirect browser after sign in
@@ -173,6 +168,8 @@ class SlashDBClient {
    * @ignore
    */
   async loginSSO(popUp) {
+
+    popUp = popUp ? popUp : this.sso.popUp;
 
     const ssoConfig = await this._getSsoConfig();
     const pkce = new PKCE(ssoConfig);

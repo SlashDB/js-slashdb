@@ -68,11 +68,10 @@ To get up and running with the SDK, here's a quick example:
 ```js
 const sdbConfig = {
   host: 'https://demo.slashdb.com',
-  username: 'test',
-  password: '********'
+  apiKey: '********'
 }                                                                     // configuration object to initialize the SlashDB client
 const sdbClient = new SlashDBClient();                                // create a SlashDB client to connect to a SlashDB instance
-sdbClient.login();                                                    // login to host SlashDB server (Not required if api key is provided)
+sdbClient.login();                                                    // login to host SlashDB server
 const db = new DataDiscoveryDatabase(sdb1,'Chinook');                 // access the Chinook Database that is on the SlashDB instance
 const customerTable = new DataDiscoveryResource(db,'Customer');       // access the Customer table in the Chinook database
 const query = new SQLPassThruQuery('invoices-total-range',sdbClient); // access the invoices-total-range query that is on the SlashDB instance
@@ -93,8 +92,55 @@ let spt_results = await query.accept('csv').get(sptFilter);           // execute
 
 There's more examples in the demo application.
 
-All the [DataDiscovery/SQL Pass-Thru options in the documentation](https://docs.slashdb.com/user-guide/using-slashdb/) are supported.  The [SDK module documentation](https://slashdb.github.io/js-slashdb/docs) lists all the methods available.  
+All the [DataDiscovery/SQL Pass-Thru options in the documentation](https://docs.slashdb.com/user-guide/using-slashdb/) are supported.  The [SDK module documentation](https://slashdb.github.io/js-slashdb/docs) lists all the methods available.
 
+## Username/password login
+
+If `apiKey` parameter is not provided on `sdbClient` instantiation, username and password can be provided on login.
+
+```js
+const sdbConfig = {
+  host: 'https://demo.slashdb.com',
+  apiKey: '********'
+}                                                                     // configuration object to initialize the SlashDB client
+const sdbClient = new SlashDBClient();                                // create a SlashDB client to connect to a SlashDB instance
+const username = "<username>";
+const password = "<password>";
+sdbClient.login(username, password);                                                    // login to host SlashDB server
+```
+
+## SSO Login
+
+In order to login with SSO, additional parameters are required in  `sdbClient` instantiation.
+
+```js
+const sdbConfig = {
+  host: 'https://demo.slashdb.com',
+  sso: {
+    idpId: "okta",
+    redirectUri: "http://localhost:8081/redirect_url",
+    popUp: true
+  }
+}                                                                     // configuration object to initialize the SlashDB client
+const sdbClient = new SlashDBClient();                                // create a SlashDB client to connect to a SlashDB instance
+sdbClient.login();                                                    // login to host SlashDB server
+```
+
+SSO parameters can added or updated after `sdbClient` instantiation, this can be useful if several SSO methods are avalaible.
+
+```js
+const sdbConfig = {
+  host: 'https://demo.slashdb.com',
+}                                                                     // configuration object to initialize the SlashDB client
+const sdbClient = new SlashDBClient();                                // create a SlashDB client to connect to a SlashDB instance
+const sso = {
+  idpId: "okta",
+  redirectUri: "http://localhost:8081/redirect_url",
+  popUp: true
+}
+sdbClient.updateSSO(sso);                                             // Updates SSO settings.
+sdbClient.login();                                                    // login to host SlashDB server
+```
 
 ## Demo Application
 
