@@ -73,7 +73,7 @@ const sdbConfig = {
 const sdbClient = new SlashDBClient();                                // create a SlashDB client to connect to a SlashDB instance
 sdbClient.login();                                                    // login to host SlashDB server
 const db = new DataDiscoveryDatabase(sdb1, 'Chinook');                 // access the Chinook Database that is on the SlashDB instance
-const customerTable = new DataDiscoveryResource(db,'Customer');       // access the Customer table in the Chinook database
+const customerTable = new DataDiscoveryResource(db, 'Customer');       // access the Customer table in the Chinook database
 const query = new SQLPassThruQuery('invoices-total-range', sdbClient); // access the invoices-total-range query that is on the SlashDB instance
 
 const ddFilter = new DataDiscoveryFilter()                            // create a filter for Data Discovery operations
