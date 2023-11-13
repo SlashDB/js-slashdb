@@ -141,7 +141,7 @@ class SlashDBClient {
   }
 
   /** 
-   * Builds a SSO session from a redirect url, this method must be used in the redirect page handler.
+   * Builds a SSO session from a redirect url, if popUp is not used, this method must be used in the redirect page handler .
    */
   async buildSSORedirect(){
     
