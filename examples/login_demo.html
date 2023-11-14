@@ -96,83 +96,33 @@
     window.chgPlaceHolder = chgPlaceHolder;
 
     var host;
-    var user;
-    var password;
-    var apiKey;
     var database;
-    var query;
+    var redirectUri;
+    var idpId;
     var resource;
     var relatedResource;
-    var column1;
-    var column2;
-    var column3;
-    var column4;
-    var value1 ;
-    var value2;
-    var value3;
-    var value4 = 'Harris';
-    var value5 = 'Houston';
-    var param1;
-    var paramValue1;
 
     function setVars() {
         host = document.forms.config.host.value;
-        user = document.forms.config.user.value;
-        password = document.forms.config.password.value;
-        apiKey = document.forms.config.apiKey.value;
+        redirectUri = document.forms.config.redirect.value;
+        idpId = document.forms.config.provider.value;
         database = document.forms.config.database.value;
-        query = document.forms.config.query.value;
         resource = document.forms.config.resource.value;
         relatedResource = document.forms.config.resource2.value;
-        
-        column1 = document.forms.config.column1.value;
-        column2 = document.forms.config.column2.value;
-        column3 = document.forms.config.column3.value;      
-        column4 = document.forms.config.column4.value;      
-
-        value1 =  document.forms.config.value1.value;
-        value2 =  document.forms.config.value2.value;
-        value2 =  document.forms.config.value2.value;
-        value3 =  document.forms.config.value3.value;
-
-        param1 = document.forms.config.param1.value;
-        paramValue1 = document.forms.config.paramValue1.value;
     }
     
     function exec() {
         host = document.forms.config.host.value;
-        user = document.forms.config.user.value;
-        password = document.forms.config.password.value;
-        apiKey = document.forms.config.apiKey.value;
+        redirectUri = document.forms.config.redirect.value;
+        idpId = document.forms.config.provider.value;
+
         database = document.forms.config.database.value;
-        query = document.forms.config.query.value;
         resource = document.forms.config.resource.value;
         relatedResource = document.forms.config.resource2.value;
-        
-        column1 = document.forms.config.column1.value;
-        column2 = document.forms.config.column2.value;
-        column3 = document.forms.config.column3.value;      
-        column4 = document.forms.config.column4.value;      
-
-        value1 =  document.forms.config.value1.value;
-        value2 =  document.forms.config.value2.value;
-        value2 =  document.forms.config.value2.value;
-        value3 =  document.forms.config.value3.value;
-
-        param1 = document.forms.config.param1.value;
-        paramValue1 = document.forms.config.paramValue1.value;
 
         document.querySelector('#apiTxt').innerHTML = '';
-        document.querySelector('#sptTxt').innerHTML = '';
-        document.querySelector('#ddTxt').innerHTML = '';
-        document.querySelector('#filterTxt').innerHTML = '';
         document.querySelector('#loginTxt').innerHTML = 'Pending start...';
-        
 
-        sdbAPIDemo();
-        ddDemo();        
-        sptDemo();            
-        filterDemo();        
         setTimeout ( sdbLoginDemo, 2000);   // delay this so the login process doesn't slow down the other functions
     }
 
@@ -186,17 +136,21 @@
 
             const sdbConfig = {
                 host: host,
-                username: user,
-                password: password
+                sso: {
+                    idpId: idpId,
+                    redirectUri: redirectUri,
+                    popUp: true
+                }
             }
         
             const sdbClient = new SlashDBClient(sdbConfig);
 
-            outTxt += `* SlashDBClient() - Client created for ${host}, logging in user ${user}...\n`
+            outTxt += `* SlashDBClient() - Client created for ${host}, logging in with SSO...\n`
             document.querySelector('#loginTxt').innerHTML = outTxt;
             let status = await sdbClient.login();
             outTxt += `* login() - Logged in status: ${status}`;
             document.querySelector('#loginTxt').innerHTML = outTxt;
+            sdbAPIDemo(sdbClient);
         }
         catch(e) {
             document.querySelector('#loginTxt').style.color = '#F00';
@@ -206,20 +160,13 @@
         }
     }
      
-
-    const sdbAPIDemo = async () => {
+    const sdbAPIDemo = async (sdbClient) => {
         document.querySelector('#apiTxt').style.color = '#000';
         let outTxt = '';
         try {
-            
-            const sdbConfig = {
-                host: host,
-                apiKey: '03zhx63tfaaj35zgesbikqg5uiqdla70',
-                username: user
-            }
 
-            outTxt += `* const sdbClient = new SlashDBClient() - creating client for ${host}, logging in user '${user}' using API key...\n`
-            const sdbClient = new SlashDBClient(sdbConfig);
+            outTxt += `* const sdbClient = new SlashDBClient() - creating client for ${host}, logging in with SSO...\n`
+            // const sdbClient = new SlashDBClient(sdbConfig);
             document.querySelector('#apiTxt').innerHTML = outTxt;
             outTxt += `* sdbClient.isAuthenticated() - Logged in status: `;
             let status = await sdbClient.isAuthenticated();
@@ -260,13 +207,7 @@
             let sqlPassThruObj = JSON.stringify(await sdbClient.getQueries(database)).substr(0,80) + '...';
             outTxt += `${sqlPassThruObj}\n`;        
             document.querySelector('#apiTxt').innerHTML = outTxt; 
-
-            // disabled this so it doesn't interfere with other operations
-            // outTxt += `* sdbClient.unloadModel('${database}') - Disconnect database: `;
-            // let unloadDb = JSON.stringify(await sdbClient.unloadModel(database)).substr(0,80) + '...';
-            // outTxt += `${unloadDb}\n`;        
-            // document.querySelector('#apiTxt').innerHTML = outTxt;          
-            
+ 
             outTxt += `* sdbClient.loadModel('${database}') - Connect database: `;        
             let loadDb = JSON.stringify(await sdbClient.loadModel(database)).substr(0,80) + '...';
             outTxt += `${loadDb}\n`;            
@@ -278,132 +219,6 @@
             document.querySelector('#apiTxt').innerHTML = outTxt;
         }        
     }
-
-    setTimeout( async () => {
-
-        let q1 = new DataDiscoveryFilter(eq("Country","Canada")).addFilter(and(eq("PostalCode","V6B4A4"),any("Name","A","B","C"))).join("Invoice").addFilter(eq("Country","USA")).addFilter(eq("State","Texas"))
-        console.log(q1)
-        
-        let sqf1 = new SQLPassThruQuery('myquery');
-        console.log(sqf1); 
-
-        const sdbConfig = {
-            host: host,
-            apiKey: '03zhx63tfaaj35zgesbikqg5uiqdla70',
-            username: user
-        }
-
-        const sdb1 = new SlashDBClient(sdbConfig);
-        console.log('SlashDBClient sdb1 logged in status:', await sdb1.isAuthenticated())
-    
-        // get some config info etc from the connected host
-        try {
-            console.log('** sdb1 config --------------------------------------------------------------------------\n')
-            console.log('Settings --');
-            console.log(await sdb1.getSettings());
-            console.log('Version --');
-            console.log(await sdb1.getVersion());
-            console.log('Unload model taskdatadb --');
-            console.log(await sdb1.unloadModel('taskdatadb'));
-            console.log('Load model taskdatadb --');
-            console.log(await sdb1.loadModel('taskdatadb'));
-            console.log('User details for user taskapp -- ')
-            console.log(await sdb1.getUser('taskapp'));
-            console.log('Reflect Status for Chinook --');
-            console.log(await sdb1.getReflectStatus(database));
-            console.log('DB definition for Chinook --');
-            console.log(await sdb1.getDbDef(database));
-            console.log('Query definitions all --');
-            console.log(await sdb1.getQueryDef());
-            console.log('Query definition for add-new-customer --');
-            console.log(await sdb1.getQueryDef('add-new-customer'));
-            console.log('Queries packaged up -- ')
-            console.log(await sdb1.getQueries());
-            console.log('---------------------------------------------------------------------------------\n')
-        }
-        catch(error) {
-            console.error(error);
-        }
-
-    let q2 = new DataDiscoveryFilter()
-        .addFilter(any('FirstName','J*,H*'))
-        .addFilter(eq('Country','USA'))
-        .sort('LastName',desc('FirstName'))
-        .cols('FirstName','LastName','Company');
-    console.log(q2);
-
-    console.log('** Data discovery ----------------------------------------------------------------------\n');
-
-    let dbs = await sdb1.getDatabases()
-    console.log(dbs);
-    let chinookdb = dbs[database];
-    let chinook_res = await chinookdb.getDataDiscoveryResources();
-    console.log(chinook_res);
-    let cust_res = chinook_res['Customer'];
-    console.log(cust_res);
-
-    console.log('\noption1 -- getting CSV')
-    let r = await cust_res.accept('csv').get(eq("FirstName","J*"));
-    console.log(r.data);
-    r = await cust_res.get(q2);
-    console.log(r.data);
-    q2.cols(false).csvHeader(false);
-    r = await cust_res.get(q2);
-    console.log(r.data);
-    
-    console.log('\noption2 -- getting JSON')
-    chinookdb = new DataDiscoveryDatabase(sdb1, database)
-    cust_res = new DataDiscoveryResource(chinookdb,'Customer');
-    r = await cust_res.get(eq("FirstName","F*"))
-    console.log(r.data)    
-    r = await cust_res.get(q2)
-    console.log(r.data)
-
-
-    let mt = chinook_res['MediaType']
-
-    // delete tests
-    try {
-        r = await mt.delete(gte("MediaTypeId",6))
-        console.log('deleted: ', r.res.status)
-    }
-    catch(e) {
-        console.log(e)
-    }
-
-    // post tests
-    for (let i = 6; i <= 10; i++) {
-        r = await mt.post({"Name":`media type ${i} again`})
-        console.log( 'created: ', r.res.status, r.res.url)
-    }
-
-    
-    // put tests
-    mt.contentType('json');
-    let q = new DataDiscoveryFilter(eq("MediaTypeId",8))
-    try {
-        //mt.sdbClient.host = "http://noname";
-        //mt.dbPrefix = "/missingPfx";
-        r = await mt.put(q, {"Name":"changing id 8 TESTNEW"})
-        console.log( 'updated: ', r.res.status, r.res.url);
-    }
-    catch(e) {
-        console.log('in catch:', e.name, e.message)
-    }
-    q = new DataDiscoveryFilter().addFilter(eq("MediaTypeId",9))
-    r = await mt.put(q, {"Name":"change id 9 TESTNEW"})
-    // put follows to last context test
-    q = new DataDiscoveryFilter(eq("MediaTypeId",1)).join("Track").addFilter(eq("TrackId",1))
-    console.log(q)
-    r = await mt.put(q, {"Name":"For Those About To Rock (We Salute You) - TEST"})
-
-    // changing content-types
-    r = await mt.contentType('csv').put(eq("Name","MPEG audio file"), 'Name\ncsvnamechange' )
-    r = await mt.contentType('json').put(eq("Name","csvnamechange"), {Name:"jObjnamechange"})
-    r = await mt.put(eq("Name","jObjnamechange"), {"Name":"jsonnamechange",})
-    r = await mt.contentType('xml').put(eq("Name","jsonnamechange"), '<SlashDB xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.vtenterprise.com/slashdb"><MediaType><Name>xmlNamechange</Name></MediaType></SlashDB>')
-    r = await mt.contentType('json').put(eq("Name","xmlNamechange"), {"Name":"MPEG audio file"})    
-    }, 1000);
 </script>
 
 </head>
@@ -414,7 +229,7 @@
     </script>
 
     <div>
-        <h1>SDK Login Demo</h1>
+        <h1>SDK - SSO Login Demo</h1>
     </div>
 
     <div id="splitConfig">
@@ -424,28 +239,15 @@
             <div class="config"> 
                 <div class="txtField">
                     <label>Host</label>
-                    <input name="host" type="text" value="https://demo.slashdb.com">
+                    <input name="host" type="text" value="http://host.docker.internal:8000">
                 </div>
                 <div class="txtField">
-                    <label>Username</label>
-                    <input name="user" type="text" value="sdk_demos">
+                    <label>Redirect URI</label>
+                    <input name="redirect" type="text" value="http://localhost:8081/examples/success.html">
                 </div>
                 <div class="txtField">
-                    <label>Password</label>
-                    <input name="password" type="password" value="YXSBSeprXHXv">
-                </div>                
-                <div class="txtField">
-                    <label>API Key</label>
-                    <input name="apiKey" type="password" value="oqf12478exwewnzdyn0o3gec2nuyimw0">
-                </div>
-                <div class="txtField">
-                    <label>Login Method</label>
-                    <select name="method" id="methods">
-                        <option value="password">Username/Password</option>
-                        <option value="apikey">API Key</option>
-                        <option value="sso">Single Sign-On</option>
-                        <option value="ssopopup">Single Sign-On (With PopUp)</option>
-                    </select>
+                    <label>Identity Provider</label>
+                    <input name="provider" type="text" value="keycloak">
                 </div>
             </div>
             <div class="config">
@@ -456,14 +258,14 @@
                 <div class="txtField">
                     <label>Resource/Table</label>
                     <input name="resource" type="text" value="Customer">            
-                </div>  
+                </div>
                 <div class="txtField">
                     <label>Related Resource/Table</label>
                     <input name="resource2" type="text" value="Invoice">            
-                </div>                     
+                </div>                  
                 <button class="buttons" onClick="exec()">Run demo</button>            
                 <input class="buttons" type="reset"></input> 
-            </div> 
+            </div>
 
             <div style="font-size: 0.85rem;"><br />Open the Developer Console (F12) to see a few more SDK examples.  You can also create your own:
                 <ul style="font-style: italic">
@@ -482,13 +284,43 @@
         <pre>
         const sdbConfig = {
             host: 'http://hostname:port',
-            username: user,
-            password: password
+            sso: {
+                idpId: 'keycloak',
+                redirectUri: 'http://localhost:8081/examples/success.html',
+                popUp: true
+            }
         }
         const sdbClient = new SlashDBClient(sdbConfig);
         let status = await sdbClient.login();
         </pre>
         <textarea id="loginTxt" class="outTxt" spellcheck="false">Click Run Demo button...</textarea>
+    </div>
+
+    <div id="apiDesc" class="codeBlock">
+        SlashDBClient API methods<br />
+        <em style="font-size: 0.85rem">Requires a valid SlashDB admin username/API key</em>        
+        <pre>
+        const sdbConfig = {
+            host: 'http://hostname:port',
+            sso: {
+                idpId: 'keycloak',
+                redirectUri: 'http://localhost:8081/examples/success.html',
+                popUp: true
+            }
+        }
+        const sdbClient = new SlashDBClient(sdbConfig);
+        let status = await sdbClient.isAuthenticated();
+        let version = await sdbClient.getVersion();     
+        let settings = await sdbClient.getSettings();      
+        let userDetails = await sdbClient.getUser(user);                        // leave user empty for all users
+        let dbDefinition = await sdbClient.getDbDef(database);                  // leave parameter empty for all databases
+        let dbReflectStatus = await sdbClient.getDbReflectStatus(database);     // leave parameter empty for all databases
+        let queryDef = await sdbClient.getQueryDef(query);                      // leave parameter empty for all queries
+        let sqlPassThruObjects = sdbClient.getQueries(database);                // leave parameter empty for queries in all databases
+        let unloadDB = sdbClient.unloadModel(database);                         // disabled in this demo so that it doesn't interfere with other operations
+        let loadDB = sdbClient.loadModel(database);        
+        </pre>
+        <textarea id="apiTxt" style="height: 14rem" class="outTxt" spellcheck="false">Click Run Demo button...</textarea>
     </div>
     
 </body>
