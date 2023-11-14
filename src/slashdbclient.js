@@ -221,7 +221,6 @@ class SlashDBClient {
 
     return new Promise((resolve, reject) => {
       pkce.refreshAccessToken(refreshToken).then((resp) => {
-        console.log(resp);
         this.ssoCredentials = resp;
         resolve(true);
       });
