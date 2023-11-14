@@ -183,8 +183,8 @@
             outTxt += `${settings}\n`;        
             document.querySelector('#apiTxt').innerHTML = outTxt;        
 
-            outTxt += `* sdbClient.getUser('${user}') - User details: `;
-            let userDetails = JSON.stringify(await sdbClient.getUser(user)).substr(0,80) + '...';
+            outTxt += `* sdbClient.getUser('${sdbClient.username}') - User details: `;
+            let userDetails = JSON.stringify(await sdbClient.getUser(sdbClient.username)).substr(0,80) + '...';
             outTxt += `${userDetails}\n`;                    
             document.querySelector('#apiTxt').innerHTML = outTxt;        
 
@@ -193,25 +193,25 @@
             outTxt += `${dbDef}\n`;        
             document.querySelector('#apiTxt').innerHTML = outTxt;  
             
-            outTxt += `* sdbClient.getReflectStatus('${database}') - database reflect status: `;
-            let dbReflect = JSON.stringify(await sdbClient.getReflectStatus(database)).substr(0,80) + '...';
-            outTxt += `${dbReflect}\n`;        
-            document.querySelector('#apiTxt').innerHTML = outTxt;    
+            // outTxt += `* sdbClient.getReflectStatus('${database}') - database reflect status: `;
+            // let dbReflect = JSON.stringify(await sdbClient.getReflectStatus(database)).substr(0,80) + '...';
+            // outTxt += `${dbReflect}\n`;        
+            // document.querySelector('#apiTxt').innerHTML = outTxt;    
 
-            outTxt += `* sdbClient.getQueryDef('${query}') - query definition: `;
-            let queryDef = JSON.stringify(await sdbClient.getQueryDef(query)).substr(0,80) + '...';
-            outTxt += `${queryDef}\n`;        
-            document.querySelector('#apiTxt').innerHTML = outTxt;     
+            // outTxt += `* sdbClient.getQueryDef('${query}') - query definition: `;
+            // let queryDef = JSON.stringify(await sdbClient.getQueryDef(query)).substr(0,80) + '...';
+            // outTxt += `${queryDef}\n`;        
+            // document.querySelector('#apiTxt').innerHTML = outTxt;     
 
-            outTxt += `* sdbClient.getQueries('${database}') - DB queries as SQLPassThru objects: `;
-            let sqlPassThruObj = JSON.stringify(await sdbClient.getQueries(database)).substr(0,80) + '...';
-            outTxt += `${sqlPassThruObj}\n`;        
-            document.querySelector('#apiTxt').innerHTML = outTxt; 
+            // outTxt += `* sdbClient.getQueries('${database}') - DB queries as SQLPassThru objects: `;
+            // let sqlPassThruObj = JSON.stringify(await sdbClient.getQueries(database)).substr(0,80) + '...';
+            // outTxt += `${sqlPassThruObj}\n`;        
+            // document.querySelector('#apiTxt').innerHTML = outTxt; 
  
-            outTxt += `* sdbClient.loadModel('${database}') - Connect database: `;        
-            let loadDb = JSON.stringify(await sdbClient.loadModel(database)).substr(0,80) + '...';
-            outTxt += `${loadDb}\n`;            
-            document.querySelector('#apiTxt').innerHTML = outTxt;      
+            // outTxt += `* sdbClient.loadModel('${database}') - Connect database: `;        
+            // let loadDb = JSON.stringify(await sdbClient.loadModel(database)).substr(0,80) + '...';
+            // outTxt += `${loadDb}\n`;            
+            // document.querySelector('#apiTxt').innerHTML = outTxt;      
         }
         catch(e) {
             document.querySelector('#apiTxt').style.color = '#F00';
