@@ -121,7 +121,6 @@ class SlashDBClient {
         }
       } else if (sso.idpId && sso.redirectUri) {
         await this.loginSSO(sso.popUp).then((resp) => {
-          console.log(resp);
           this.ssoCredentials = resp;
         });
         return true;
@@ -158,7 +157,6 @@ class SlashDBClient {
 
       return new Promise((resolve, reject) => {
         pkce.exchangeForAccessToken(url).then((resp) => {
-          console.log(resp);
           this.ssoCredentials = resp;
           resolve(true);
         });
@@ -196,7 +194,6 @@ class SlashDBClient {
           } catch (e) {
             console.warn(e);
           }
-          console.log(popUpHref);
           if (popUpHref.startsWith(window.location.origin)) {
               popupWindow.close();
               
@@ -222,12 +219,13 @@ class SlashDBClient {
     const pkce = new PKCE(ssoConfig);
     const refreshToken = this.ssoCredentials.refresh_token;
 
-    pkce.refreshAccessToken(refreshToken).then((resp) => {
-      // Do stuff with the access & refresh token.
-      console.log(resp);
-      this.ssoCredentials = resp;
+    return new Promise((resolve, reject) => {
+      pkce.refreshAccessToken(refreshToken).then((resp) => {
+        console.log(resp);
+        this.ssoCredentials = resp;
+        resolve(true);
+      });
     });
-
   }
 
   /**
