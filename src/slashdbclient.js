@@ -19,6 +19,7 @@ class SlashDBClient {
 
   /** 
    * Creates a SlashDB client to connect to a SlashDB instance.
+   * 
    * @param {Object} config
    * @param {string} config.host - hostname/IP address of the SlashDB instance, including protocol and port number (e.g. http://192.168.1.1:8080)
    * @param {string} config.apiKey - optional API key associated with username
@@ -94,6 +95,7 @@ class SlashDBClient {
   }
   /**
    * Logs in to SlashDB instance.  Only required when using username/password based crendentials. if not provided will try SSO login.
+   * 
    * @param {string} username - optional username to use when connecting to SlashDB instance using password based login
    * @param {string} password - optional password associated with username
    * @returns {true} true - on successful login
@@ -128,6 +130,7 @@ class SlashDBClient {
 
   /** 
    * Updates a SlashDB client instance SSO settings.
+   * 
    * @param {Object} sso - optional settings to login with Single Sign-On
    * @param {string} sso.idpId - optional identity provider id configured in SlashDB
    * @param {string} sso.redirectUri - optional redirect uri to redirect browser after sign in
@@ -165,7 +168,7 @@ class SlashDBClient {
 
   /**
    * Logs in to SlashDB instance. Only required when using SSO.
-   * @ignore
+   * @param {boolean} popUp - optional flag to sign in against the identity provider with a Pop Up window (false by default)
    */
   async loginSSO(popUp) {
 
@@ -229,6 +232,7 @@ class SlashDBClient {
 
   /**
    * Checks whether SlashDB client is authenticated against instance.  
+   * 
    * @returns {boolean} boolean - to indicate if currently authenticated
    */  
   async isAuthenticated() {
@@ -264,6 +268,7 @@ class SlashDBClient {
 
   /**
    * Retrieves host's SlashDB configuration info
+   * 
    * @returns {object} containing SlashDB configuration items
    */
   async getSettings() {
@@ -272,6 +277,7 @@ class SlashDBClient {
 
   /**
    * Retrieves SlashDB version number
+   * 
    * @returns {string} containing SlashDB version number
    */
   async getVersion() {
@@ -280,6 +286,7 @@ class SlashDBClient {
 
   /**
    * Enables connection to a database configured on SlashDB host
+   * 
    * @param {string} [dbName] - SlashDB ID of database to connect
    * @returns {object} containing database configuration info and connection status
    */
@@ -289,6 +296,7 @@ class SlashDBClient {
 
   /**
    * Disables connection to a database configured on SlashDB host
+   * 
    * @param {string} [dbName] - SlashDB ID of database to disconnect
    * @returns {object} containing database configuration info and connection status
    */
@@ -298,6 +306,7 @@ class SlashDBClient {
 
     /**
    * Returns current status of SlashDB connection to database
+   * 
    * @param {string | undefined} [dbName] - SlashDB ID of database to filter on; leave empty to retrieve all databases
    * @returns {object} containing database connection status for all or selected databases
    */
@@ -308,6 +317,7 @@ class SlashDBClient {
 
   /**
    * Returns configuration info about SlashDB users
+   * 
    * @param {string | undefined} [username] - SlashDB ID of user to filter on; leave empty to retrieve all users
    * @returns {object} containing configuration info for all or selected users
    */
@@ -318,6 +328,7 @@ class SlashDBClient {
 
   /**
    * Returns configuration info about SlashDB databases
+   * 
    * @param {string | undefined} [dbName] - database ID of database to filter on; leave empty to retrieve all databases
    * @param {boolean} [guiData] - returns additional info normally available in the GUI view when set to true
    * @returns {object} containing configuration info for all or selected databases
@@ -330,6 +341,7 @@ class SlashDBClient {
 
   /**
    * Returns configuration info about SlashDB queries
+   * 
    * @param {string | undefined} [dbName] - SlashDB ID of query to filter on; leave empty to retrieve all databases
    * @param {boolean} [guiData] - returns additional info normally available in the GUI view when set to true
    * @returns {object} containing configuration info for all or selected queries
@@ -342,6 +354,7 @@ class SlashDBClient {
 
   /**
    * Retrieve a list of databases that are configured on the SlashDB instance
+   * 
    * @returns {Object} databases - a key/value pair object keyed by database ID, with
    * a corresponding `DataDiscoveryDatabase` object for each key
    */
@@ -356,6 +369,7 @@ class SlashDBClient {
 
   /**
    * Retrieve a list of SQL Pass-Thru queries that are configured on the SlashDB instance
+   * 
    * @param {string} [dbName] - SlashDB database ID; if specified, will only return queries associated with the given database
    * @returns {object} queries - a key/value pair object keyed by query ID, with
    * a corresponding `SQLPassThruQuery` object for each key
