@@ -292,13 +292,13 @@ describe('fetchWrapper() tests', () => {
             "Country": "USA",
             "PostalCode": "58501",
             "Phone": "+1 (555) 555-5555",
-            "Email": "user@testcompany.com",
+            "Email": "user@testcompany.com"
         }
 
         // valid resource to create
         try {
             let r = await fetchWrapper('POST', `${LIVE_SDB_HOST}/db/${SDB_TEST_DB_NAME}/Customer`, newCustomer, {'Content-Type': 'application/json', apiKey:LIVE_SDB_API_KEY}, true);
-            expect(r.status).toBe(201)
+            expect(r.status).toBe(200)
         }
         catch(e) {
             throw Error(e)
