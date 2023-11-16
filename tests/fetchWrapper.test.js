@@ -314,7 +314,7 @@ describe('fetchWrapper() tests', () => {
 
         // no auth to create record - 403
         try {
-             await fetchWrapper('POST', `${LIVE_SDB_HOST}/userdef`, newCustomer, {'Content-Type': 'application/json'}, true);
+             await fetchWrapper('POST', `${LIVE_SDB_HOST}/userdef`, newCustomer, {'Content-Type': 'application/json', 'Accept': 'application/json'}, true);
         }
         catch(e) {
             expect(e.message).toBe('403');
@@ -428,7 +428,7 @@ describe('fetchWrapper() tests', () => {
 
         // no auth to update record - 403
         try {
-             await fetchWrapper('PUT', `${LIVE_SDB_HOST}/userdef/admin`, updateCustomer, {'Content-Type': 'application/json'}, true);
+             await fetchWrapper('PUT', `${LIVE_SDB_HOST}/userdef/admin`, updateCustomer, {'Content-Type': 'application/json', 'Accept': 'application/json'}, true);
         }
         catch(e) {
             expect(e.message).toBe('403');
