@@ -54,7 +54,8 @@ afterAll( async () => {
 describe('DataDiscoveryResource() class tests', () => {
 
     const mockConfig = {
-        host: MOCK_HOST
+        host: MOCK_HOST,
+        apiKey: LIVE_SDB_API_KEY
     };
 
     const liveConfig = {
