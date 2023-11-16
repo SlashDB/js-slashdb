@@ -31,6 +31,17 @@ function generateRandomString(length) {
     return text;
 }
 
+function dec2hex(dec) {
+    return ("0" + dec.toString(16)).substr(-2);
+}
+
+function generateCodeVerifier(size = 128) {
+    var array = new Uint32Array(size / 2);
+    window.crypto.getRandomValues(array);
+
+    return Array.from(array, dec2hex).join("");
+}
+
 function generateCodeChallenge(code_verifier) {
     return base64URL(SHA256(code_verifier));
 }
@@ -91,4 +102,4 @@ function isSSOredirect(ssoParams) {
 
 }
 
-export { generateRandomString, generateCodeChallenge, getUrlParms, popupCenter, isSSOredirect }
+export { generateRandomString, generateCodeVerifier, generateCodeChallenge, getUrlParms, popupCenter, isSSOredirect }
