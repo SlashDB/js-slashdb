@@ -48,7 +48,6 @@ function base64urlencode(a) {
 }
 
 async function generateCodeChallenge(code_verifier) {
-  // return base64URL(SHA256(code_verifier));
   var hashed = await sha256(code_verifier);
   var base64encoded = base64urlencode(hashed);
   return base64encoded;
