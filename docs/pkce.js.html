@@ -26,9 +26,73 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import { SHA256 } from "./crypto-js/sha256.js"
-import { Base64 } from "./crypto-js/enc-base64.js"
-import { WordArray } from "./crypto-js/core.js"
+            <pre class="prettyprint source linenums"><code>/**
+ * Shortcut function to convert from decimal to hexadecimal.
+ *
+ * @param {string} dec The message to convert.
+ *
+ * @return {string} The hexadecimal.
+ */
+function dec2hex(dec) {
+  return ("0" + dec.toString(16)).substr(-2);
+}
+
+/**
+ * Get a random string
+ * @param  {string} size (Optional)
+ * @return {string}
+ */
+function generateCodeVerifier(size = 128) {
+  var array = new Uint32Array(size / 2);
+  window.crypto.getRandomValues(array);
+
+  return Array.from(array, dec2hex).join("");
+}
+
+/**
+ * Shortcut function to the hasher's object interface.
+ *
+ * @param {string} plain The message to hash.
+ *
+ * @return {ArrayBuffer} The hash.
+ */
+function sha256(plain) {
+  // returns promise ArrayBuffer
+  const encoder = new TextEncoder();
+  const data = encoder.encode(plain);
+  return window.crypto.subtle.digest("SHA-256", data);
+}
+
+/**
+ * Base64 encoding strategy.
+ * 
+ * @param {string} plain The message to encode.
+ * 
+ * @return {string}
+ */
+function base64urlencode(plain) {
+  var str = "";
+  var bytes = new Uint8Array(plain);
+  var len = bytes.byteLength;
+  for (var i = 0; i &lt; len; i++) {
+    str += String.fromCharCode(bytes[i]);
+  }
+  return btoa(str)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
+/**
+ * Generate the code challenge
+ * @param  {string} codeVerifier conde verifier to generate challenge
+ * @return Promise&lt;string>
+ */
+async function generateCodeChallenge(codeVerifier) {
+  var hashed = await sha256(codeVerifier);
+  var base64encoded = base64urlencode(hashed);
+  return base64encoded;
+}
 
 /**
  * @ignore
@@ -66,9 +130,8 @@ class PKCE {
    * @param  {object} additionalParams include additional parameters in the query
    * @return Promise&lt;string>
    */
-  authorizeUrl(additionalParams = {}) {
-    const codeChallenge = this.pkceChallengeFromVerifier()
-
+  async authorizeUrl(additionalParams = {}) {
+    const codeChallenge = await this.pkceChallengeFromVerifier()
     const queryString = new URLSearchParams(
       Object.assign(
         {
@@ -185,17 +248,16 @@ class PKCE {
       code: params.get("code")
     })
   }
-
+  
   /**
    * Generate a code challenge
    * @return {Promise&lt;string>}
    */
-  pkceChallengeFromVerifier() {
-    const hashed = SHA256(this.getCodeVerifier())
-    return Base64.stringify(hashed)
-      .replace(/\+/g, "-")
-      .replace(/\//g, "_")
-      .replace(/=+$/, "")
+  async pkceChallengeFromVerifier() {
+    let v = this.getCodeVerifier();
+    var hashed = await sha256(v);
+    var base64encoded = base64urlencode(hashed);
+    return base64encoded;
   }
 
   /**
@@ -206,7 +268,7 @@ class PKCE {
   randomStringFromStorage(key) {
     const fromStorage = this.getStore().getItem(key)
     if (fromStorage === null) {
-      this.getStore().setItem(key, WordArray.random(64))
+      this.getStore().setItem(key, generateCodeVerifier())
     }
 
     return this.getStore().getItem(key) || ""
@@ -240,7 +302,7 @@ class PKCE {
   }
 }
 
-export { PKCE }</code></pre>
+export { PKCE, generateCodeVerifier, generateCodeChallenge }</code></pre>
         </article>
     </section>
 
@@ -250,7 +312,7 @@ export { PKCE }</code></pre>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseFilter.html">BaseFilter</a></li><li><a href="BaseRequestHandler.html">BaseRequestHandler</a></li><li><a href="DataDiscoveryFilter.html">DataDiscoveryFilter</a></li><li><a href="DataDiscoveryResource.html">DataDiscoveryResource</a></li><li><a href="SQLPassThruFilter.html">SQLPassThruFilter</a></li><li><a href="SQLPassThruQuery.html">SQLPassThruQuery</a></li><li><a href="SlashDBClient.html">SlashDBClient</a></li></ul><h3>Global</h3><ul><li><a href="global.html#and">and</a></li><li><a href="global.html#any">any</a></li><li><a href="global.html#between">between</a></li><li><a href="global.html#chgPlaceHolder">chgPlaceHolder</a></li><li><a href="global.html#eq">eq</a></li><li><a href="global.html#fetchWrapper">fetchWrapper</a></li><li><a href="global.html#gte">gte</a></li><li><a href="global.html#handleResponse">handleResponse</a></li><li><a href="global.html#lte">lte</a></li><li><a href="global.html#not">not</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseFilter.html">BaseFilter</a></li><li><a href="BaseRequestHandler.html">BaseRequestHandler</a></li><li><a href="DataDiscoveryFilter.html">DataDiscoveryFilter</a></li><li><a href="DataDiscoveryResource.html">DataDiscoveryResource</a></li><li><a href="SQLPassThruFilter.html">SQLPassThruFilter</a></li><li><a href="SQLPassThruQuery.html">SQLPassThruQuery</a></li><li><a href="SlashDBClient.html">SlashDBClient</a></li></ul><h3>Global</h3><ul><li><a href="global.html#and">and</a></li><li><a href="global.html#any">any</a></li><li><a href="global.html#base64urlencode">base64urlencode</a></li><li><a href="global.html#between">between</a></li><li><a href="global.html#chgPlaceHolder">chgPlaceHolder</a></li><li><a href="global.html#dec2hex">dec2hex</a></li><li><a href="global.html#eq">eq</a></li><li><a href="global.html#fetchWrapper">fetchWrapper</a></li><li><a href="global.html#generateCodeChallenge">generateCodeChallenge</a></li><li><a href="global.html#generateCodeVerifier">generateCodeVerifier</a></li><li><a href="global.html#gte">gte</a></li><li><a href="global.html#handleResponse">handleResponse</a></li><li><a href="global.html#lte">lte</a></li><li><a href="global.html#not">not</a></li><li><a href="global.html#sha256">sha256</a></li></ul>
 </nav>
 
 <br class="clear">

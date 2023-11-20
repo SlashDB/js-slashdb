@@ -29,8 +29,8 @@
             <pre class="prettyprint source linenums"><code>import { DataDiscoveryDatabase } from './datadiscovery.js'
 import { SQLPassThruQuery } from './sqlpassthru.js'
 import { BaseRequestHandler } from './baserequesthandler.js';
-import { PKCE } from './pkce.js';
-import { generateCodeChallenge, generateRandomString, getUrlParms, isSSOredirect, popupCenter } from "./utils.js";
+import { PKCE, generateCodeVerifier, generateCodeChallenge } from './pkce.js';
+import { getUrlParms, isSSOredirect, popupCenter } from "./utils.js";
 
 const SDB_SDBC_INVALID_HOSTNAME = 'Invalid hostname parameter, must be string';
 const SDB_SDBC_INVALID_USERNAME = 'Invalid username parameter, must be string';
@@ -149,9 +149,10 @@ class SlashDBClient {
         }
       } else if (sso.idpId &amp;&amp; sso.redirectUri) {
         await this.loginSSO(sso.popUp).then((resp) => {
-          console.log(resp);
           this.ssoCredentials = resp;
         });
+        let response = (await this.sdbConfig.get(this.settingsEP)).data;
+        this.username = response.user;
         return true;
       }
   }
@@ -186,7 +187,6 @@ class SlashDBClient {
 
       return new Promise((resolve, reject) => {
         pkce.exchangeForAccessToken(url).then((resp) => {
-          console.log(resp);
           this.ssoCredentials = resp;
           resolve(true);
         });
@@ -204,16 +204,18 @@ class SlashDBClient {
 
     const ssoConfig = await this._getSsoConfig();
     const pkce = new PKCE(ssoConfig);
-    const additionalParams = this._buildSession();
+    const additionalParams = await this._buildSession();
+
+    let loginUrl = await pkce.authorizeUrl(additionalParams);
 
     if (!popUp) {
-      window.location.replace(pkce.authorizeUrl(additionalParams));
+      window.location.replace(loginUrl);
     }
 
     const width = 500;
     const height = 600;
     
-    const popupWindow = popupCenter(pkce.authorizeUrl(additionalParams), "login", width, height);
+    const popupWindow = popupCenter(loginUrl, "login", width, height);
 
     return new Promise((resolve, reject) => {
       const checkPopup = setInterval(() => {
@@ -224,7 +226,6 @@ class SlashDBClient {
           } catch (e) {
             console.warn(e);
           }
-          console.log(popUpHref);
           if (popUpHref.startsWith(window.location.origin)) {
               popupWindow.close();
               
@@ -243,19 +244,18 @@ class SlashDBClient {
   /**
    * Refreshes the SSO access token.
    */
-
   async refreshSSOToken(){
 
     const ssoConfig = await this._getSsoConfig();
     const pkce = new PKCE(ssoConfig);
     const refreshToken = this.ssoCredentials.refresh_token;
 
-    pkce.refreshAccessToken(refreshToken).then((resp) => {
-      // Do stuff with the access &amp; refresh token.
-      console.log(resp);
-      this.ssoCredentials = resp;
+    return new Promise((resolve, reject) => {
+      pkce.refreshAccessToken(refreshToken).then((resp) => {
+        this.ssoCredentials = resp;
+        resolve(true);
+      });
     });
-
   }
 
   /**
@@ -475,12 +475,12 @@ class SlashDBClient {
     return ssoConfig;
   }
 
-  _buildSession() {
-    let state = generateRandomString(128);
-    let nonce = generateRandomString(128);
+  async _buildSession() {
+    let state = generateCodeVerifier(128);
+    let nonce = generateCodeVerifier(128);
     let codeChallengeMethod = 'S256';
-    let codeVerifier = generateRandomString(128);
-    let codeChallenge = generateCodeChallenge(codeVerifier);
+    let codeVerifier = generateCodeVerifier(128);
+    let codeChallenge = await generateCodeChallenge(codeVerifier);
     let idpId = this.sso.idpId;
 
     const additionalParams = {
@@ -524,7 +524,7 @@ export { SlashDBClient }
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseFilter.html">BaseFilter</a></li><li><a href="BaseRequestHandler.html">BaseRequestHandler</a></li><li><a href="DataDiscoveryFilter.html">DataDiscoveryFilter</a></li><li><a href="DataDiscoveryResource.html">DataDiscoveryResource</a></li><li><a href="SQLPassThruFilter.html">SQLPassThruFilter</a></li><li><a href="SQLPassThruQuery.html">SQLPassThruQuery</a></li><li><a href="SlashDBClient.html">SlashDBClient</a></li></ul><h3>Global</h3><ul><li><a href="global.html#and">and</a></li><li><a href="global.html#any">any</a></li><li><a href="global.html#between">between</a></li><li><a href="global.html#chgPlaceHolder">chgPlaceHolder</a></li><li><a href="global.html#eq">eq</a></li><li><a href="global.html#fetchWrapper">fetchWrapper</a></li><li><a href="global.html#gte">gte</a></li><li><a href="global.html#handleResponse">handleResponse</a></li><li><a href="global.html#lte">lte</a></li><li><a href="global.html#not">not</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseFilter.html">BaseFilter</a></li><li><a href="BaseRequestHandler.html">BaseRequestHandler</a></li><li><a href="DataDiscoveryFilter.html">DataDiscoveryFilter</a></li><li><a href="DataDiscoveryResource.html">DataDiscoveryResource</a></li><li><a href="SQLPassThruFilter.html">SQLPassThruFilter</a></li><li><a href="SQLPassThruQuery.html">SQLPassThruQuery</a></li><li><a href="SlashDBClient.html">SlashDBClient</a></li></ul><h3>Global</h3><ul><li><a href="global.html#and">and</a></li><li><a href="global.html#any">any</a></li><li><a href="global.html#base64urlencode">base64urlencode</a></li><li><a href="global.html#between">between</a></li><li><a href="global.html#chgPlaceHolder">chgPlaceHolder</a></li><li><a href="global.html#dec2hex">dec2hex</a></li><li><a href="global.html#eq">eq</a></li><li><a href="global.html#fetchWrapper">fetchWrapper</a></li><li><a href="global.html#generateCodeChallenge">generateCodeChallenge</a></li><li><a href="global.html#generateCodeVerifier">generateCodeVerifier</a></li><li><a href="global.html#gte">gte</a></li><li><a href="global.html#handleResponse">handleResponse</a></li><li><a href="global.html#lte">lte</a></li><li><a href="global.html#not">not</a></li><li><a href="global.html#sha256">sha256</a></li></ul>
 </nav>
 
 <br class="clear">
