@@ -22,15 +22,6 @@ function base64URL(string) {
   .replace(/\//g, '_');
 }
 
-function generateRandomString(length) {
-  let text = "";
-  let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
-  for (let i = 0; i < length; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-  return text;
-}
-
 // Generate Code Verifier
 
 function dec2hex(dec) {
@@ -66,15 +57,11 @@ function base64urlencode(a) {
     .replace(/=+$/, "");
 }
 
-async function generateCodeChallengeFromVerifier(v) {
-  var hashed = await sha256(v);
+async function generateCodeChallenge(code_verifier) {
+  // return base64URL(SHA256(code_verifier));
+  var hashed = await sha256(code_verifier);
   var base64encoded = base64urlencode(hashed);
   return base64encoded;
-}
-
-
-function generateCodeChallenge(code_verifier) {
-  return base64URL(SHA256(code_verifier));
 }
 
 const popupCenter = (url, title, w, h) => {
@@ -133,4 +120,4 @@ function isSSOredirect(ssoParams) {
 
 }
 
-export { generateRandomString, generateCodeVerifier, generateCodeChallenge, generateCodeChallengeFromVerifier, getUrlParms, popupCenter, isSSOredirect }
+export { generateCodeVerifier, generateCodeChallenge, base64urlencode, getUrlParms, popupCenter, isSSOredirect }

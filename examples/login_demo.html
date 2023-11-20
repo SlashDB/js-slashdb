@@ -76,6 +76,8 @@
 <script type="module">
     import { SlashDBClient, DataDiscoveryDatabase, DataDiscoveryResource, DataDiscoveryFilter, SQLPassThruQuery, SQLPassThruFilter,
              eq, any, between, gte, lte, not, and, asc, desc, chgPlaceHolder } from '../src/index.js';
+    import { PKCE } from '../src/pkce.js';
+    import { generateCodeVerifier, base64urlencode } from '../src/utils.js';
 
     // make methods, modules, available to console for testing
     window.DataDiscoveryFilter = DataDiscoveryFilter
@@ -94,6 +96,10 @@
     window.desc = desc
     window.asc = asc
     window.chgPlaceHolder = chgPlaceHolder;
+    
+    window.PKCE = PKCE;
+    window.generateCodeVerifier = generateCodeVerifier;
+    window.base64urlencode = base64urlencode;
 
     var host;
     var database;

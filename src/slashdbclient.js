@@ -2,7 +2,7 @@ import { DataDiscoveryDatabase } from './datadiscovery.js'
 import { SQLPassThruQuery } from './sqlpassthru.js'
 import { BaseRequestHandler } from './baserequesthandler.js';
 import { PKCE } from './pkce.js';
-import { generateCodeChallenge, generateRandomString, getUrlParms, isSSOredirect, popupCenter } from "./utils.js";
+import { generateCodeChallenge, generateCodeVerifier, getUrlParms, isSSOredirect, popupCenter } from "./utils.js";
 
 const SDB_SDBC_INVALID_HOSTNAME = 'Invalid hostname parameter, must be string';
 const SDB_SDBC_INVALID_USERNAME = 'Invalid username parameter, must be string';
@@ -176,16 +176,18 @@ class SlashDBClient {
 
     const ssoConfig = await this._getSsoConfig();
     const pkce = new PKCE(ssoConfig);
-    const additionalParams = this._buildSession();
+    const additionalParams = await this._buildSession();
+
+    let loginUrl = await pkce.authorizeUrl(additionalParams);
 
     if (!popUp) {
-      window.location.replace(pkce.authorizeUrl(additionalParams));
+      window.location.replace(loginUrl);
     }
 
     const width = 500;
     const height = 600;
     
-    const popupWindow = popupCenter(pkce.authorizeUrl(additionalParams), "login", width, height);
+    const popupWindow = popupCenter(loginUrl, "login", width, height);
 
     return new Promise((resolve, reject) => {
       const checkPopup = setInterval(() => {
@@ -446,12 +448,12 @@ class SlashDBClient {
     return ssoConfig;
   }
 
-  _buildSession() {
-    let state = generateRandomString(128);
-    let nonce = generateRandomString(128);
+  async _buildSession() {
+    let state = generateCodeVerifier(128);
+    let nonce = generateCodeVerifier(128);
     let codeChallengeMethod = 'S256';
-    let codeVerifier = generateRandomString(128);
-    let codeChallenge = generateCodeChallenge(codeVerifier);
+    let codeVerifier = generateCodeVerifier(128);
+    let codeChallenge = await generateCodeChallenge(codeVerifier);
     let idpId = this.sso.idpId;
 
     const additionalParams = {
