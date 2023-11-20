@@ -24,7 +24,7 @@ function generateCodeVerifier(size = 128) {
 /**
  * Shortcut function to the hasher's object interface.
  *
- * @param {plain|string} message The message to hash.
+ * @param {string} plain The message to hash.
  *
  * @return {ArrayBuffer} The hash.
  */
@@ -37,11 +37,14 @@ function sha256(plain) {
 
 /**
  * Base64 encoding strategy.
+ * 
+ * @param {string} plain The message to encode.
+ * 
  * @return {string}
  */
-function base64urlencode(a) {
+function base64urlencode(plain) {
   var str = "";
-  var bytes = new Uint8Array(a);
+  var bytes = new Uint8Array(plain);
   var len = bytes.byteLength;
   for (var i = 0; i < len; i++) {
     str += String.fromCharCode(bytes[i]);
@@ -52,8 +55,13 @@ function base64urlencode(a) {
     .replace(/=+$/, "");
 }
 
-async function generateCodeChallenge(code_verifier) {
-  var hashed = await sha256(code_verifier);
+/**
+ * Generate the code challenge
+ * @param  {string} codeVerifier conde verifier to generate challenge
+ * @return Promise<string>
+ */
+async function generateCodeChallenge(codeVerifier) {
+  var hashed = await sha256(codeVerifier);
   var base64encoded = base64urlencode(hashed);
   return base64encoded;
 }
