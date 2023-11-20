@@ -122,7 +122,7 @@ const sdbConfig = {
     popUp: true
   }
 }                                                                     // configuration object to initialize the SlashDB client
-const sdbClient = new SlashDBClient();                                // create a SlashDB client to connect to a SlashDB instance
+const sdbClient = new SlashDBClient(sdbConfig);                                // create a SlashDB client to connect to a SlashDB instance
 sdbClient.login();                                                    // login to host SlashDB server
 ```
 
@@ -132,7 +132,7 @@ SSO parameters can added or updated after `sdbClient` instantiation, this can be
 const sdbConfig = {
   host: 'https://demo.slashdb.com',
 }                                                                     // configuration object to initialize the SlashDB client
-const sdbClient = new SlashDBClient();                                // create a SlashDB client to connect to a SlashDB instance
+const sdbClient = new SlashDBClient(sdbConfig);                                // create a SlashDB client to connect to a SlashDB instance
 const sso = {
   idpId: "okta",
   redirectUri: "http://localhost:8081/redirect_url",

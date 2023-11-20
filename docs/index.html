@@ -151,14 +151,14 @@ sdbClient.login(username, password);                                  // login t
     popUp: true
   }
 }                                                                     // configuration object to initialize the SlashDB client
-const sdbClient = new SlashDBClient();                                // create a SlashDB client to connect to a SlashDB instance
+const sdbClient = new SlashDBClient(sdbConfig);                                // create a SlashDB client to connect to a SlashDB instance
 sdbClient.login();                                                    // login to host SlashDB server
 </code></pre>
 <p>SSO parameters can added or updated after <code>sdbClient</code> instantiation, this can be useful if several SSO methods are avalaible.</p>
 <pre class="prettyprint source lang-js"><code>const sdbConfig = {
   host: 'https://demo.slashdb.com',
 }                                                                     // configuration object to initialize the SlashDB client
-const sdbClient = new SlashDBClient();                                // create a SlashDB client to connect to a SlashDB instance
+const sdbClient = new SlashDBClient(sdbConfig);                                // create a SlashDB client to connect to a SlashDB instance
 const sso = {
   idpId: &quot;okta&quot;,
   redirectUri: &quot;http://localhost:8081/redirect_url&quot;,
