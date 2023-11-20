@@ -216,7 +216,6 @@ class SlashDBClient {
   /**
    * Refreshes the SSO access token.
    */
-
   async refreshSSOToken(){
 
     const ssoConfig = await this._getSsoConfig();
