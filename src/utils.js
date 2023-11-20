@@ -12,47 +12,6 @@ function getUrlParms(url){
   return urlParams;
 }
 
-// Generate Code Verifier
-
-function dec2hex(dec) {
-  return ("0" + dec.toString(16)).substr(-2);
-}
-
-function generateCodeVerifier(size = 128) {
-  var array = new Uint32Array(size / 2);
-  window.crypto.getRandomValues(array);
-
-  return Array.from(array, dec2hex).join("");
-}
-
-// Generate code challenge from code verifier
-
-function sha256(plain) {
-  // returns promise ArrayBuffer
-  const encoder = new TextEncoder();
-  const data = encoder.encode(plain);
-  return window.crypto.subtle.digest("SHA-256", data);
-}
-
-function base64urlencode(a) {
-  var str = "";
-  var bytes = new Uint8Array(a);
-  var len = bytes.byteLength;
-  for (var i = 0; i < len; i++) {
-    str += String.fromCharCode(bytes[i]);
-  }
-  return btoa(str)
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
-}
-
-async function generateCodeChallenge(code_verifier) {
-  var hashed = await sha256(code_verifier);
-  var base64encoded = base64urlencode(hashed);
-  return base64encoded;
-}
-
 const popupCenter = (url, title, w, h) => {
   // Fixes dual-screen position                             Most browsers      Firefox
   const dualScreenLeft = window.screenLeft !==  undefined ? window.screenLeft : window.screenX;
@@ -109,4 +68,4 @@ function isSSOredirect(ssoParams) {
 
 }
 
-export { generateCodeVerifier, generateCodeChallenge, base64urlencode, getUrlParms, popupCenter, isSSOredirect }
+export { getUrlParms, popupCenter, isSSOredirect }

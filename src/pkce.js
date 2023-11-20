@@ -1,4 +1,64 @@
 /**
+ * Shortcut function to convert from decimal to hexadecimal.
+ *
+ * @param {string} dec The message to convert.
+ *
+ * @return {string} The hexadecimal.
+ */
+function dec2hex(dec) {
+  return ("0" + dec.toString(16)).substr(-2);
+}
+
+/**
+ * Get a random string
+ * @param  {string} size (Optional)
+ * @return {string}
+ */
+function generateCodeVerifier(size = 128) {
+  var array = new Uint32Array(size / 2);
+  window.crypto.getRandomValues(array);
+
+  return Array.from(array, dec2hex).join("");
+}
+
+/**
+ * Shortcut function to the hasher's object interface.
+ *
+ * @param {plain|string} message The message to hash.
+ *
+ * @return {ArrayBuffer} The hash.
+ */
+function sha256(plain) {
+  // returns promise ArrayBuffer
+  const encoder = new TextEncoder();
+  const data = encoder.encode(plain);
+  return window.crypto.subtle.digest("SHA-256", data);
+}
+
+/**
+ * Base64 encoding strategy.
+ * @return {string}
+ */
+function base64urlencode(a) {
+  var str = "";
+  var bytes = new Uint8Array(a);
+  var len = bytes.byteLength;
+  for (var i = 0; i < len; i++) {
+    str += String.fromCharCode(bytes[i]);
+  }
+  return btoa(str)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
+async function generateCodeChallenge(code_verifier) {
+  var hashed = await sha256(code_verifier);
+  var base64encoded = base64urlencode(hashed);
+  return base64encoded;
+}
+
+/**
  * @ignore
  */
 class PKCE {
@@ -152,44 +212,14 @@ class PKCE {
       code: params.get("code")
     })
   }
-
-  /**
-   * Shortcut function to the hasher's object interface.
-   *
-   * @param {plain|string} message The message to hash.
-   *
-   * @return {ArrayBuffer} The hash.
-   */
-  sha256(plain) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(plain);
-    return window.crypto.subtle.digest("SHA-256", data);
-  }
-
-  /**
-   * Base64 encoding strategy.
-   * @return {string}
-   */
-  base64urlencode(a) {
-    var str = "";
-    var bytes = new Uint8Array(a);
-    var len = bytes.byteLength;
-    for (var i = 0; i < len; i++) {
-      str += String.fromCharCode(bytes[i]);
-    }
-    return btoa(str)
-      .replace(/\+/g, "-")
-      .replace(/\//g, "_")
-      .replace(/=+$/, "");
-  }
-
+  
   /**
    * Generate a code challenge
    * @return {Promise<string>}
    */
   async pkceChallengeFromVerifier() {
     let v = this.getCodeVerifier();
-    var hashed = await this.sha256(v);
+    var hashed = await sha256(v);
     var base64encoded = base64urlencode(hashed);
     return base64encoded;
   }
@@ -202,26 +232,10 @@ class PKCE {
   randomStringFromStorage(key) {
     const fromStorage = this.getStore().getItem(key)
     if (fromStorage === null) {
-      this.getStore().setItem(key, this.generateCodeVerifier())
+      this.getStore().setItem(key, generateCodeVerifier())
     }
 
     return this.getStore().getItem(key) || ""
-  }
-
-  dec2hex(dec) {
-    return ("0" + dec.toString(16)).substr(-2);
-  }
-
-  /**
-   * Get a random string
-   * @param  {string} size (Optional)
-   * @return {string}
-   */
-  generateCodeVerifier(size = 128) {
-    var array = new Uint32Array(size / 2);
-    window.crypto.getRandomValues(array);
-  
-    return Array.from(array, this.dec2hex).join("");
   }
 
   /**
@@ -252,4 +266,4 @@ class PKCE {
   }
 }
 
-export { PKCE }
+export { PKCE, generateCodeVerifier, generateCodeChallenge }
