@@ -1,6 +1,3 @@
-import { SHA256 } from './crypto-js/sha256.js';
-import { Base64 } from './crypto-js/enc-base64.js';
-
 function getUrlParms(url){
   if (!url){
     url = window.location.hash;
@@ -13,13 +10,6 @@ function getUrlParms(url){
   const urlParams = Object.fromEntries(new URLSearchParams(hash));
 
   return urlParams;
-}
-
-function base64URL(string) {
-  return string.toString(Base64)
-  .replace(/=/g, '')
-  .replace(/\+/g, '-')
-  .replace(/\//g, '_');
 }
 
 // Generate Code Verifier
