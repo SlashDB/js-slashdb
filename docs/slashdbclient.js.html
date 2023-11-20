@@ -38,7 +38,6 @@ const SDB_SDBC_INVALID_APIKEY = 'Invalid apiKey parameter, must be string';
 const SDB_SDBC_INVALID_PASSWORD = 'Invalid password parameter, must be string';
 const SDB_SDBC_INVALID_IDPID = 'Invalid identity provider parameter, must be string';
 const SDB_SDBC_INVALID_REDIRECT_URI = 'Invalid redirect uri parameter, must be string';
-const SDB_SDBC_INVALID_USERNAME_MISMATCH = 'Login username must match object username';
 
 /** 
  * Stores parameters necessary to communicate with a SlashDB instance and provides methods for retrieving metadata from the instance.
@@ -133,28 +132,36 @@ class SlashDBClient {
 
     let body = {};
     let sso = this.sso;
-    
-    // try {
-      if (password) {
-        body = { login: username, password: password };
-        let response = (await this.sdbConfig.post(body, this.loginEP)).res;
-        
-        if (response.ok === true) {
-          this.basic = btoa(username + ":" + password);
-          this.username = username;
-          return true;
-        }
-        else {
-          return false;
-        }
-      } else if (sso.idpId &amp;&amp; sso.redirectUri) {
-        await this.loginSSO(sso.popUp).then((resp) => {
-          this.ssoCredentials = resp;
-        });
-        let response = (await this.sdbConfig.get(this.settingsEP)).data;
-        this.username = response.user;
+
+    if (password) {
+
+      if (typeof(username) !== 'string') {
+        throw TypeError(SDB_SDBC_INVALID_USERNAME);
+      }
+
+      if (typeof(password) !== 'string') {
+        throw TypeError(SDB_SDBC_INVALID_PASSWORD);
+      }
+
+      body = { login: username, password: password };
+      let response = (await this.sdbConfig.post(body, this.loginEP)).res;
+      
+      if (response.ok === true) {
+        this.basic = btoa(username + ":" + password);
+        this.username = username;
         return true;
       }
+      else {
+        return false;
+      }
+    } else if (sso.idpId &amp;&amp; sso.redirectUri) {
+      await this.loginSSO(sso.popUp).then((resp) => {
+        this.ssoCredentials = resp;
+      });
+      let response = (await this.sdbConfig.get(this.settingsEP)).data;
+      this.username = response.user;
+      return true;
+    }
   }
 
   /** 
