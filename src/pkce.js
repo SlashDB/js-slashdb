@@ -149,7 +149,9 @@ class PKCE {
           "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
         },
         ...this.corsRequestOptions
-      }).then(response => response.json())
+      }).then(response => {
+        response.json();
+      })
     })
   }
 
@@ -209,9 +211,14 @@ class PKCE {
    * @return {Promise<IAuthResponse>}
    */
   parseAuthResponseUrl(url) {
-    // const params = new URL(url).searchParams
-    const [hash, query] = url.split('#')[1].split('?');
-    const params = new URLSearchParams(hash);
+    let params;
+
+    if (url.includes('#')){
+      const [hash, query] = url.split('#')[1].split('?');
+      params = new URLSearchParams(hash);
+    } else {
+      params = new URL(url).searchParams;
+    }    
 
     return this.validateAuthResponse({
       error: params.get("error"),

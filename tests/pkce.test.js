@@ -14,8 +14,6 @@ describe('Test PKCE authorization url', () => {
     const instance = new PKCE(config);
     const url = await instance.authorizeUrl();
 
-    console.log(url);
-
     expect(url).toContain(config.authorization_endpoint);
     expect(url).toContain('?response_type=code');
     expect(url).toContain('&client_id=' + config.client_id);

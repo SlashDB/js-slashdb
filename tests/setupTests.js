@@ -6,3 +6,6 @@ Object.defineProperty(globalThis, 'crypto', {
     subtle: crypto.webcrypto.subtle
   }
 });
+
+require('jest-fetch-mock').enableMocks();
+const fetchMock = require('fetch-mock-jest');
