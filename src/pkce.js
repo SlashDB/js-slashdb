@@ -16,7 +16,6 @@ function dec2hex(dec) {
  */
 function generateCodeVerifier(size = 128) {
   var array = new Uint32Array(size / 2);
-  // window.crypto.getRandomValues(array);
   crypto.getRandomValues(array);
 
   return Array.from(array, dec2hex).join("");
@@ -33,7 +32,6 @@ function sha256(plain) {
   // returns promise ArrayBuffer
   const encoder = new TextEncoder();
   const data = encoder.encode(plain);
-  // return window.crypto.subtle.digest("SHA-256", data);
   return crypto.subtle.digest("SHA-256", data);
 }
 
