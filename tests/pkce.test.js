@@ -1,4 +1,4 @@
-import PKCE from '../src/pkce.js';
+import { PKCE } from '../src/pkce.js';
 import fetch from 'jest-fetch-mock';
 
 const config = {
@@ -10,9 +10,11 @@ const config = {
 };
 
 describe('Test PKCE authorization url', () => {
-  it('Should build an authorization url', () => {
+  test('Should build an authorization url', async () => {
     const instance = new PKCE(config);
-    const url = instance.authorizeUrl();
+    const url = await instance.authorizeUrl();
+
+    console.log(url);
 
     expect(url).toContain(config.authorization_endpoint);
     expect(url).toContain('?response_type=code');
@@ -25,9 +27,9 @@ describe('Test PKCE authorization url', () => {
     expect(url).toContain('&code_challenge_method=S256');
   });
 
-  it('Should include additional parameters', () => {
+  test('Should include additional parameters', async () => {
     const instance = new PKCE(config);
-    const url = instance.authorizeUrl({test_param: 'test'});
+    const url = await instance.authorizeUrl({test_param: 'test'});
 
     expect(url).toContain(config.authorization_endpoint);
     expect(url).toContain('?response_type=code');
@@ -35,9 +37,9 @@ describe('Test PKCE authorization url', () => {
     expect(url).toContain('&test_param=test');
   });
 
-  it('Should update state from additional params', async () => {
+  test('Should update state from additional params', async () => {
     const instance = new PKCE(config);
-    const url = instance.authorizeUrl({state: 'Anewteststate'});
+    const url = await instance.authorizeUrl({state: 'Anewteststate'});
 
     expect(url).toContain('&state=Anewteststate');
     expect(sessionStorage.getItem('pkce_state')).toEqual('Anewteststate');
@@ -45,7 +47,7 @@ describe('Test PKCE authorization url', () => {
 });
 
 describe('Test PKCE exchange code for token', () => {
-  it('Should throw an error when error is present', async () => {
+  test('Should throw an error when error is present', async () => {
     expect.assertions(1);
     const url = 'https://example.com?error=Test+Failure';
     const instance = new PKCE(config);
@@ -59,7 +61,7 @@ describe('Test PKCE exchange code for token', () => {
     }
   });
 
-  it('Should throw an error when state mismatch', async () => {
+  test('Should throw an error when state mismatch', async () => {
     expect.assertions(1);
     const url = 'https://example.com?state=invalid';
     const instance = new PKCE(config);
@@ -73,20 +75,20 @@ describe('Test PKCE exchange code for token', () => {
     }
   });
 
-  it('Should make a request to token endpoint', async () => {
+  test('Should make a request to token endpoint', async () => {
     await mockRequest();
 
     expect(fetch.mock.calls.length).toEqual(1);
     expect(fetch.mock.calls[0][0]).toEqual(config.token_endpoint);
   });
 
-  it('Should set code verifier', async () => {
+  test('Should set code verifier', async () => {
     await mockRequest();
 
     expect(sessionStorage.getItem('pkce_code_verifier')).not.toEqual(null);
   });
 
-  it('Should request with headers', async () => {
+  test('Should request with headers', async () => {
     await mockRequest();
     const headers = fetch.mock.calls[0][1].headers;
 
@@ -94,7 +96,7 @@ describe('Test PKCE exchange code for token', () => {
     expect(headers['Content-Type']).toEqual('application/x-www-form-urlencoded;charset=UTF-8');
   });
 
-  it('Should request with body', async () => {
+  test('Should request with body', async () => {
     await mockRequest();
     const body = new URLSearchParams(fetch.mock.calls[0][1].body.toString());
 
@@ -105,7 +107,7 @@ describe('Test PKCE exchange code for token', () => {
     expect(body.get('code_verifier')).not.toEqual(null);
   });
 
-  it('Should request with additional parameters', async () => {
+  test('Should request with additional parameters', async () => {
     await mockRequest({test_param: 'testing'});
     const body = new URLSearchParams(fetch.mock.calls[0][1].body.toString());
 
@@ -113,14 +115,14 @@ describe('Test PKCE exchange code for token', () => {
     expect(body.get('test_param')).toEqual('testing');
   });
 
-  it('Should have set the cors credentials options correctly', async () => {
+  test('Should have set the cors credentials options correctly', async () => {
     // enable cors credentials
     await mockRequest({}, true)
     expect(fetch.mock.calls[0][1]?.mode).toEqual('cors')
     expect(fetch.mock.calls[0][1]?.credentials).toEqual('include')
   })
 
-  it('Should _not_ have cors credentials options set', async () => {
+  test('Should _not_ have cors credentials options set', async () => {
     // enable cors credentials
     await mockRequest({}, false)
     expect(fetch.mock.calls[0][1]?.mode).toBeUndefined()
@@ -155,14 +157,14 @@ describe('Test PKCE exchange code for token', () => {
 describe('Test PCKE refresh token', () => {
   const refreshToken = 'REFRESH_TOKEN';
 
-  it('Should make a request to token endpoint', async () => {
+  test('Should make a request to token endpoint', async () => {
     await mockRequest();
 
     expect(fetch.mock.calls.length).toEqual(1);
     expect(fetch.mock.calls[0][0]).toEqual(config.token_endpoint);
   });
 
-  it('Should request with headers', async () => {
+  test('Should request with headers', async () => {
     await mockRequest();
     const headers = fetch.mock.calls[0][1].headers;
 
@@ -170,7 +172,7 @@ describe('Test PCKE refresh token', () => {
     expect(headers['Content-Type']).toEqual('application/x-www-form-urlencoded;charset=UTF-8');
   });
 
-  it('Should request with body', async () => {
+  test('Should request with body', async () => {
     await mockRequest();
     const body = new URLSearchParams(fetch.mock.calls[0][1].body.toString());
 
@@ -201,23 +203,23 @@ describe('Test PCKE refresh token', () => {
 
 
 describe('Test storage types', () => {
-  it('Should default to sessionStorage, localStorage emtpy', async () => {
+  test('Should default to sessionStorage, localStorage emtpy', async () => {
     sessionStorage.removeItem('pkce_code_verifier');
     localStorage.removeItem('pkce_code_verifier');
 
     const instance = new PKCE({ ...config });
-    instance.authorizeUrl();
+    await instance.authorizeUrl();
 
     expect(sessionStorage.getItem('pkce_code_verifier')).not.toEqual(null);
     expect(localStorage.getItem('pkce_code_verifier')).toEqual(null);
   });
 
-  it('Should allow for using localStorage, sessionStorage emtpy', async () => {
+  test('Should allow for using localStorage, sessionStorage emtpy', async () => {
     sessionStorage.removeItem('pkce_code_verifier');
     localStorage.removeItem('pkce_code_verifier');
 
     const instance = new PKCE({ ...config, storage: localStorage });
-    instance.authorizeUrl();
+    await instance.authorizeUrl();
 
     expect(sessionStorage.getItem('pkce_code_verifier')).toEqual(null);
     expect(localStorage.getItem('pkce_code_verifier')).not.toEqual(null);

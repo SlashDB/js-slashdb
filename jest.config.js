@@ -6,5 +6,6 @@ module.exports = {
 	LIVE_SDB_API_KEY: 'zqqzcves4g3n0yk11yfcxnbhxyic50w3',
 	SDB_TEST_DB_NAME: 'Chinook',
 	MOCK_HOST: 'http://localhost'
-  }
+  },
+  "setupFilesAfterEnv": ["<rootDir>/tests/setupTests.js", "mock-local-storage"]
 };
