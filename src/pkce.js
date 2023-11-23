@@ -218,7 +218,7 @@ class PKCE {
       params = new URLSearchParams(hash);
     } else {
       params = new URL(url).searchParams;
-    }    
+    }
 
     return this.validateAuthResponse({
       error: params.get("error"),

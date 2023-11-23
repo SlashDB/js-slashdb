@@ -1,7 +1,12 @@
+import fetchMock from 'fetch-mock-jest';
 import { PKCE } from '../src/pkce.js';
-import fetch from 'jest-fetch-mock';
+
+afterEach( () => {
+  fetchMock.mockReset();
+});
 
 const config = {
+  idp_id: "idp",
   client_id: '42',
   redirect_uri: 'http://localhost:8080/',
   authorization_endpoint: 'https://example.com/auth',
@@ -76,8 +81,8 @@ describe('Test PKCE exchange code for token', () => {
   test('Should make a request to token endpoint', async () => {
     await mockRequest();
 
-    expect(fetch.mock.calls.length).toEqual(1);
-    expect(fetch.mock.calls[0][0]).toEqual(config.token_endpoint);
+    expect(fetchMock.mock.calls.length).toEqual(1);
+    expect(fetchMock.mock.calls[0][0]).toEqual(config.token_endpoint);
   });
 
   test('Should set code verifier', async () => {
@@ -88,7 +93,7 @@ describe('Test PKCE exchange code for token', () => {
 
   test('Should request with headers', async () => {
     await mockRequest();
-    const headers = fetch.mock.calls[0][1].headers;
+    const headers = fetchMock.mock.calls[0][1].headers;
 
     expect(headers['Accept']).toEqual('application/json');
     expect(headers['Content-Type']).toEqual('application/x-www-form-urlencoded;charset=UTF-8');
@@ -96,7 +101,7 @@ describe('Test PKCE exchange code for token', () => {
 
   test('Should request with body', async () => {
     await mockRequest();
-    const body = new URLSearchParams(fetch.mock.calls[0][1].body.toString());
+    const body = new URLSearchParams(fetchMock.mock.calls[0][1].body.toString());
 
     expect(body.get('grant_type')).toEqual('authorization_code');
     expect(body.get('code')).toEqual('123');
@@ -107,7 +112,7 @@ describe('Test PKCE exchange code for token', () => {
 
   test('Should request with additional parameters', async () => {
     await mockRequest({test_param: 'testing'});
-    const body = new URLSearchParams(fetch.mock.calls[0][1].body.toString());
+    const body = new URLSearchParams(fetchMock.mock.calls[0][1].body.toString());
 
     expect(body.get('grant_type')).toEqual('authorization_code');
     expect(body.get('test_param')).toEqual('testing');
@@ -116,15 +121,15 @@ describe('Test PKCE exchange code for token', () => {
   test('Should have set the cors credentials options correctly', async () => {
     // enable cors credentials
     await mockRequest({}, true)
-    expect(fetch.mock.calls[0][1]?.mode).toEqual('cors')
-    expect(fetch.mock.calls[0][1]?.credentials).toEqual('include')
+    expect(fetchMock.mock.calls[0][1]?.mode).toEqual('cors')
+    expect(fetchMock.mock.calls[0][1]?.credentials).toEqual('include')
   })
 
   test('Should _not_ have cors credentials options set', async () => {
     // enable cors credentials
     await mockRequest({}, false)
-    expect(fetch.mock.calls[0][1]?.mode).toBeUndefined()
-    expect(fetch.mock.calls[0][1]?.credentials).toBeUndefined()
+    expect(fetchMock.mock.calls[0][1]?.mode).toBeUndefined()
+    expect(fetchMock.mock.calls[0][1]?.credentials).toBeUndefined()
   })
 
   async function mockRequest(additionalParams = {}, enableCorsCredentials = false) {
@@ -143,8 +148,8 @@ describe('Test PKCE exchange code for token', () => {
       token_type: 'type',
     };
 
-    fetch.resetMocks();
-    fetch.mockResponseOnce(JSON.stringify(mockSuccessResponse))
+    fetchMock
+      .post(config.access_token, mockSuccessResponse);
 
     sessionStorage.removeItem('pkce_code_verifier');
 
@@ -158,13 +163,13 @@ describe('Test PCKE refresh token', () => {
   test('Should make a request to token endpoint', async () => {
     await mockRequest();
 
-    expect(fetch.mock.calls.length).toEqual(1);
-    expect(fetch.mock.calls[0][0]).toEqual(config.token_endpoint);
+    expect(fetchMock.mock.calls.length).toEqual(1);
+    expect(fetchMock.mock.calls[0][0]).toEqual(config.token_endpoint);
   });
 
   test('Should request with headers', async () => {
     await mockRequest();
-    const headers = fetch.mock.calls[0][1].headers;
+    const headers = fetchMock.mock.calls[0][1].headers;
 
     expect(headers['Accept']).toEqual('application/json');
     expect(headers['Content-Type']).toEqual('application/x-www-form-urlencoded;charset=UTF-8');
@@ -172,7 +177,7 @@ describe('Test PCKE refresh token', () => {
 
   test('Should request with body', async () => {
     await mockRequest();
-    const body = new URLSearchParams(fetch.mock.calls[0][1].body.toString());
+    const body = new URLSearchParams(fetchMock.mock.calls[0][1].body.toString());
 
     expect(body.get('grant_type')).toEqual('refresh_token');
     expect(body.get('client_id')).toEqual(config.client_id);
@@ -192,9 +197,12 @@ describe('Test PCKE refresh token', () => {
       token_type: 'type',
     };
 
-    fetch.resetMocks();
-    fetch.mockResponseOnce(JSON.stringify(mockSuccessResponse))
+    const url = config.token_endpoint;
+    
+    fetchMock
+      .post(url, mockSuccessResponse);
 
+    
     await instance.refreshAccessToken(refreshToken);
   }
 });
