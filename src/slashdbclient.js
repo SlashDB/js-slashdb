@@ -132,6 +132,10 @@ class SlashDBClient {
       });
       let response = (await this.sdbConfig.get(this.settingsEP)).data;
       this.username = response.user;
+
+      if (this.username === null || this.username === 'public'){
+        return false;
+      }
       return true;
     }
   }
