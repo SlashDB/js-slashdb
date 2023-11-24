@@ -149,9 +149,7 @@ class PKCE {
           "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
         },
         ...this.corsRequestOptions
-      }).then(response => {
-        response.json();
-      })
+      }).then(response => response.json())
     })
   }
 
