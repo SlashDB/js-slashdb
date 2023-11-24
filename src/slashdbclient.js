@@ -130,8 +130,8 @@ class SlashDBClient {
       await this.loginSSO(sso.popUp).then((resp) => {
         this.ssoCredentials = resp;
       });
-      let response = (await this.sdbConfig.get(this.settingsEP)).data;
-      this.username = response.user;
+      let settings = (await this.sdbConfig.get(this.settingsEP)).data;
+      this.username = settings.user;
 
       if (this.username === null || this.username === 'public'){
         return false;
