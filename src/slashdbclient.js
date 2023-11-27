@@ -10,6 +10,7 @@ const SDB_SDBC_INVALID_APIKEY = 'Invalid apiKey parameter, must be string';
 const SDB_SDBC_INVALID_PASSWORD = 'Invalid password parameter, must be string';
 const SDB_SDBC_INVALID_IDPID = 'Invalid identity provider parameter, must be string';
 const SDB_SDBC_INVALID_REDIRECT_URI = 'Invalid redirect uri parameter, must be string';
+const SDB_SDBC_IDENTITY_PROVIDER_NOT_AVAILABLE = "Identity provider not available in settings";
 
 /** 
  * Stores parameters necessary to communicate with a SlashDB instance and provides methods for retrieving metadata from the instance.
@@ -435,6 +436,11 @@ class SlashDBClient {
     let redirectUri = this.sso.redirectUri;
 
     const jwtSettings = response.auth_settings.authentication_policies.jwt
+
+    if (!jwtSettings.identity_providers.hasOwnProperty(this.sso.idpId)) {
+      throw new Error(SDB_SDBC_IDENTITY_PROVIDER_NOT_AVAILABLE);
+    }
+
     const idpSettings = jwtSettings.identity_providers[this.sso.idpId]
 
     const clientId = idpSettings.client_id;
