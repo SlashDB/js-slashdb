@@ -16,7 +16,8 @@ describe('SlashDBClient() tests', () => {
         let invalidSsoConfig = {
             sso: {
                 idpId: 12345,
-                redirectUri: 12345
+                redirectUri: 12345,
+                popUp: 12345
             }
         };
 
@@ -34,6 +35,13 @@ describe('SlashDBClient() tests', () => {
         }).toThrowError();
 
         invalidSsoConfig.sso.idpId = "okta";
+
+        // Invalid sso redirectUri data type
+        expect(() => {
+            sdbClient = new SlashDBClient(invalidSsoConfig);
+        }).toThrowError();
+
+        invalidSsoConfig.sso.redirectUri = "http://localhost:3001/redirect";
 
         // Invalid sso redirectUri data type
         expect(() => {

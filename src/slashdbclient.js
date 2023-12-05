@@ -9,6 +9,7 @@ const SDB_SDBC_INVALID_USERNAME = 'Invalid username parameter, must be string';
 const SDB_SDBC_INVALID_APIKEY = 'Invalid apiKey parameter, must be string';
 const SDB_SDBC_INVALID_PASSWORD = 'Invalid password parameter, must be string';
 const SDB_SDBC_INVALID_IDPID = 'Invalid identity provider parameter, must be string';
+const SDB_SDBC_INVALID_POPUP = 'Invalid popUp parameter, must be boolean';
 const SDB_SDBC_INVALID_REDIRECT_URI = 'Invalid redirect uri parameter, must be string';
 const SDB_SDBC_IDENTITY_PROVIDER_NOT_AVAILABLE = "Identity provider not available in settings";
 
@@ -50,27 +51,28 @@ class SlashDBClient {
 
     if (config.hasOwnProperty('apiKey')) {
       const apiKey = config.apiKey;
-      if (apiKey && typeof(apiKey) !== 'string') {
+      if (!apiKey || typeof(apiKey) !== 'string') {
         throw TypeError(SDB_SDBC_INVALID_APIKEY);
       }
       this.apiKey = apiKey;
     } else if (config.hasOwnProperty('sso')) {
       const idpId = config.sso.idpId;
       const redirectUri = config.sso.redirectUri;
+      const popUp = config.sso.popUp;
 
-      if (idpId && typeof(idpId) !== 'string') {
+      if (!idpId || typeof(idpId) !== 'string') {
         throw TypeError(SDB_SDBC_INVALID_IDPID);
       }
-      if (redirectUri && typeof(redirectUri) !== 'string') {
+      if (!redirectUri || typeof(redirectUri) !== 'string') {
         throw TypeError(SDB_SDBC_INVALID_REDIRECT_URI);
       }
-
-      if (config.sso.hasOwnProperty('popUp')) {
-        this.sso.popUp = config.sso.popUp;  
+      if (!popUp || typeof(popUp) !== 'boolean') {
+        throw TypeError(SDB_SDBC_INVALID_POPUP);
       }
 
       this.sso.idpId = idpId;
       this.sso.redirectUri = redirectUri;
+      this.sso.popUp = popUp;
     }
 
     this.ssoCredentials = null;
@@ -91,7 +93,7 @@ class SlashDBClient {
     this.userEP = '/userdef';       
     this.dbDefEP = '/dbdef';        
     this.queryDefEP = '/querydef';  
-              
+
   }
   /**
    * Logs in to SlashDB instance.  Only required when using username/password based crendentials. if not provided will try SSO login.
