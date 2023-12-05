@@ -75,14 +75,13 @@
 } from '@slashdb/js-slashdb';
 </code></pre>
 <p>Or import them separately:</p>
-<ul>
-<li><code>import { SlashDBClient } from '@slashdb/js-slashdb/src/slashdbclient.js';</code></li>
-<li><code>import { DataDiscoveryResource, DataDiscoveryDatabase } from '@slashdb/js-slashdb/src/datadiscovery.js';</code></li>
-<li><code>import { DataDiscoveryFilter } from '@slashdb/js-slashdb/src/datadiscoveryfilter.js';</code></li>
-<li><code>import { SQLPassThruQuery } from '@slashdb/js-slashdb/src/sqlpassthru.js';</code></li>
-<li><code>import { SQLPassThruFilter } from '@slashdb/js-slashdb/src/sqlpassthrufilter.js';</code></li>
-<li><code>import { eq, any, between, gte, lte, not, and, chgPlaceHolder, asc, desc } from '@slashdb/js-slashdb/src/filterfunctions.js';</code></li>
-</ul>
+<pre class="prettyprint source lang-js"><code>import { SlashDBClient } from '@slashdb/js-slashdb/src/slashdbclient.js';
+import { DataDiscoveryResource, DataDiscoveryDatabase } from '@slashdb/js-slashdb/src/datadiscovery.js';
+import { DataDiscoveryFilter } from '@slashdb/js-slashdb/src/datadiscoveryfilter.js';
+import { SQLPassThruQuery } from '@slashdb/js-slashdb/src/sqlpassthru.js';
+import { SQLPassThruFilter } from '@slashdb/js-slashdb/src/sqlpassthrufilter.js';
+import { eq, any, between, gte, lte, not, and, chgPlaceHolder, asc, desc } from '@slashdb/js-slashdb/src/filterfunctions.js';
+</code></pre>
 <p>If you aren't using <code>npm</code>, just reference the files in the <code>src</code> folder, e.g.:</p>
 <pre class="prettyprint source lang-js"><code>import { 
   SlashDBClient, 
@@ -106,10 +105,15 @@
 <p><a href="https://slashdb.github.io/js-slashdb/docs">Full documentation of the modules can be found here</a>.</p>
 <h2>SDK Quick Start</h2>
 <p>To get up and running with the SDK, here's a quick example:</p>
-<pre class="prettyprint source"><code>const sdbClient = new SlashDBClient('https://demo.slashdb.com');      // create a SlashDB client to connect to a SlashDB instance
-const db = new DataDiscoveryDatabase(sdb1,'Chinook');                 // access the Chinook Database that is on the SlashDB instance
-const customerTable = new DataDiscoveryResource(db,'Customer');       // access the Customer table in the Chinook database
-const query = new SQLPassThruQuery('invoices-total-range',sdbClient); // access the invoices-total-range query that is on the SlashDB instance
+<pre class="prettyprint source lang-js"><code>const sdbConfig = {
+  host: 'https://demo.slashdb.com',
+  apiKey: '********'
+}                                                                     // configuration object to initialize the SlashDB client
+const sdbClient = new SlashDBClient();                                // create a SlashDB client to connect to a SlashDB instance
+sdbClient.login();                                                    // login to host SlashDB server
+const db = new DataDiscoveryDatabase(sdb1, 'Chinook');                 // access the Chinook Database that is on the SlashDB instance
+const customerTable = new DataDiscoveryResource(db, 'Customer');       // access the Customer table in the Chinook database
+const query = new SQLPassThruQuery('invoices-total-range', sdbClient); // access the invoices-total-range query that is on the SlashDB instance
 
 const ddFilter = new DataDiscoveryFilter()                            // create a filter for Data Discovery operations
                .addFilter(any('FirstName','J*,H*'))                   // filter by column FirstName, starting with 'J' or 'H'
@@ -126,13 +130,50 @@ let spt_results = await query.accept('csv').get(sptFilter);           // execute
 </code></pre>
 <p>There's more examples in the demo application.</p>
 <p>All the <a href="https://docs.slashdb.com/user-guide/using-slashdb/">DataDiscovery/SQL Pass-Thru options in the documentation</a> are supported.  The <a href="https://slashdb.github.io/js-slashdb/docs">SDK module documentation</a> lists all the methods available.</p>
+<h2>Username/password login</h2>
+<p>If <code>apiKey</code> parameter is not provided on <code>sdbClient</code> instantiation, username and password can be provided on login.</p>
+<pre class="prettyprint source lang-js"><code>const sdbConfig = {
+  host: 'https://demo.slashdb.com',
+  apiKey: '********'
+}                                                                     // configuration object to initialize the SlashDB client
+const sdbClient = new SlashDBClient();                                // create a SlashDB client to connect to a SlashDB instance
+const username = &quot;&lt;username>&quot;;
+const password = &quot;&lt;password>&quot;;
+sdbClient.login(username, password);                                  // login to host SlashDB server
+</code></pre>
+<h2>SSO Login</h2>
+<p>In order to login with SSO, additional parameters are required in  <code>sdbClient</code> instantiation.</p>
+<pre class="prettyprint source lang-js"><code>const sdbConfig = {
+  host: 'https://demo.slashdb.com',
+  sso: {
+    idpId: &quot;okta&quot;,
+    redirectUri: &quot;http://localhost:8081/redirect_url&quot;,
+    popUp: true
+  }
+}                                                                     // configuration object to initialize the SlashDB client
+const sdbClient = new SlashDBClient(sdbConfig);                                // create a SlashDB client to connect to a SlashDB instance
+sdbClient.login();                                                    // login to host SlashDB server
+</code></pre>
+<p>SSO parameters can added or updated after <code>sdbClient</code> instantiation, this can be useful if several SSO methods are avalaible.</p>
+<pre class="prettyprint source lang-js"><code>const sdbConfig = {
+  host: 'https://demo.slashdb.com',
+}                                                                     // configuration object to initialize the SlashDB client
+const sdbClient = new SlashDBClient(sdbConfig);                                // create a SlashDB client to connect to a SlashDB instance
+const sso = {
+  idpId: &quot;okta&quot;,
+  redirectUri: &quot;http://localhost:8081/redirect_url&quot;,
+  popUp: true
+}
+sdbClient.updateSSO(sso);                                             // Updates SSO settings.
+sdbClient.login();                                                    // login to host SlashDB server
+</code></pre>
 <h2>Demo Application</h2>
 <p>There is a small demo application in this repository.  To use it <em>(assumes using Node, v18+ recommended)</em> :</p>
 <ul>
 <li>Clone this repository to your system and open a shell in the repo folder</li>
 <li>Run <code>npm install</code></li>
-<li>Run <code>npm run localserver</code> <em>(starts an HTTP server on port 8080)</em></li>
-<li>Navigate in a browser to http://localhost:8080/examples/demo.html</li>
+<li>Run <code>npm run localserver</code> <em>(starts an HTTP server on port 8081)</em></li>
+<li>Navigate in a browser to http://localhost:8081/examples/demo.html</li>
 <li>Open the developer console to see a few more operations in the demo.  You can also use any of the classes/functions in the developer console.</li>
 </ul>
 <p>Note that administrative features of the demo will be limited if you're using https://demo.slashdb.com as the host.  You can <a href="https://docs.slashdb.com/user-guide/getting-slashdb/docker/">set up your own SlashDB instance using Docker</a>, or there's a <a href="https://docs.slashdb.com/user-guide/getting-slashdb/">number of other platforms that are also supported</a> if you want to try all the features.</p>
@@ -149,13 +190,13 @@ let spt_results = await query.accept('csv').get(sptFilter);           // execute
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseFilter.html">BaseFilter</a></li><li><a href="BaseRequestHandler.html">BaseRequestHandler</a></li><li><a href="DataDiscoveryFilter.html">DataDiscoveryFilter</a></li><li><a href="DataDiscoveryResource.html">DataDiscoveryResource</a></li><li><a href="SQLPassThruFilter.html">SQLPassThruFilter</a></li><li><a href="SQLPassThruQuery.html">SQLPassThruQuery</a></li><li><a href="SlashDBClient.html">SlashDBClient</a></li></ul><h3>Global</h3><ul><li><a href="global.html#and">and</a></li><li><a href="global.html#any">any</a></li><li><a href="global.html#between">between</a></li><li><a href="global.html#chgPlaceHolder">chgPlaceHolder</a></li><li><a href="global.html#eq">eq</a></li><li><a href="global.html#fetchWrapper">fetchWrapper</a></li><li><a href="global.html#gte">gte</a></li><li><a href="global.html#handleResponse">handleResponse</a></li><li><a href="global.html#lte">lte</a></li><li><a href="global.html#not">not</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseFilter.html">BaseFilter</a></li><li><a href="BaseRequestHandler.html">BaseRequestHandler</a></li><li><a href="DataDiscoveryFilter.html">DataDiscoveryFilter</a></li><li><a href="DataDiscoveryResource.html">DataDiscoveryResource</a></li><li><a href="SQLPassThruFilter.html">SQLPassThruFilter</a></li><li><a href="SQLPassThruQuery.html">SQLPassThruQuery</a></li><li><a href="SlashDBClient.html">SlashDBClient</a></li></ul><h3>Global</h3><ul><li><a href="global.html#and">and</a></li><li><a href="global.html#any">any</a></li><li><a href="global.html#base64urlencode">base64urlencode</a></li><li><a href="global.html#between">between</a></li><li><a href="global.html#chgPlaceHolder">chgPlaceHolder</a></li><li><a href="global.html#dec2hex">dec2hex</a></li><li><a href="global.html#eq">eq</a></li><li><a href="global.html#fetchWrapper">fetchWrapper</a></li><li><a href="global.html#generateCodeChallenge">generateCodeChallenge</a></li><li><a href="global.html#generateCodeVerifier">generateCodeVerifier</a></li><li><a href="global.html#gte">gte</a></li><li><a href="global.html#handleResponse">handleResponse</a></li><li><a href="global.html#lte">lte</a></li><li><a href="global.html#not">not</a></li><li><a href="global.html#sha256">sha256</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Thu Jun 22 2023 08:06:46 GMT-0400 (Eastern Daylight Saving Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a>
 </footer>
 
 <script> prettyPrint(); </script>

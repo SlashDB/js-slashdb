@@ -1,0 +1,331 @@
+<html>
+<head>
+    <title>SlashDB JavaScript SDK Login Demo</title>
+    <style>
+        .codeBlock { 
+            margin: 25px 15px; 
+            padding: 10px; 
+            font-family: sans-serif; 
+            background: #EEE; 
+            box-shadow: 0 0 10px #000;
+            border-radius: 10px;
+        }
+
+        #splitConfig {
+            display: flex;
+        }
+
+
+        .outTxt { width: 100%; padding: 10px;}
+
+        .config {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: end;
+
+        }
+
+        .txtField {
+            padding: 5px 10px;
+        }
+        .config .txtField input { 
+            border-radius: 5px;
+            margin: 2px;
+            padding: 5px;
+        }
+
+        .config .txtField select { 
+            border-radius: 5px;
+            margin: 2px;
+            padding: 5px;
+        }
+
+        .config .txtField label {
+            display: block;
+            font-size: 0.8rem;
+            padding-left: 5px;
+        }
+
+        .config .tbl input { 
+            display: inline;
+        }
+        .config .tbl select { 
+            display: inline;
+        }
+        .config .tbl label { 
+            display: block;
+            margin-right: 5px;
+        }
+
+        .config .buttons {
+            background: #FFF;
+            margin: 6px;
+            height: 30px;
+            border-radius: 5px;
+        }
+
+        .config .buttons:hover {
+            background: #0AF;
+            color: #FFF;
+        }
+
+
+    </style>
+
+<script type="module">
+    import { SlashDBClient, DataDiscoveryDatabase, DataDiscoveryResource, DataDiscoveryFilter, SQLPassThruQuery, SQLPassThruFilter,
+             eq, any, between, gte, lte, not, and, asc, desc, chgPlaceHolder } from '../src/index.js';
+    import { PKCE } from '../src/pkce.js';
+
+    // make methods, modules, available to console for testing
+    window.DataDiscoveryFilter = DataDiscoveryFilter
+    window.SlashDBClient = SlashDBClient
+    window.DataDiscoveryResource = DataDiscoveryResource
+    window.DataDiscoveryDatabase = DataDiscoveryDatabase
+    window.SQLPassThruFilter = SQLPassThruFilter
+    window.SQLPassThruQuery = SQLPassThruQuery
+    window.eq = eq
+    window.any = any
+    window.gte = gte
+    window.lte = lte
+    window.between = between
+    window.not = not
+    window.and = and
+    window.desc = desc
+    window.asc = asc
+    window.chgPlaceHolder = chgPlaceHolder;
+    
+    window.PKCE = PKCE;
+
+    var host;
+    var database;
+    var redirectUri;
+    var idpId;
+    var resource;
+    var relatedResource;
+
+    function setVars() {
+        host = document.forms.config.host.value;
+        redirectUri = document.forms.config.redirect.value;
+        idpId = document.forms.config.provider.value;
+        database = document.forms.config.database.value;
+        resource = document.forms.config.resource.value;
+        relatedResource = document.forms.config.resource2.value;
+    }
+    
+    function exec() {
+        host = document.forms.config.host.value;
+        redirectUri = document.forms.config.redirect.value;
+        idpId = document.forms.config.provider.value;
+
+        database = document.forms.config.database.value;
+        resource = document.forms.config.resource.value;
+        relatedResource = document.forms.config.resource2.value;
+
+        document.querySelector('#apiTxt').innerHTML = '';
+        document.querySelector('#loginTxt').innerHTML = 'Pending start...';
+
+        setTimeout ( sdbLoginDemo, 2000);   // delay this so the login process doesn't slow down the other functions
+    }
+
+    window.setVars = setVars;
+    window.exec = exec;
+
+    const sdbLoginDemo = async () => {
+        document.querySelector('#loginTxt').style.color = '#000';        
+        let outTxt = '';
+        try {
+
+            const sdbConfig = {
+                host: host,
+                sso: {
+                    idpId: idpId,
+                    redirectUri: redirectUri,
+                    popUp: true
+                }
+            }
+        
+            const sdbClient = new SlashDBClient(sdbConfig);
+
+            outTxt += `* SlashDBClient() - Client created for ${host}, logging in with SSO...\n`
+            document.querySelector('#loginTxt').innerHTML = outTxt;
+            let status = await sdbClient.login();
+            outTxt += `* login() - Logged in status: ${status}`;
+            document.querySelector('#loginTxt').innerHTML = outTxt;
+            sdbAPIDemo(sdbClient);
+        }
+        catch(e) {
+            document.querySelector('#loginTxt').style.color = '#F00';
+            console.log(e);
+            outTxt += `Error ${e.message} - see console for details`;
+            document.querySelector('#loginTxt').innerHTML = outTxt;
+        }
+    }
+     
+    const sdbAPIDemo = async (sdbClient) => {
+        document.querySelector('#apiTxt').style.color = '#000';
+        let outTxt = '';
+        try {
+
+            outTxt += `* const sdbClient = new SlashDBClient() - creating client for ${host}, logging in with SSO...\n`
+            // const sdbClient = new SlashDBClient(sdbConfig);
+            document.querySelector('#apiTxt').innerHTML = outTxt;
+            outTxt += `* sdbClient.isAuthenticated() - Logged in status: `;
+            let status = await sdbClient.isAuthenticated();
+            outTxt += `${status}\n`;
+            document.querySelector('#apiTxt').innerHTML = outTxt;
+
+            outTxt += `* sdbClient.getVersion() - SlashDB version: `;
+            let version = await sdbClient.getVersion();      
+            outTxt += `${version}\n`; 
+            document.querySelector('#apiTxt').innerHTML = outTxt;        
+
+            outTxt += `* sdbClient.getSettings() - SlashDB settings: `;
+            let settings = JSON.stringify(await sdbClient.getSettings()).substr(0,80) + '...';
+            outTxt += `${settings}\n`;        
+            document.querySelector('#apiTxt').innerHTML = outTxt;        
+
+            outTxt += `* sdbClient.getUser('${sdbClient.username}') - User details: `;
+            let userDetails = JSON.stringify(await sdbClient.getUser(sdbClient.username)).substr(0,80) + '...';
+            outTxt += `${userDetails}\n`;                    
+            document.querySelector('#apiTxt').innerHTML = outTxt;        
+
+            outTxt += `* sdbClient.getDbDef('${database}') - database definition: `;
+            let dbDef = JSON.stringify(await sdbClient.getDbDef(database)).substr(0,80) + '...';
+            outTxt += `${dbDef}\n`;        
+            document.querySelector('#apiTxt').innerHTML = outTxt;  
+            
+            // outTxt += `* sdbClient.getReflectStatus('${database}') - database reflect status: `;
+            // let dbReflect = JSON.stringify(await sdbClient.getReflectStatus(database)).substr(0,80) + '...';
+            // outTxt += `${dbReflect}\n`;        
+            // document.querySelector('#apiTxt').innerHTML = outTxt;    
+
+            // outTxt += `* sdbClient.getQueryDef('${query}') - query definition: `;
+            // let queryDef = JSON.stringify(await sdbClient.getQueryDef(query)).substr(0,80) + '...';
+            // outTxt += `${queryDef}\n`;        
+            // document.querySelector('#apiTxt').innerHTML = outTxt;     
+
+            // outTxt += `* sdbClient.getQueries('${database}') - DB queries as SQLPassThru objects: `;
+            // let sqlPassThruObj = JSON.stringify(await sdbClient.getQueries(database)).substr(0,80) + '...';
+            // outTxt += `${sqlPassThruObj}\n`;        
+            // document.querySelector('#apiTxt').innerHTML = outTxt; 
+ 
+            // outTxt += `* sdbClient.loadModel('${database}') - Connect database: `;        
+            // let loadDb = JSON.stringify(await sdbClient.loadModel(database)).substr(0,80) + '...';
+            // outTxt += `${loadDb}\n`;            
+            // document.querySelector('#apiTxt').innerHTML = outTxt;      
+        }
+        catch(e) {
+            document.querySelector('#apiTxt').style.color = '#F00';
+            outTxt += `\n^^^^ Error ${e.message} - see console for details`;
+            document.querySelector('#apiTxt').innerHTML = outTxt;
+        }        
+    }
+</script>
+
+</head>
+<body onload="setVars()">
+
+    <script>
+
+    </script>
+
+    <div>
+        <h1>SDK - SSO Login Demo</h1>
+    </div>
+
+    <div id="splitConfig">
+        <div class="codeBlock"  style="width: 100%">
+            Connection Config
+            <form onsubmit="return false" name="config">
+            <div class="config"> 
+                <div class="txtField">
+                    <label>Host</label>
+                    <input name="host" type="text" value="http://host.docker.internal:8000">
+                </div>
+                <div class="txtField">
+                    <label>Redirect URI</label>
+                    <input name="redirect" type="text" value="http://localhost:8081/examples/success.html">
+                </div>
+                <div class="txtField">
+                    <label>Identity Provider</label>
+                    <input name="provider" type="text" value="keycloak">
+                </div>
+            </div>
+            <div class="config">
+                <div class="txtField">
+                    <label>Database</label>
+                    <input name="database" type="text" value="Chinook">            
+                </div>
+                <div class="txtField">
+                    <label>Resource/Table</label>
+                    <input name="resource" type="text" value="Customer">            
+                </div>
+                <div class="txtField">
+                    <label>Related Resource/Table</label>
+                    <input name="resource2" type="text" value="Invoice">            
+                </div>                  
+                <button class="buttons" onClick="exec()">Run demo</button>            
+                <input class="buttons" type="reset"></input> 
+            </div>
+
+            <div style="font-size: 0.85rem;"><br />Open the Developer Console (F12) to see a few more SDK examples.  You can also create your own:
+                <ul style="font-style: italic">
+                <li>SlashDBClient</li>
+                <li>DataDiscoveryDatabase, DataDiscoveryResource, DataDiscoveryFilter</li>
+                <li>SQLPassThruQuery, SQLPassThruFilter</li>
+                </ul>
+                objects, and also use the <em>eq(), any(), between(), lte(), gte(), and(), not()</em> filter functions from the Developer Console.
+                </div>
+        </div>
+    </div>
+
+    <div id="clientDesc" class="codeBlock">
+        Create a SlashDBClient object and log in to SlashDB with username/password <br />
+        <em style="font-size: 0.85rem">Requires a valid SlashDB username/password</em>
+        <pre>
+        const sdbConfig = {
+            host: 'http://hostname:port',
+            sso: {
+                idpId: 'keycloak',
+                redirectUri: 'http://localhost:8081/examples/success.html',
+                popUp: true
+            }
+        }
+        const sdbClient = new SlashDBClient(sdbConfig);
+        let status = await sdbClient.login();
+        </pre>
+        <textarea id="loginTxt" class="outTxt" spellcheck="false">Click Run Demo button...</textarea>
+    </div>
+
+    <div id="apiDesc" class="codeBlock">
+        SlashDBClient API methods<br />
+        <em style="font-size: 0.85rem">Requires a valid SlashDB admin username/API key</em>        
+        <pre>
+        const sdbConfig = {
+            host: 'http://hostname:port',
+            sso: {
+                idpId: 'keycloak',
+                redirectUri: 'http://localhost:8081/examples/success.html',
+                popUp: true
+            }
+        }
+        const sdbClient = new SlashDBClient(sdbConfig);
+        let status = await sdbClient.isAuthenticated();
+        let version = await sdbClient.getVersion();     
+        let settings = await sdbClient.getSettings();      
+        let userDetails = await sdbClient.getUser(user);                        // leave user empty for all users
+        let dbDefinition = await sdbClient.getDbDef(database);                  // leave parameter empty for all databases
+        let dbReflectStatus = await sdbClient.getDbReflectStatus(database);     // leave parameter empty for all databases
+        let queryDef = await sdbClient.getQueryDef(query);                      // leave parameter empty for all queries
+        let sqlPassThruObjects = sdbClient.getQueries(database);                // leave parameter empty for queries in all databases
+        let unloadDB = sdbClient.unloadModel(database);                         // disabled in this demo so that it doesn't interfere with other operations
+        let loadDB = sdbClient.loadModel(database);        
+        </pre>
+        <textarea id="apiTxt" style="height: 14rem" class="outTxt" spellcheck="false">Click Run Demo button...</textarea>
+    </div>
+    
+</body>
+
+</html>

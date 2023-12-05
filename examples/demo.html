@@ -63,6 +63,7 @@
 
 
     </style>
+
 <script type="module">
     import { SlashDBClient, DataDiscoveryDatabase, DataDiscoveryResource, DataDiscoveryFilter, SQLPassThruQuery, SQLPassThruFilter,
              eq, any, between, gte, lte, not, and, asc, desc, chgPlaceHolder } from '../src/index.js';
@@ -173,12 +174,18 @@
         document.querySelector('#loginTxt').style.color = '#000';        
         let outTxt = '';
         try {
+
+            const sdbConfig = {
+                host: host,
+                username: user,
+                password: password
+            }
         
-            const sdbClient = new SlashDBClient(host);
+            const sdbClient = new SlashDBClient(sdbConfig);
 
             outTxt += `* SlashDBClient() - Client created for ${host}, logging in user ${user}...\n`
             document.querySelector('#loginTxt').innerHTML = outTxt;
-            let status = await sdbClient.login(user,password);
+            let status = await sdbClient.login();
             outTxt += `* login() - Logged in status: ${status}`;
             document.querySelector('#loginTxt').innerHTML = outTxt;
         }
@@ -195,9 +202,15 @@
         document.querySelector('#apiTxt').style.color = '#000';
         let outTxt = '';
         try {
-       
+            
+            const sdbConfig = {
+                host: host,
+                apiKey: '03zhx63tfaaj35zgesbikqg5uiqdla70',
+                username: user
+            }
+
             outTxt += `* const sdbClient = new SlashDBClient() - creating client for ${host}, logging in user '${user}' using API key...\n`
-            const sdbClient = new SlashDBClient(host,user,apiKey);
+            const sdbClient = new SlashDBClient(sdbConfig);
             document.querySelector('#apiTxt').innerHTML = outTxt;
             outTxt += `* sdbClient.isAuthenticated() - Logged in status: `;
             let status = await sdbClient.isAuthenticated();
@@ -260,10 +273,16 @@
     const ddDemo = async () => {
         document.querySelector('#ddTxt').style.color = '#000';
         let outTxt = '';
-        try {        
+        try {    
+            
+            const sdbConfig = {
+                host: host,
+                apiKey: '03zhx63tfaaj35zgesbikqg5uiqdla70',
+                username: user
+            }
 
-            outTxt += `* sdbClient = new SlashDBClient('${host}','${user}', <apiKey>) - creating client, logging in user using <apiKey>...\n`;
-            const sdbClient = new SlashDBClient(host,user,apiKey);
+            outTxt += `* sdbClient = new SlashDBClient(<config>) - creating client, logging in user using <apiKey>...\n`;
+            const sdbClient = new SlashDBClient(sdbConfig);
             document.querySelector('#ddTxt').innerHTML = outTxt;
 
             outTxt += `* db = new DataDiscoveryDatabase(sdbClient, '${database}') - selecting database\n`;                    
@@ -375,10 +394,16 @@
     const sptDemo = async () => {
         document.querySelector('#sptTxt').style.color = '#000';
         let outTxt = '';
-        try {        
+        try {
+            
+            const sdbConfig = {
+                host: host,
+                apiKey: '03zhx63tfaaj35zgesbikqg5uiqdla70',
+                username: user
+            }
 
-            outTxt += `* sdbClient = new SlashDBClient('${host}','${user}', <apiKey>) - creating client, logging in user using <apiKey>...\n`;
-            const sdbClient = new SlashDBClient(host,user,apiKey);
+            outTxt += `* sdbClient = new SlashDBClient(<config>) - creating client, logging in user using <apiKey>...\n`;
+            const sdbClient = new SlashDBClient(sdbConfig);
             document.querySelector('#sptTxt').innerHTML = outTxt;
 
             outTxt += `* sptQuery1 = new SQLPassThruQuery('${query}', sdbClient) - creating REST call handler for query\n`;
@@ -453,7 +478,13 @@
         let sqf1 = new SQLPassThruQuery('myquery');
         console.log(sqf1); 
 
-        const sdb1 = new SlashDBClient(host, user, apiKey);
+        const sdbConfig = {
+            host: host,
+            apiKey: '03zhx63tfaaj35zgesbikqg5uiqdla70',
+            username: user
+        }
+
+        const sdb1 = new SlashDBClient(sdbConfig);
         console.log('SlashDBClient sdb1 logged in status:', await sdb1.isAuthenticated())
     
         // get some config info etc from the connected host
@@ -674,7 +705,12 @@
     <div id="ddDesc" class="codeBlock">
         Data Discovery Demo - for all methods, see documentation
         <pre>
-        const sdbClient = new SlashDBClient('http://hostname:port', user, apiKey);            // create a new SlashDB client
+        const sdbConfig = {
+            host: 'http://hostname:port',
+            apiKey: apiKey,
+            username: user
+        }
+        const sdbClient = new SlashDBClient(sdbConfig);                                       // create a new SlashDB client
         const db = new DataDiscoveryDatabase(sdbClient, databaseName);                        // configure client to use a database databaseName
         const resource = new DataDiscoveryResource(db, resourceName);                         // select a resource resourceName in the database for transactions
 
@@ -703,7 +739,12 @@
     <div id="sptDesc" class="codeBlock">
         SQL Pass-Thru Demo - for all methods, see documentation
         <pre>
-        const sdbClient = new SlashDBClient('http://hostname:port', user, apiKey);          // create a new SlashDB client
+        const sdbConfig = {
+            host: 'http://hostname:port',
+            apiKey: apiKey,
+            username: user
+        }
+        const sdbClient = new SlashDBClient(sdbConfig);                                     // create a new SlashDB client
         const sptQuery = new SQLPassThruQuery(queryName, sdbClient)                         // select a query queryName for transactions
 
         let sptf = new SQLPassThruFilter( {key : value} )                                   // set sptQuery parameters using key:value pairs
@@ -718,8 +759,13 @@
         Create a SlashDBClient object and log in to SlashDB with username/password <br />
         <em style="font-size: 0.85rem">Requires a valid SlashDB username/password</em>
         <pre>
-        const sdbClient = new SlashDBClient('http://hostname:port');
-        let status = await sdbClient.login(username,password);
+        const sdbConfig = {
+            host: 'http://hostname:port',
+            username: user,
+            password: password
+        }
+        const sdbClient = new SlashDBClient(sdbConfig);
+        let status = await sdbClient.login();
         </pre>
         <textarea id="loginTxt" class="outTxt" spellcheck="false">Click Run Demo button...</textarea>
     </div>
@@ -728,7 +774,12 @@
         SlashDBClient API methods<br />
         <em style="font-size: 0.85rem">Requires a valid SlashDB admin username/API key</em>        
         <pre>
-        const sdbClient = new SlashDBClient('http://hostname:port', user, apiKey);
+        const sdbConfig = {
+            host: 'http://hostname:port',
+            apiKey: apiKey,
+            username: user
+        }
+        const sdbClient = new SlashDBClient(sdbConfig);
         let status = await sdbClient.isAuthenticated();
         let version = await sdbClient.getVersion();     
         let settings = await sdbClient.getSettings();      

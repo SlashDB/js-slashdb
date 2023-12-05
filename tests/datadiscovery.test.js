@@ -53,8 +53,18 @@ afterAll( async () => {
 
 describe('DataDiscoveryResource() class tests', () => {
 
-    const mockClient = new SlashDBClient(MOCK_HOST,'admin','1234');
-    const liveClient = new SlashDBClient(LIVE_SDB_HOST,'admin', LIVE_SDB_API_KEY);
+    const mockConfig = {
+        host: MOCK_HOST,
+        apiKey: LIVE_SDB_API_KEY
+    };
+
+    const liveConfig = {
+        host: LIVE_SDB_HOST,
+        apiKey: LIVE_SDB_API_KEY
+    };
+
+    const mockClient = new SlashDBClient(mockConfig);
+    const liveClient = new SlashDBClient(liveConfig);
     
     const customers = 
     [
