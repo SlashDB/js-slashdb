@@ -66,8 +66,12 @@ class SlashDBClient {
       if (!redirectUri || typeof(redirectUri) !== 'string') {
         throw TypeError(SDB_SDBC_INVALID_REDIRECT_URI);
       }
-      if (!popUp || typeof(popUp) !== 'boolean') {
+      if (typeof(popUp) !== 'boolean') {
         throw TypeError(SDB_SDBC_INVALID_POPUP);
+      }
+
+      if (config.hasOwnProperty('apiKey') && config.hasOwnProperty('sso')){
+        console.warn('API key and SSO provided, API key will take precedence over SSO');
       }
 
       this.sso.idpId = idpId;
@@ -116,6 +120,10 @@ class SlashDBClient {
 
       if (typeof(password) !== 'string') {
         throw TypeError(SDB_SDBC_INVALID_PASSWORD);
+      }
+
+      if (this.apiKey) {
+        console.warn('API key and password provided, API key will take precedence over session cookie');
       }
 
       body = { login: username, password: password };

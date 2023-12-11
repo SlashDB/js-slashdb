@@ -37,7 +37,9 @@ const SDB_SDBC_INVALID_USERNAME = 'Invalid username parameter, must be string';
 const SDB_SDBC_INVALID_APIKEY = 'Invalid apiKey parameter, must be string';
 const SDB_SDBC_INVALID_PASSWORD = 'Invalid password parameter, must be string';
 const SDB_SDBC_INVALID_IDPID = 'Invalid identity provider parameter, must be string';
+const SDB_SDBC_INVALID_POPUP = 'Invalid popUp parameter, must be boolean';
 const SDB_SDBC_INVALID_REDIRECT_URI = 'Invalid redirect uri parameter, must be string';
+const SDB_SDBC_IDENTITY_PROVIDER_NOT_AVAILABLE = "Identity provider not available in settings";
 
 /** 
  * Stores parameters necessary to communicate with a SlashDB instance and provides methods for retrieving metadata from the instance.
@@ -77,27 +79,28 @@ class SlashDBClient {
 
     if (config.hasOwnProperty('apiKey')) {
       const apiKey = config.apiKey;
-      if (apiKey &amp;&amp; typeof(apiKey) !== 'string') {
+      if (!apiKey || typeof(apiKey) !== 'string') {
         throw TypeError(SDB_SDBC_INVALID_APIKEY);
       }
       this.apiKey = apiKey;
     } else if (config.hasOwnProperty('sso')) {
       const idpId = config.sso.idpId;
       const redirectUri = config.sso.redirectUri;
+      const popUp = config.sso.popUp;
 
-      if (idpId &amp;&amp; typeof(idpId) !== 'string') {
+      if (!idpId || typeof(idpId) !== 'string') {
         throw TypeError(SDB_SDBC_INVALID_IDPID);
       }
-      if (redirectUri &amp;&amp; typeof(redirectUri) !== 'string') {
+      if (!redirectUri || typeof(redirectUri) !== 'string') {
         throw TypeError(SDB_SDBC_INVALID_REDIRECT_URI);
       }
-
-      if (config.sso.hasOwnProperty('popUp')) {
-        this.sso.popUp = config.sso.popUp;  
+      if (typeof(popUp) !== 'boolean') {
+        throw TypeError(SDB_SDBC_INVALID_POPUP);
       }
 
       this.sso.idpId = idpId;
       this.sso.redirectUri = redirectUri;
+      this.sso.popUp = popUp;
     }
 
     this.ssoCredentials = null;
@@ -118,7 +121,7 @@ class SlashDBClient {
     this.userEP = '/userdef';       
     this.dbDefEP = '/dbdef';        
     this.queryDefEP = '/querydef';  
-              
+
   }
   /**
    * Logs in to SlashDB instance.  Only required when using username/password based crendentials. if not provided will try SSO login.
@@ -158,8 +161,12 @@ class SlashDBClient {
       await this.loginSSO(sso.popUp).then((resp) => {
         this.ssoCredentials = resp;
       });
-      let response = (await this.sdbConfig.get(this.settingsEP)).data;
-      this.username = response.user;
+      let settings = (await this.sdbConfig.get(this.settingsEP)).data;
+      this.username = settings.user;
+
+      if (this.username === null || this.username === 'public'){
+        return false;
+      }
       return true;
     }
   }
@@ -459,6 +466,11 @@ class SlashDBClient {
     let redirectUri = this.sso.redirectUri;
 
     const jwtSettings = response.auth_settings.authentication_policies.jwt
+
+    if (!jwtSettings.identity_providers.hasOwnProperty(this.sso.idpId)) {
+      throw new Error(SDB_SDBC_IDENTITY_PROVIDER_NOT_AVAILABLE);
+    }
+
     const idpSettings = jwtSettings.identity_providers[this.sso.idpId]
 
     const clientId = idpSettings.client_id;
