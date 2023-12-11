@@ -154,7 +154,7 @@ class PKCE {
           return response.json();
         }
         console.log(response.json());
-        throw new Error('Something went during access token exchange');
+        throw new Error('Something went wrong during access token exchange');
       })
     })
   }
@@ -181,7 +181,7 @@ class PKCE {
         return response.json();
       }
       console.log(response.json());
-      throw new Error('Something went during access token refresh');
+      throw new Error('Something went wrong during access token refresh');
     })
   }
 
