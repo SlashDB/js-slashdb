@@ -1,6 +1,6 @@
 {
   "name": "@slashdb/js-slashdb",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Vanilla Javascript SDK for SlashDB development (SlashDB 1.7x)",
   "main": "src/index.js",
   "scripts": {
