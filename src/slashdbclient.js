@@ -66,7 +66,7 @@ class SlashDBClient {
       if (!redirectUri || typeof(redirectUri) !== 'string') {
         throw TypeError(SDB_SDBC_INVALID_REDIRECT_URI);
       }
-      if (!popUp || typeof(popUp) !== 'boolean') {
+      if (typeof(popUp) !== 'boolean') {
         throw TypeError(SDB_SDBC_INVALID_POPUP);
       }
 
