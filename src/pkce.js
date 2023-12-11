@@ -149,7 +149,13 @@ class PKCE {
           "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
         },
         ...this.corsRequestOptions
-      }).then(response => response.json())
+      }).then((response) => {
+        if (response.ok) {
+          return response.json();
+        }
+        console.log(response.json());
+        throw new Error('Something went during access token exchange');
+      })
     })
   }
 
