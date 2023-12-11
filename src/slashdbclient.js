@@ -70,6 +70,10 @@ class SlashDBClient {
         throw TypeError(SDB_SDBC_INVALID_POPUP);
       }
 
+      if (config.hasOwnProperty('apiKey') && config.hasOwnProperty('sso')){
+        console.warn('API key and SSO provided, API key will take precedence over SSO');
+      }
+
       this.sso.idpId = idpId;
       this.sso.redirectUri = redirectUri;
       this.sso.popUp = popUp;
@@ -116,6 +120,10 @@ class SlashDBClient {
 
       if (typeof(password) !== 'string') {
         throw TypeError(SDB_SDBC_INVALID_PASSWORD);
+      }
+
+      if (this.apiKey) {
+        console.warn('API key and password provided, API key will take precedence over session cookie');
       }
 
       body = { login: username, password: password };
