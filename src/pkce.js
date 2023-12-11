@@ -176,7 +176,13 @@ class PKCE {
         Accept: "application/json",
         "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
       }
-    }).then(response => response.json())
+    }).then((response) => {
+      if (response.ok) {
+        return response.json();
+      }
+      console.log(response.json());
+      throw new Error('Something went during access token refresh');
+    })
   }
 
   /**
