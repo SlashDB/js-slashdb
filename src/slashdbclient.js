@@ -173,9 +173,9 @@ class SlashDBClient {
     
     const urlParams = getUrlParms();
     if (isSSOredirect(urlParams)){
-      const ssoConfig = await this._getSsoConfig();
+      const jwtConfig = await this._getJWTConfig();
       const url = window.location.href;
-      const pkce = new PKCE(ssoConfig);
+      const pkce = new PKCE(jwtConfig);
       this.sso.idpId = sessionStorage.getItem('ssoApp.idp_id');
       pkce.codeVerifier = sessionStorage.getItem('ssoApp.code_verifier');
 
@@ -206,11 +206,11 @@ class SlashDBClient {
 
     popUp = popUp ? popUp : this.sso.popUp;
 
-    if (!jwtSettings.identity_providers.hasOwnProperty(idpId)) {
+    if (jwtSettings.identity_providers.hasOwnProperty(idpId)) {
       return this.loginJWT(popUp);
     }
 
-    if (!samlSettings.identity_providers.hasOwnProperty(idpId)) {
+    if (samlSettings.identity_providers.hasOwnProperty(idpId)) {
       return this.loginSAML(popUp);
     }
 
@@ -223,8 +223,8 @@ class SlashDBClient {
 
   async loginJWT(popUp) {
 
-    const ssoConfig = await this._getSsoConfig();
-    const pkce = new PKCE(ssoConfig);
+    const jwtConfig = await this._getJWTConfig();
+    const pkce = new PKCE(jwtConfig);
     const additionalParams = await this._buildSession();
 
     let loginUrl = await pkce.authorizeUrl(additionalParams);
@@ -240,7 +240,7 @@ class SlashDBClient {
 
     return new Promise((resolve, reject) => {
       const checkPopup = setInterval(() => {
-          const pkce = new PKCE(ssoConfig);
+          const pkce = new PKCE(jwtConfig);
           let popUpHref = "";
           try {
             popUpHref = popupWindow.window.location.href;
@@ -274,10 +274,10 @@ class SlashDBClient {
     const idpId = sso.idpId;
 
     let path = `/sso/saml/${idpId}?return_to=${ref}`;
-    let url = this.sdbConfig._buildEndpointString(path);
+    let loginUrl = this.sdbConfig._buildEndpointString(path);
 
     if (!popUp) {
-      window.location.replace(url);
+      window.location.replace(loginUrl);
     }
 
     const width = 500;
@@ -308,8 +308,8 @@ class SlashDBClient {
    */
   async refreshSSOToken(){
 
-    const ssoConfig = await this._getSsoConfig();
-    const pkce = new PKCE(ssoConfig);
+    const jwtConfig = await this._getJWTConfig();
+    const pkce = new PKCE(jwtConfig);
     const refreshToken = this.ssoCredentials.refresh_token;
 
     return new Promise((resolve, reject) => {
@@ -508,7 +508,7 @@ class SlashDBClient {
     return queries;
   }
 
-  async _getSsoConfig() {
+  async _getJWTConfig() {
     let response = (await this.sdbConfig.get(this.settingsEP)).data;
     let idpId = this.sso.idpId;
     let redirectUri = this.sso.redirectUri;
@@ -530,7 +530,7 @@ class SlashDBClient {
       redirectUri = idpSettings.redirect_uri;
     }
 
-    const ssoConfig = {
+    const jwtConfig = {
       idp_id: idpId,
       client_id: clientId,
       redirect_uri: redirectUri,
@@ -539,7 +539,7 @@ class SlashDBClient {
       requested_scopes: requestedScopes,
     }
 
-    return ssoConfig;
+    return jwtConfig;
   }
 
   async _buildSession() {
