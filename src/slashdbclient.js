@@ -194,7 +194,34 @@ class SlashDBClient {
    */
   async loginSSO(popUp) {
 
+    const settings = await this.getSettings();
+    const jwtSettings = settings.auth_settings.authentication_policies.jwt;
+    const samlSettings = settings.auth_settings.authentication_policies.saml;
+
+    const idpId = this.sso.idpId;
+
+    if (!jwtSettings.identity_providers.hasOwnProperty(idpId) && !samlSettings.identity_providers.hasOwnProperty(idpId)) {
+      throw new Error(SDB_SDBC_IDENTITY_PROVIDER_NOT_AVAILABLE);
+    }
+
     popUp = popUp ? popUp : this.sso.popUp;
+
+    if (!jwtSettings.identity_providers.hasOwnProperty(idpId)) {
+      return this.loginJWT(popUp);
+    }
+
+    if (!samlSettings.identity_providers.hasOwnProperty(idpId)) {
+      return this.loginSAML(popUp);
+    }
+
+  }
+
+  /**
+   * Logs in to SlashDB instance with JWT token. Only required when using SSO.
+   * @param {boolean} popUp - optional flag to sign in against the identity provider with a Pop Up window (false by default)
+   */
+
+  async loginJWT(popUp) {
 
     const ssoConfig = await this._getSsoConfig();
     const pkce = new PKCE(ssoConfig);
@@ -231,6 +258,47 @@ class SlashDBClient {
             resolve(resp);
           });
           
+      }, 250);
+    });
+  }
+
+  /**
+   * Logs in to SlashDB instance with SAML token. Only required when using SSO.
+   * @param {boolean} popUp - optional flag to sign in against the identity provider with a Pop Up window (false by default)
+   */
+
+  async loginSAML(popUp){
+
+    const sso = this.sso;
+    const ref = sso.redirectUri;
+    const idpId = sso.idpId;
+
+    let path = `/sso/saml/${idpId}?return_to=${ref}`;
+    let url = this.sdbConfig._buildEndpointString(path);
+
+    if (!popUp) {
+      window.location.replace(url);
+    }
+
+    const width = 500;
+    const height = 600;
+    
+    const popupWindow = popupCenter(loginUrl, "login", width, height);
+
+    return new Promise((resolve, reject) => {
+      const checkPopup = setInterval(() => {
+          let popUpHref = "";
+          try {
+            popUpHref = popupWindow.window.location.href;
+          } catch (e) {
+            console.warn(e);
+          }
+          if (popUpHref.startsWith(window.location.origin)) {
+              popupWindow.close();
+          }
+          if (!popupWindow || !popupWindow.closed) return;
+            clearInterval(checkPopup);
+            resolve(true);
       }, 250);
     });
   }
@@ -445,7 +513,7 @@ class SlashDBClient {
     let idpId = this.sso.idpId;
     let redirectUri = this.sso.redirectUri;
 
-    const jwtSettings = response.auth_settings.authentication_policies.jwt
+    const jwtSettings = response.auth_settings.authentication_policies.jwt;
 
     if (!jwtSettings.identity_providers.hasOwnProperty(this.sso.idpId)) {
       throw new Error(SDB_SDBC_IDENTITY_PROVIDER_NOT_AVAILABLE);
