@@ -79,7 +79,7 @@ class SlashDBClient {
       this.sso.popUp = popUp;
     }
 
-    this.ssoCredentials = null;
+    this.jwtCredentials = null;
 
     // create the special case BaseRequestHandler object for interacting with config endpoints
     this.sdbConfig = new BaseRequestHandler(this);
@@ -139,7 +139,7 @@ class SlashDBClient {
       }
     } else if (sso.idpId && sso.redirectUri) {
       await this.loginSSO(sso.popUp).then((resp) => {
-        this.ssoCredentials = resp;
+        this.jwtCredentials = resp;
       });
       let settings = (await this.sdbConfig.get(this.settingsEP)).data;
       this.username = settings.user;
@@ -181,7 +181,7 @@ class SlashDBClient {
 
       return new Promise((resolve, reject) => {
         pkce.exchangeForAccessToken(url).then((resp) => {
-          this.ssoCredentials = resp;
+          this.jwtCredentials = resp;
           resolve(true);
         });
       });
@@ -310,11 +310,11 @@ class SlashDBClient {
 
     const jwtConfig = await this._getJWTConfig();
     const pkce = new PKCE(jwtConfig);
-    const refreshToken = this.ssoCredentials.refresh_token;
+    const refreshToken = this.jwtCredentials.refresh_token;
 
     return new Promise((resolve, reject) => {
       pkce.refreshAccessToken(refreshToken).then((resp) => {
-        this.ssoCredentials = resp;
+        this.jwtCredentials = resp;
         resolve(true);
       });
     });
@@ -348,7 +348,7 @@ class SlashDBClient {
   async logout() {
     try {
       await this.sdbConfig.get(this.logoutEP);
-      this.ssoCredentials = null;
+      this.jwtCredentials = null;
       this._clearSession();
     }
     catch(e) {
