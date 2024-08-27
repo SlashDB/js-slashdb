@@ -2,7 +2,7 @@ import { DataDiscoveryDatabase } from './datadiscovery.js'
 import { SQLPassThruQuery } from './sqlpassthru.js'
 import { BaseRequestHandler } from './baserequesthandler.js';
 import { PKCE, generateCodeVerifier, generateCodeChallenge } from './pkce.js';
-import { getUrlParms, isSSOredirect, popupCenter } from "./utils.js";
+import { getUrlParms, isJWTredirect, popupCenter } from "./utils.js";
 
 const SDB_SDBC_INVALID_HOSTNAME = 'Invalid hostname parameter, must be string';
 const SDB_SDBC_INVALID_USERNAME = 'Invalid username parameter, must be string';
@@ -79,7 +79,7 @@ class SlashDBClient {
       this.sso.popUp = popUp;
     }
 
-    this.ssoCredentials = null;
+    this.jwtCredentials = null;
 
     // create the special case BaseRequestHandler object for interacting with config endpoints
     this.sdbConfig = new BaseRequestHandler(this);
@@ -139,7 +139,7 @@ class SlashDBClient {
       }
     } else if (sso.idpId && sso.redirectUri) {
       await this.loginSSO(sso.popUp).then((resp) => {
-        this.ssoCredentials = resp;
+        this.jwtCredentials = resp;
       });
       let settings = (await this.sdbConfig.get(this.settingsEP)).data;
       this.username = settings.user;
@@ -172,16 +172,16 @@ class SlashDBClient {
   async buildSSORedirect(){
     
     const urlParams = getUrlParms();
-    if (isSSOredirect(urlParams)){
-      const ssoConfig = await this._getSsoConfig();
+    if (isJWTredirect(urlParams)){
+      const jwtConfig = await this._getJWTConfig();
       const url = window.location.href;
-      const pkce = new PKCE(ssoConfig);
+      const pkce = new PKCE(jwtConfig);
       this.sso.idpId = sessionStorage.getItem('ssoApp.idp_id');
       pkce.codeVerifier = sessionStorage.getItem('ssoApp.code_verifier');
 
       return new Promise((resolve, reject) => {
         pkce.exchangeForAccessToken(url).then((resp) => {
-          this.ssoCredentials = resp;
+          this.jwtCredentials = resp;
           resolve(true);
         });
       });
@@ -194,16 +194,44 @@ class SlashDBClient {
    */
   async loginSSO(popUp) {
 
+    const settings = await this.getSettings();
+    const jwtSettings = settings.auth_settings.authentication_policies.jwt;
+    const samlSettings = settings.auth_settings.authentication_policies.saml;
+
+    const idpId = this.sso.idpId;
+
+    if (!jwtSettings.identity_providers.hasOwnProperty(idpId) && !samlSettings.identity_providers.hasOwnProperty(idpId)) {
+      throw new Error(SDB_SDBC_IDENTITY_PROVIDER_NOT_AVAILABLE);
+    }
+
     popUp = popUp ? popUp : this.sso.popUp;
 
-    const ssoConfig = await this._getSsoConfig();
-    const pkce = new PKCE(ssoConfig);
+    if (jwtSettings.identity_providers.hasOwnProperty(idpId)) {
+      return this.loginJWT(popUp);
+    }
+
+    if (samlSettings.identity_providers.hasOwnProperty(idpId)) {
+      return this.loginSAML(popUp);
+    }
+
+  }
+
+  /**
+   * Logs in to SlashDB instance with JWT token. Only required when using SSO.
+   * @param {boolean} popUp - optional flag to sign in against the identity provider with a Pop Up window (false by default)
+   */
+
+  async loginJWT(popUp) {
+
+    const jwtConfig = await this._getJWTConfig();
+    const pkce = new PKCE(jwtConfig);
     const additionalParams = await this._buildSession();
 
     let loginUrl = await pkce.authorizeUrl(additionalParams);
 
     if (!popUp) {
       window.location.replace(loginUrl);
+      return;
     }
 
     const width = 500;
@@ -213,7 +241,7 @@ class SlashDBClient {
 
     return new Promise((resolve, reject) => {
       const checkPopup = setInterval(() => {
-          const pkce = new PKCE(ssoConfig);
+          const pkce = new PKCE(jwtConfig);
           let popUpHref = "";
           try {
             popUpHref = popupWindow.window.location.href;
@@ -236,17 +264,59 @@ class SlashDBClient {
   }
 
   /**
+   * Logs in to SlashDB instance with SAML token. Only required when using SSO.
+   * @param {boolean} popUp - optional flag to sign in against the identity provider with a Pop Up window (false by default)
+   */
+
+  async loginSAML(popUp){
+
+    const sso = this.sso;
+    const ref = sso.redirectUri;
+    const idpId = sso.idpId;
+
+    let path = `/sso/saml/${idpId}?return_to=${ref}`;
+    let loginUrl = this.sdbConfig._buildEndpointString(path);
+
+    if (!popUp) {
+      window.location.replace(loginUrl);
+      return;
+    }
+
+    const width = 500;
+    const height = 600;
+    
+    const popupWindow = popupCenter(loginUrl, "login", width, height);
+
+    return new Promise((resolve, reject) => {
+      const checkPopup = setInterval(() => {
+          let popUpHref = "";
+          try {
+            popUpHref = popupWindow.window.location.href;
+          } catch (e) {
+            console.warn(e);
+          }
+          if (popUpHref.startsWith(window.location.origin)) {
+              popupWindow.close();
+          }
+          if (!popupWindow || !popupWindow.closed) return;
+            clearInterval(checkPopup);
+            resolve(true);
+      }, 250);
+    });
+  }
+
+  /**
    * Refreshes the SSO access token.
    */
   async refreshSSOToken(){
 
-    const ssoConfig = await this._getSsoConfig();
-    const pkce = new PKCE(ssoConfig);
-    const refreshToken = this.ssoCredentials.refresh_token;
+    const jwtConfig = await this._getJWTConfig();
+    const pkce = new PKCE(jwtConfig);
+    const refreshToken = this.jwtCredentials.refresh_token;
 
     return new Promise((resolve, reject) => {
       pkce.refreshAccessToken(refreshToken).then((resp) => {
-        this.ssoCredentials = resp;
+        this.jwtCredentials = resp;
         resolve(true);
       });
     });
@@ -258,7 +328,10 @@ class SlashDBClient {
    * @returns {boolean} boolean - to indicate if currently authenticated
    */  
   async isAuthenticated() {
-    const url = `${this.userEP}/${this.username}.json`;
+
+    const settings = await this.getSettings();
+    const username = settings.user;
+    const url = `${this.userEP}/${username}.json`;
     
     try {
       let response = (await this.sdbConfig.get(url)).res
@@ -280,7 +353,7 @@ class SlashDBClient {
   async logout() {
     try {
       await this.sdbConfig.get(this.logoutEP);
-      this.ssoCredentials = null;
+      this.jwtCredentials = null;
       this._clearSession();
     }
     catch(e) {
@@ -440,12 +513,12 @@ class SlashDBClient {
     return queries;
   }
 
-  async _getSsoConfig() {
+  async _getJWTConfig() {
     let response = (await this.sdbConfig.get(this.settingsEP)).data;
     let idpId = this.sso.idpId;
     let redirectUri = this.sso.redirectUri;
 
-    const jwtSettings = response.auth_settings.authentication_policies.jwt
+    const jwtSettings = response.auth_settings.authentication_policies.jwt;
 
     if (!jwtSettings.identity_providers.hasOwnProperty(this.sso.idpId)) {
       throw new Error(SDB_SDBC_IDENTITY_PROVIDER_NOT_AVAILABLE);
@@ -462,7 +535,7 @@ class SlashDBClient {
       redirectUri = idpSettings.redirect_uri;
     }
 
-    const ssoConfig = {
+    const jwtConfig = {
       idp_id: idpId,
       client_id: clientId,
       redirect_uri: redirectUri,
@@ -471,7 +544,7 @@ class SlashDBClient {
       requested_scopes: requestedScopes,
     }
 
-    return ssoConfig;
+    return jwtConfig;
   }
 
   async _buildSession() {

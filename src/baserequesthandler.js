@@ -134,8 +134,8 @@ class BaseRequestHandler {
                 'Content-Type': this.contentTypeHeader,
                 ...this.extraHeaders
             };
-        } else if (this.sdbClient.ssoCredentials) {
-            const token = btoa(this.sdbClient.ssoCredentials.id_token)
+        } else if (this.sdbClient.jwtCredentials) {
+            const token = btoa(this.sdbClient.jwtCredentials.id_token)
             headers = { 
                 Authorization: "Bearer " + token,
                 "X-Identity-Provider-Id": this.sdbClient.sso.idpId, 

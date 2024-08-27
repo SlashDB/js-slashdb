@@ -42,15 +42,15 @@ function isObjectEmpty(objectName) {
   return Object.keys(objectName).length === 0
 }
 
-function isSSOredirect(ssoParams) {
+function isJWTredirect(jwtParams) {
 
-  if (isObjectEmpty(ssoParams)){
+  if (isObjectEmpty(jwtParams)){
     return false;
   }
 
-  const state = ssoParams.state;
-  const sessionState = ssoParams.session_state;
-  const code = ssoParams.code;
+  const state = jwtParams.state;
+  const sessionState = jwtParams.session_state;
+  const code = jwtParams.code;
 
   if (!state || typeof(state) !== 'string') {
     return false
@@ -68,4 +68,4 @@ function isSSOredirect(ssoParams) {
 
 }
 
-export { getUrlParms, popupCenter, isSSOredirect }
+export { getUrlParms, popupCenter, isJWTredirect }

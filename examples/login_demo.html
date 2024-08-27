@@ -242,11 +242,11 @@
             <div class="config"> 
                 <div class="txtField">
                     <label>Host</label>
-                    <input name="host" type="text" value="http://host.docker.internal:8000">
+                    <input name="host" type="text" value="http://localhost:6543">
                 </div>
                 <div class="txtField">
                     <label>Redirect URI</label>
-                    <input name="redirect" type="text" value="http://localhost:8081/examples/success.html">
+                    <input name="redirect" type="text" value="http://localhost:8081/examples/popup_success.html">
                 </div>
                 <div class="txtField">
                     <label>Identity Provider</label>
@@ -296,7 +296,7 @@
         const sdbClient = new SlashDBClient(sdbConfig);
         let status = await sdbClient.login();
         </pre>
-        <textarea id="loginTxt" class="outTxt" spellcheck="false">Click Run Demo button...</textarea>
+        <textarea id="loginTxt" style="height: 6rem" class="outTxt" spellcheck="false">Click Run Demo button...</textarea>
     </div>
 
     <div id="apiDesc" class="codeBlock">
