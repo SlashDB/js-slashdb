@@ -1,13 +1,145 @@
 <html>
 <head>
     <title>SlashDB JavaScript SDK Demo</title>
+    <style>
+        .codeBlock { 
+            margin: 25px 15px; 
+            padding: 10px; 
+            font-family: sans-serif; 
+            background: #EEE; 
+            box-shadow: 0 0 10px #000;
+            border-radius: 10px;
+        }
 
+        #splitConfig {
+            display: flex;
+        }
+
+
+        .outTxt { width: 100%; padding: 10px;}
+
+        .config {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: end;
+
+        }
+
+        .txtField {
+            padding: 5px 10px;
+        }
+        .config .txtField input { 
+            border-radius: 5px;
+            margin: 2px;
+            padding: 5px;
+        }
+
+        .config .txtField select { 
+            border-radius: 5px;
+            margin: 2px;
+            padding: 5px;
+        }
+
+        .config .txtField label {
+            display: block;
+            font-size: 0.8rem;
+            padding-left: 5px;
+        }
+
+        .config .tbl input { 
+            display: inline;
+        }
+        .config .tbl select { 
+            display: inline;
+        }
+        .config .tbl label { 
+            display: block;
+            margin-right: 5px;
+        }
+
+        .config .buttons {
+            background: #FFF;
+            margin: 6px;
+            height: 30px;
+            border-radius: 5px;
+        }
+
+        .config .buttons:hover {
+            background: #0AF;
+            color: #FFF;
+        }
+
+
+    </style>
+    <script type="module">
+        import { SlashDBClient } from '../src/index.js';
+
+        var host;
+        var redirectUri;
+        var idpId;
+
+        host = "http://localhost:6543";
+        idpId = "keycloak";
+        redirectUri = "http://localhost:8081/examples/success.html";
+
+        const sdbConfig = {
+            host: host,
+            sso: {
+                idpId: idpId,
+                redirectUri: redirectUri,
+                popUp: false
+            }
+        }
+
+        let outTxt = '';
+
+        try {
+            const sdbClient = new SlashDBClient(sdbConfig);
+            outTxt += `* const sdbClient = new SlashDBClient() - creating client\n`;
+            document.querySelector('#loginTxt').innerHTML = outTxt;
+            
+            outTxt += `* sdbClient.buildSSORedirect() - SSO parameters status: `;
+            const success = await sdbClient.buildSSORedirect();
+            outTxt += `${success}\n`;
+            document.querySelector('#loginTxt').innerHTML = outTxt;
+        
+            outTxt += `* sdbClient.isAuthenticated() - Logged in status: `;
+            let status = await sdbClient.isAuthenticated();
+            outTxt += `${status}\n`;
+            document.querySelector('#loginTxt').innerHTML = outTxt;
+
+        }
+        catch(e) {
+            document.querySelector('#loginTxt').style.color = '#F00';
+            outTxt += `\n^^^^ Error ${e.message} - see console for details`;
+            document.querySelector('#loginTxt').innerHTML = outTxt;
+        }
+    </script>
 </head>
 <body>
 
     <div>
         <p>Login was successful, you can close this window...</p>
-    </div>    
+    </div>
+
+    <div id="clientDesc" class="codeBlock">
+        SlashDB Single Sign-On redirect page <br>
+        <em style="font-size: 0.85rem">Requires a proper build of redirect parameters</em>
+        <pre>        const sdbConfig = {
+            host: 'http://localhost:6543',
+            sso: {
+                idpId: 'keycloak',
+                redirectUri: 'http://localhost:8081/examples/success.html',
+                popUp: true
+            }
+        }
+        const sdbClient = new SlashDBClient(sdbConfig);
+        const success = await sdbClient.buildSSORedirect();
+        const isAuthenticated = await sdbClient.isAuthenticated();
+        </pre>
+        <textarea id="loginTxt" style="height: 6rem" class="outTxt" spellcheck="false">Click Run Demo button...</textarea>
+    </div>
     
 </body>
 

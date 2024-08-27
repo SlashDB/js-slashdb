@@ -2,7 +2,7 @@ import { DataDiscoveryDatabase } from './datadiscovery.js'
 import { SQLPassThruQuery } from './sqlpassthru.js'
 import { BaseRequestHandler } from './baserequesthandler.js';
 import { PKCE, generateCodeVerifier, generateCodeChallenge } from './pkce.js';
-import { getUrlParms, isSSOredirect, popupCenter } from "./utils.js";
+import { getUrlParms, isJWTredirect, popupCenter } from "./utils.js";
 
 const SDB_SDBC_INVALID_HOSTNAME = 'Invalid hostname parameter, must be string';
 const SDB_SDBC_INVALID_USERNAME = 'Invalid username parameter, must be string';
@@ -172,7 +172,7 @@ class SlashDBClient {
   async buildSSORedirect(){
     
     const urlParams = getUrlParms();
-    if (isSSOredirect(urlParams)){
+    if (isJWTredirect(urlParams)){
       const jwtConfig = await this._getJWTConfig();
       const url = window.location.href;
       const pkce = new PKCE(jwtConfig);
@@ -231,6 +231,7 @@ class SlashDBClient {
 
     if (!popUp) {
       window.location.replace(loginUrl);
+      return;
     }
 
     const width = 500;
@@ -278,6 +279,7 @@ class SlashDBClient {
 
     if (!popUp) {
       window.location.replace(loginUrl);
+      return;
     }
 
     const width = 500;
@@ -326,7 +328,10 @@ class SlashDBClient {
    * @returns {boolean} boolean - to indicate if currently authenticated
    */  
   async isAuthenticated() {
-    const url = `${this.userEP}/${this.username}.json`;
+
+    const settings = await this.getSettings();
+    const username = settings.user;
+    const url = `${this.userEP}/${username}.json`;
     
     try {
       let response = (await this.sdbConfig.get(url)).res
