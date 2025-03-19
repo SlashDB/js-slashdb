@@ -199,6 +199,7 @@ class SlashDBClient {
 
     if (!popUp) {
       window.location.replace(loginUrl);
+      return;
     }
 
     const width = 500;
