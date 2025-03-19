@@ -166,26 +166,21 @@ class SlashDBClient {
     this.sso.popUp = sso.popUp ? sso.popUp : this.sso.popUp;
   }
 
-  /** 
-   * Builds a SSO session from a redirect url, if popUp is not used, this method must be used in the redirect page handler .
+  /**
+   * Acknowledge SSO login after redirect to obtain access token.
    */
-  async buildSSORedirect(){
-    
-    const urlParams = getUrlParms();
-    if (isSSOredirect(urlParams)){
-      const ssoConfig = await this._getSsoConfig();
-      const url = window.location.href;
-      const pkce = new PKCE(ssoConfig);
-      this.sso.idpId = sessionStorage.getItem('ssoApp.idp_id');
-      pkce.codeVerifier = sessionStorage.getItem('ssoApp.code_verifier');
+  async acknowledgeSSO(){
+    const ssoConfig = await this._getSsoConfig();
+    const pkce = new PKCE(ssoConfig);
+    pkce.codeVerifier = sessionStorage.getItem('ssoApp.code_verifier');
+    const href = window.location.href;
 
-      return new Promise((resolve, reject) => {
-        pkce.exchangeForAccessToken(url).then((resp) => {
-          this.ssoCredentials = resp;
-          resolve(true);
-        });
+    return new Promise((resolve, reject) => {
+      pkce.exchangeForAccessToken(href).then((resp) => {
+        this.ssoCredentials = resp;
+        resolve(true);
       });
-    }
+    })
   }
 
   /**
