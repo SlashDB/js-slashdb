@@ -103,18 +103,25 @@ class PKCE {
    * @return Promise<string>
    */
   async authorizeUrl(additionalParams = {}) {
-    const codeChallenge = await this.pkceChallengeFromVerifier()
+    const qs = {
+      client_id: this.config.client_id,
+      redirect_uri: this.config.redirect_uri,
+      response_type: this.config.response_type,
+      response_mode: 'fragment',
+      state: this.getState(additionalParams.state || null),
+      nonce: additionalParams.nonce,
+      scope: this.config.requested_scopes,
+    }
+
+    if (qs.response_type == "code") {
+      const codeChallenge = await this.pkceChallengeFromVerifier();
+      qs.code_challenge = codeChallenge;
+      qs.code_challenge_method =  "S256";
+    }
+
     const queryString = new URLSearchParams(
       Object.assign(
-        {
-          response_type: "code",
-          client_id: this.config.client_id,
-          state: this.getState(additionalParams.state || null),
-          scope: this.config.requested_scopes,
-          redirect_uri: this.config.redirect_uri,
-          code_challenge: codeChallenge,
-          code_challenge_method: "S256"
-        },
+        qs,
         additionalParams
       )
     ).toString()
@@ -149,12 +156,12 @@ class PKCE {
           "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
         },
         ...this.corsRequestOptions
-      }).then((response) => {
+      }).then(async (response) => {
         if (response.ok) {
           return response.json();
         }
-        console.log(response.json());
-        throw new Error('Something went wrong during access token exchange');
+        const message = await response.json();
+        throw new Error(`${message.error} ${message.error_description}`);
       })
     })
   }

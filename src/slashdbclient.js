@@ -179,6 +179,8 @@ class SlashDBClient {
       pkce.exchangeForAccessToken(href).then((resp) => {
         this.ssoCredentials = resp;
         resolve(true);
+      }).catch((error) => {
+        reject(error);
       });
     })
   }
