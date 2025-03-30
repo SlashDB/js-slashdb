@@ -117,6 +117,9 @@ class PKCE {
       const codeChallenge = await this.pkceChallengeFromVerifier();
       qs.code_challenge = codeChallenge;
       qs.code_challenge_method =  "S256";
+    } else {
+      delete additionalParams.code_challenge;
+      delete additionalParams.code_challenge_method;
     }
 
     const queryString = new URLSearchParams(
@@ -137,6 +140,12 @@ class PKCE {
    */
   exchangeForAccessToken(url, additionalParams = {}) {
     return this.parseAuthResponseUrl(url).then(q => {
+      if (q.id_token !== null) {
+        return new Promise(function(resolve, reject) {
+          resolve({id_token: q.id_token});
+        });
+      }
+
       return fetch(this.config.token_endpoint, {
         method: "POST",
         body: new URLSearchParams(
@@ -150,7 +159,7 @@ class PKCE {
             },
             additionalParams
           )
-        ),
+        ).toString(),
         headers: {
           Accept: "application/json",
           "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
@@ -241,7 +250,8 @@ class PKCE {
       error: params.get("error"),
       query: params.get("query"),
       state: params.get("state"),
-      code: params.get("code")
+      code: params.get("code"),
+      id_token: params.get("id_token"),
     })
   }
   
