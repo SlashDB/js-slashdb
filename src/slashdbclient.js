@@ -455,6 +455,7 @@ class SlashDBClient {
     const authorizationEndpoint = idpSettings.authorization_endpoint;
     const tokenEndpoint = idpSettings.token_endpoint;
     const requestedScopes = idpSettings.scope;
+    const response_type = idpSettings.response_type;
 
     if (!redirectUri || typeof(redirectUri) !== 'string') {
       redirectUri = idpSettings.redirect_uri;
@@ -467,6 +468,7 @@ class SlashDBClient {
       authorization_endpoint: authorizationEndpoint,
       token_endpoint: tokenEndpoint,
       requested_scopes: requestedScopes,
+      response_type: response_type
     }
 
     return ssoConfig;
