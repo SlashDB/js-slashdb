@@ -486,8 +486,6 @@ class SlashDBClient {
         code_challenge: codeChallenge,
         code_challenge_method: codeChallengeMethod,
         nonce: nonce,
-        response_mode: 'fragment',
-        response_type: 'code',
         state: state
     };
 
